@@ -6,8 +6,15 @@ library(plyr)
 library(dplyr)
 library(reshape2)
 
-setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse")
-imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+#### Set standard paths => Veranderen indien andere pc/laptop
+
+##WERK##
+#setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
+#imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+
+##THUIS##
+imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") #Thuis
 
 ####Import data####
 title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
@@ -15,7 +22,7 @@ Token <- gs_auth()
 gs_auth(token = Token)
 gdrive <- gs_read(title)
 gdrive2 <- gs_read(title, range = cell_cols(12:13))
-offline <- read.csv2("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep=",")
+offline <- read.csv2("file://Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep=",")
 
 temp <- get0("gdrive", ifnotfound=offline)
 
