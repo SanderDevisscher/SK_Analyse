@@ -612,13 +612,14 @@ for (a in Jaren){
 
 Recorder_Ruw <- temp
 
-Locations_Recorder <- unique(Recorder_Ruw$Location)
+
 
 temp2 <- data.frame()
 o <- 0
 
 #Afvangsten
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
+Locations_Recorder <- unique(Recorder_Ruw$Location)
 for(x in Locations_Recorder){
   temp3 <- subset(temp3A, Location == x)
   temp3$Sample_Type <- "Schietfuik"
@@ -692,8 +693,26 @@ Recorder_Afvangst$GridReference <- ifelse(Recorder_Afvangst$Location == "Arendon
                                                                                                                                      ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 1","176309.0,239860.0",
                                                                                                                                             ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 2","176317.0,239845.0", NA))))))))))))))))
 
+Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
 
 remove(temp6)
+temp2 <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
+Locations_Recorder <- unique(Recorder_Ruw$Location)
+for(x in Locations_Recorder){
+  temp3 <- subset(temp2, Location == x)
+  Datums_Recorder <- unique(temp2$Datum)
+  for(y in Datums_Recorder){
+    temp4 <- subset(temp3, Datum == y)
+    temp5 <- temp4
+    iter <- sum(temp5$`Aantal fuiken (Totaal)`)
+    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
+    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
+    iter <- ifelse(iter == 0, 1, iter)
+    print(iter)
+    for(p in 1:iter){}
+  }
+}
+  
 
 
 #Vergelijken met vorig bestand
