@@ -669,6 +669,10 @@ remove(temp3)
 remove(temp4)
 
 Recorder_Afvangst <- data.frame()
+Recorder_Afvangst <- temp6
+
+remove(temp6)
+
 
 
 #Vergelijken met vorig bestand
