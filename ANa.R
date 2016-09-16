@@ -696,11 +696,12 @@ Recorder_Afvangst$GridReference <- ifelse(Recorder_Afvangst$Location == "Arendon
 Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
 
 remove(temp6)
+temp7 <- data_frame()
 temp2 <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Ruw$Location)
 for(x in Locations_Recorder){
   temp3 <- subset(temp2, Location == x)
-  Datums_Recorder <- unique(temp2$Datum)
+  Datums_Recorder <- unique(temp3$Datum)
   for(y in Datums_Recorder){
     temp4 <- subset(temp3, Datum == y)
     temp5 <- temp4
@@ -709,7 +710,22 @@ for(x in Locations_Recorder){
     iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
     iter <- ifelse(iter == 0, 1, iter)
     print(iter)
-    for(p in 1:iter){}
+    for(p in 1:iter){
+      o <- o + 1
+      FNR <- paste("Fuik", o, "- Bijvangst ", sep= " ")
+      Recorder_Bijvangst <- c("[3 - doornige stekelbaars]", "[Amerikaanse gevlekte rivierkreeft]"
+                              , "[Baars]", "[Blankvoorn]", "[Blauwbandgrondel]","[Brasem]"
+                              , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
+                              , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]")
+      for(q in Recorder_Bijvangst){
+        
+        FNR3 <- paste(FNR, q, sep="")
+        temp6 <- subset(temp5, !is.na(FNR3))
+        temp6$soort <- q
+        temp7 <- rbind(temp7, temp6)
+      }
+    }
+  o <- 0
   }
 }
   
