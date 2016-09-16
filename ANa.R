@@ -718,7 +718,6 @@ for(x in Locations_Recorder){
                               , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
                               , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]")
       for(q in Recorder_Bijvangst){
-        
         FNR3 <- paste(FNR, q, sep="")
         temp6 <- subset(temp5, !is.na(FNR3))
         temp6$soort <- q
