@@ -14,7 +14,7 @@ library(reshape2)
 
 ##THUIS##
 imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") #Thuis
+setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
 
 ####Import data####
 title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
@@ -670,54 +670,6 @@ remove(temp4)
 
 Recorder_Afvangst <- data.frame()
 
-tempL00 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L00")]
-tempL00$Number <- tempL00$L00
-tempL00$L00 <- NULL
-tempL00$Measurement <- "Abundance of L00"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempL00)
-
-tempL0 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L0")]
-tempL0$Number <- tempL0$L0
-tempL0$L0 <- NULL
-tempL0$Measurement <- "Abundance of L0"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempL0)
-
-tempL1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L1")]
-tempL1$Number <- tempL1$L1
-tempL1$L1 <- NULL
-tempL1$Measurement <- "Abundance of L1"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempL1)
-
-tempL2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L2")]
-tempL2$Number <- tempL2$L2
-tempL2$L2 <- NULL
-tempL2$Measurement <- "Abundance of L2"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempL2)
-
-tempM1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M1")]
-tempM1$Number <- tempM1$M1
-tempM1$M1 <- NULL
-tempM1$Measurement <- "Abundance of M1"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempM1)
-
-tempM2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M2")]
-tempM2$Number <- tempM2$M2
-tempM2$M2 <- NULL
-tempM2$Measurement <- "Abundance of M2"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempM2)
-
-tempAM <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AM")]
-tempAM$Number <- tempAM$AM
-tempAM$AM <- NULL
-tempAM$Measurement <- "Abundance of AM"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempAM)
-
-tempAV <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AV")]
-tempAV$Number <- tempAV$AV
-tempAV$AV <- NULL
-tempAV$Measurement <- "Abundance of AV"
-Recorder_Afvangst <- rbind(Recorder_Afvangst, tempAV)
-Recorder_Afvangst$Number <- as.numeric(Recorder_Afvangst$Number)
 
 #Vergelijken met vorig bestand
 Recorder_Afvangst_Vorig <- read.csv2("file://Ruwe Data/Recorder_Afvangst_2016-08-29.csv")
