@@ -670,9 +670,30 @@ remove(temp4)
 
 Recorder_Afvangst <- data.frame()
 Recorder_Afvangst <- temp6
+Recorder_Afvangst$Species <- "Lithobates catesbeianus"
+
+Locaties <- gs_title(x="Locaties", verbose = TRUE)
+
+Recorder_Afvangst$GridReference <- 0
+Recorder_Afvangst$GridReference <- ifelse(Recorder_Afvangst$Location == "Arendonk 1","201082.5,224313.66", 
+                                          ifelse(Recorder_Afvangst$Location == "Arendonk 2","201489.71,224315.83", 
+                                                 ifelse(Recorder_Afvangst$Location == "Arendonk 3","201339.35,224410.85",
+                                                        ifelse(Recorder_Afvangst$Location == "Arendonk 4","201683.92,224224.99",
+                                                               ifelse(Recorder_Afvangst$Location == "Kasterlee 1","195121.42,217758.1", 
+                                                                      ifelse(Recorder_Afvangst$Location == "Kasterlee 2","195121.1,217798.8",
+                                                                             ifelse(Recorder_Afvangst$Location == "Kasterlee 3","195091.42,217832.27",
+                                                                                    ifelse(Recorder_Afvangst$Location == "Kasterlee 7","195148.88,217918.1",
+                                                                                           ifelse(Recorder_Afvangst$Location == "Kasterlee 9","195027.88,218030.71",
+                                                                                                  ifelse(Recorder_Afvangst$Location == "Kasterlee 12","195234.08,217800.99",
+                                                                                                         ifelse(Recorder_Afvangst$Location == "Kasterlee 13","195149.44,217688.61",
+                                                                                                                ifelse(Recorder_Afvangst$Location == "Kasterlee 14","195176.53,218211.39",
+                                                                                                                       ifelse(Recorder_Afvangst$Location == "Driehoek","176589.0,240619.0",
+                                                                                                                              ifelse(Recorder_Afvangst$Location == "Bospoel","176487.0,240159.0",
+                                                                                                                                     ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 1","176309.0,239860.0",
+                                                                                                                                            ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 2","176317.0,239845.0", NA))))))))))))))))
+
 
 remove(temp6)
-
 
 
 #Vergelijken met vorig bestand
