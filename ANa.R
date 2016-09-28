@@ -74,6 +74,14 @@ temp$`Aantal werknemers` <- NULL
 
 #Enkel Afvangsten voor grafiekjes
 Afvangsten <- subset(temp, Sample_Type == "Afvangst")
+Afvangsten$L00 <- NA
+Afvangsten$L0 <- NA
+Afvangsten$L1 <- NA
+Afvangsten$L2 <- NA
+Afvangsten$M1 <- NA
+Afvangsten$M2 <- NA
+Afvangsten$AM <- NA
+Afvangsten$AV <- NA
 
 
 Afvangsten$L00[!is.na(Afvangsten$`Fuik 1 - L00`)
@@ -536,13 +544,14 @@ for(i in Locations){
 GSL <- data.frame(X = Locations)
 remove(temp6)
 temp6 <- data.frame()
-
+Locations <- sort(Locations)
 for (a in Jaren){
   temp8 <- subset(GRA_Brondata, Jaar == a)
   for(i in Locations){
-    
     temp2 <- subset(temp8, Location == i )
     number <- count(temp2)
+    print(i)
+    print(number)
     temp7 <- head(temp2, n=1)
     temp4 <- tail(temp2, n=3)
     temp5 <- data.frame(x=1)
@@ -555,19 +564,19 @@ for (a in Jaren){
       print(temp4)
       break}
     temp6 <- rbind(temp6, temp5)
-    
+   
     
   }
   
   temp6$x <- NULL
   GSL <- temp6
-  remove(temp2)
-  remove(temp4)
-  remove(temp5)
-  remove(temp6)
-  remove(temp7)
-  remove(temp8)
-  remove(number)
+#  remove(temp2)
+#  remove(temp4)
+#  remove(temp5)
+#  remove(temp6)
+#  remove(temp7)
+#  remove(temp8)
+#  remove(number)
   
   GSL$StartGSL <- GSL$StartCPUE*26
   GSL$MinVangst_Start <- ifelse(GSL$StartGSL<500, 4, 
@@ -594,7 +603,7 @@ for (a in Jaren){
   GSL$MinDoelBereikt <- ifelse(GSL$HuidigGSL < 100, "Ja", "Nee")
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
-  GSL$Location <- sort(GSL$Location)
+  #GSL$Location <- sort(GSL$Location)
   
   GSL <- GSL[,c(1,2,5,6,7,3,8,9,4,10,13,14,11,12)]
   
