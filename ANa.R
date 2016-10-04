@@ -9,12 +9,12 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop
 
 ##WERK##
-#setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
-#imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
+imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
 
 ##THUIS##
-imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
+#imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+#setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
 
 ####Import data####
 title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
@@ -614,7 +614,8 @@ for (a in Jaren){
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #test <- gs_new(title = "Geschat startaantal larven", ws_title = "GSL", input = GSL, trim = TRUE)
-  write.csv(GSL, GSLfNaama)
+  file.create(file=GSLfNaama, overwrite=T)
+ # write.csv(GSL, GSLfNaama)
 }
 
 ####Klaarzetten voor recorder####
@@ -623,12 +624,16 @@ Recorder_Ruw <- temp
 
 
 
+
+
+####Afvangsten Klaarzetten ####
 temp2 <- data.frame()
 o <- 0
-
-#Afvangsten
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
 Locations_Recorder <- unique(Recorder_Ruw$Location)
+
+#Resultaten Doelsoort toevoegen
+
 for(x in Locations_Recorder){
   temp3 <- subset(temp3A, Location == x)
   temp3$Sample_Type <- "Schietfuik"
@@ -670,13 +675,19 @@ for(x in Locations_Recorder){
   }
 }
 
+#Nuttige kolommen selecteren
+
 temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV")]
+
+#Tussentijdse opruim
 
 temp6 <- temp2
 remove(temp2)
 remove(temp5)
 remove(temp3)
 remove(temp4)
+
+#Soort, Grid reference en accuracy toevoegen
 
 Recorder_Afvangst <- data.frame()
 Recorder_Afvangst <- temp6
@@ -703,8 +714,10 @@ Recorder_Afvangst$GridReference <- ifelse(Recorder_Afvangst$Location == "Arendon
                                                                                                                                             ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 2","176317.0,239845.0", NA))))))))))))))))
 
 Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
-
 remove(temp6)
+
+#Bijvangsten toevoegen
+
 temp7 <- data_frame()
 temp2 <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Ruw$Location)
@@ -722,6 +735,7 @@ for(x in Locations_Recorder){
     for(p in 1:iter){
       o <- o + 1
       FNR <- paste("Fuik", o, "- Bijvangst ", sep= " ")
+      FNR2 <- paste("Fuik", o, sep= " ")
       Recorder_Bijvangst <- c("[3 - doornige stekelbaars]", "[Amerikaanse gevlekte rivierkreeft]"
                               , "[Baars]", "[Blankvoorn]", "[Blauwbandgrondel]","[Brasem]"
                               , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
@@ -730,6 +744,8 @@ for(x in Locations_Recorder){
         FNR3 <- paste(FNR, q, sep="")
         temp6 <- subset(temp5, !is.na(FNR3))
         temp6$soort <- q
+        temp6$Locationname <- FNR2
+        Formaat <- unique(FNR3)
         temp7 <- rbind(temp7, temp6)
       }
     }
@@ -737,27 +753,13 @@ for(x in Locations_Recorder){
   }
 }
   
+temp7 <- temp7[, c("Location", "Datum", "Sample_Type", "Locationname", "soort")]
 
 
 #Vergelijken met vorig bestand
-Recorder_Afvangst_Vorig <- read.csv2("file://Ruwe Data/Recorder_Afvangst_2016-08-29.csv")
-Recorder_Afvangst_Vorig$X <- NULL
-RAVnrow <- nrow(Recorder_Afvangst_Vorig)
-RAnrow <- nrow(Recorder_Afvangst)
-if(RAVnrow != RAnrow){
-  Recorder_Afvangst_Nieuw <- merge(Recorder_Afvangst_Vorig, Recorder_Afvangst, all.x=F)
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_Afvangst", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_Afvangst_Nieuw, file = RAFN)    
-}
 
-if(!file.exists("file://Ruwe Data/Recorder_Afvangst_2016-08-29.csv")){
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_Afvangst", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_Afvangst, file = RAFN) 
-}
+Recorder_Afvangst_Vorig <- read.csv2("file://Ruwe Data/Recorder_Afvangst_2016-08-29.csv")
+
 #Opruimen
 remove(tempL00) 
 remove(tempL0)
@@ -768,7 +770,7 @@ remove(tempM2)
 remove(tempAM)
 remove(tempAV)
 
-#Afvangsten SFB
+####Afvangsten SFB klaarzetten####
 unique(Recorder_Ruw$Sample_Type)
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst SFB")
 Locations_Recorder2 <- unique(temp3A$Location)
