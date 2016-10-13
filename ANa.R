@@ -539,12 +539,14 @@ for(i in Locations){
 
 
 
-
 #### Bereken GSL ####
 GSL <- data.frame(X = Locations)
+Jaren <- unique(GRA_Brondata$Jaar)
+Locations <- unique(GRA_Brondata$Location)
 remove(temp6)
 temp6 <- data.frame()
 Locations <- sort(Locations)
+
 for (a in Jaren){
   temp <- subset(GRA_Brondata, Jaar == a) #=> Opgedeeld per jaar
   for(i in Locations){
@@ -580,18 +582,8 @@ for (a in Jaren){
     temp6 <- rbind(temp6, temp5)
   }
 
-
-  
   temp6$x <- NULL
   GSL <- temp6
-  
-#  remove(temp2)
-#  remove(temp4)
-#  remove(temp5)
-#  remove(temp6)
-#  remove(temp7)
-#  remove(temp8)
-#  remove(number)
   
   GSL$StartGSL <- GSL$StartCPUE*26
   GSL$MinVangst_Start <- ifelse(GSL$StartGSL<500, 4, 
@@ -633,15 +625,27 @@ for (a in Jaren){
   write.csv(GSL, GSLfNaama)
 }
 
+#Opkuis
+  remove(temp)
+  remove(temp2)
+  remove(temp3)
+  remove(temp4)
+  remove(temp5)
+  remove(temp6)
+  remove(temp7)
+  remove(number)
+  remove(Jaren)
+  remove(Locations)
+  remove(a)
+  remove(i)
+  remove(GSLfNaam)
+  remove(GSLfNaama)
+
 ####Klaarzetten voor recorder####
 
 Recorder_Ruw <- temp
 
-
-
-
-
-####Afvangsten Klaarzetten ####
+#Afvangsten Klaarzetten #
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
