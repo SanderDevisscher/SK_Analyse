@@ -482,7 +482,7 @@ print(Afvangsten$Totaal_Larven.All)
 print(Afvangsten$Totaal_Larven.CPUE)
 print(Afvangsten$CPUE)
 
-
+#### Grafieken ####
 #Selecteer brondata voor grafieken
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
 
@@ -535,12 +535,12 @@ for(i in Locations){
   ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
 }
 
-# tabel duur
+#### tabel duur ####
 
 
 
 
-# Bereken GSL
+#### Bereken GSL ####
 GSL <- data.frame(X = Locations)
 remove(temp6)
 temp6 <- data.frame()
@@ -553,6 +553,7 @@ for (a in Jaren){
     print(i)
     print(number)
     temp3 <- head(temp2, n=1)             #=> Eerste record
+    temp7 <- tail(temp2, n=1)
     temp5 <- data.frame(x=1)
     if(number>=3){
       temp4 <- tail(temp2, n=3)
@@ -561,6 +562,14 @@ for (a in Jaren){
       temp4 <- temp2
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
+    temp5$LastCapture <- temp7$Totaal
+    temp5$L00 <- ifelse(temp7$L00>0, temp7$L00, "nee")
+    temp5$PostMetamorf <- ifelse(temp7$M1>0, "ja", ifelse(temp7$M2>0, "ja", ifelse(temp7$AM>0, "ja", ifelse(temp7$AV>0, "ja", "nee"))))
+    temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
+    temp7$M2 <- ifelse(is.na(temp7$M2), 0, temp7$M2)
+    temp7$AM <- ifelse(is.na(temp7$AM), 0, temp7$AM)
+    temp7$AV <- ifelse(is.na(temp7$AV), 0, temp7$AV)
+    temp5$PostMetamorf2 <- temp7$M1 + temp7$M2 + temp7$AM + temp7$AV
     temp5$Location <- i
     temp5$StartCPUE <- temp3$CPUE
     temp5$Uitgevoerd <- number$n
@@ -609,16 +618,16 @@ for (a in Jaren){
   GSL$MinDoelBereikt <- ifelse(GSL$HuidigGSL < 100, "Ja", "Nee")
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
-  #GSL$Location <- sort(GSL$Location)
+  #Juiste kolommen kiezen
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Resterend_Min", "Resterend_Max", "LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Resterend_Min", "Resterend_Max", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   
-  #GSLfNaama <- paste("Geschat startaantal larven",a, sep="_")
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
   GSLfNaama <- paste("file://Afbeeldingen/", GSLfNaam, sep="" )
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
+  #Uitvoeren
   #test <- gs_new(title = "Geschat startaantal larven", ws_title = "GSL", input = GSL, trim = TRUE)
   #file.create(file=GSLfNaama, overwrite=T)
   write.csv(GSL, GSLfNaama)
