@@ -9,12 +9,12 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop
 
 ##WERK##
-setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
-imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+#setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
+#imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
 
 ##THUIS##
-#imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-#setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
+imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
 
 ####Import data####
 title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
@@ -546,30 +546,36 @@ remove(temp6)
 temp6 <- data.frame()
 Locations <- sort(Locations)
 for (a in Jaren){
-  temp8 <- subset(GRA_Brondata, Jaar == a)
+  temp <- subset(GRA_Brondata, Jaar == a) #=> Opgedeeld per jaar
   for(i in Locations){
-    temp2 <- subset(temp8, Location == i )
-    number <- count(temp2)
+    temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
+    number <- count(temp2)                #=> #records
     print(i)
     print(number)
-    temp7 <- head(temp2, n=1)
-    temp4 <- tail(temp2, n=3)
+    temp3 <- head(temp2, n=1)             #=> Eerste record
     temp5 <- data.frame(x=1)
+    if(number>=3){
+      temp4 <- tail(temp2, n=3)
+      temp5$MeanCPUE <- mean(temp4$CPUE)
+    }else{
+      temp4 <- temp2
+      temp5$MeanCPUE <- mean(temp4$CPUE)
+    }
     temp5$Location <- i
-    temp5$StartCPUE <- temp7$CPUE
+    temp5$StartCPUE <- temp3$CPUE
     temp5$Uitgevoerd <- number$n
-    temp5$MeanCPUE <- mean(temp4$CPUE)
     if(is.na(temp5$MeanCPUE)){
       print(i)
       print(temp4)
       break}
     temp6 <- rbind(temp6, temp5)
-   
-    
   }
+
+
   
   temp6$x <- NULL
   GSL <- temp6
+  
 #  remove(temp2)
 #  remove(temp4)
 #  remove(temp5)
@@ -605,7 +611,7 @@ for (a in Jaren){
   
   #GSL$Location <- sort(GSL$Location)
   
-  GSL <- GSL[,c(1,2,5,6,7,3,8,9,4,10,13,14,11,12)]
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Resterend_Min", "Resterend_Max", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   
   #GSLfNaama <- paste("Geschat startaantal larven",a, sep="_")
@@ -614,8 +620,8 @@ for (a in Jaren){
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #test <- gs_new(title = "Geschat startaantal larven", ws_title = "GSL", input = GSL, trim = TRUE)
-  file.create(file=GSLfNaama, overwrite=T)
- # write.csv(GSL, GSLfNaama)
+  #file.create(file=GSLfNaama, overwrite=T)
+  write.csv(GSL, GSLfNaama)
 }
 
 ####Klaarzetten voor recorder####
