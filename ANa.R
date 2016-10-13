@@ -613,6 +613,7 @@ for (a in Jaren){
   #Juiste kolommen kiezen
   GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Resterend_Min", "Resterend_Max", "LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
+  GSL$x <- NULL
   
   
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
@@ -622,7 +623,7 @@ for (a in Jaren){
   #Uitvoeren
   #test <- gs_new(title = "Geschat startaantal larven", ws_title = "GSL", input = GSL, trim = TRUE)
   #file.create(file=GSLfNaama, overwrite=T)
-  write.csv(GSL, GSLfNaama)
+  write.csv2(GSL, GSLfNaama)
 }
 
 #Opkuis
