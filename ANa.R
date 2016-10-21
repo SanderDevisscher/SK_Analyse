@@ -6,6 +6,7 @@ library(plyr)
 library(dplyr)
 library(reshape2)
 
+
 #### Set standard paths => Veranderen indien andere pc/laptop
 
 ##WERK##
@@ -488,7 +489,6 @@ GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1",
 
 Locations <- unique(GRA_Brondata$Location)
 
-
 GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum,'%d-%m-%Y')
 GRA_Brondata$Dag <- format(GRA_Brondata$Datum, format='%d')
 GRA_Brondata$Maand <- format(GRA_Brondata$Datum, format='%m')
@@ -496,36 +496,53 @@ GRA_Brondata$Jaar <- format(GRA_Brondata$Datum, format='%Y')
 GRA_Brondata$Jaar <- as.numeric(GRA_Brondata$Jaar)
 GRA_Brondata$Maand <- as.numeric(GRA_Brondata$Maand)
 GRA_Brondata$Dag <- as.numeric(GRA_Brondata$Dag)
-GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, order(Jaar, Maand, Dag)),]
-#GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
-GRA_Brondata$Datum <- as.factor(GRA_Brondata$Datum)
-#GRA_Brondata$Datum <- sort(GRA_Brondata$Datum, decreasing = F)
+
+
 Jaren <- unique(GRA_Brondata$Jaar)
+GRA_Brondata$Maand2 <- ifelse(GRA_Brondata$Maand==1, "jan", 
+                              ifelse(GRA_Brondata$Maand==2, "feb",
+                                     ifelse(GRA_Brondata$Maand==3, "mar",
+                                            ifelse(GRA_Brondata$Maand==4, "apr",
+                                                   ifelse(GRA_Brondata$Maand==5, "mei",
+                                                          ifelse(GRA_Brondata$Maand==6, "jun",
+                                                                 ifelse(GRA_Brondata$Maand==7, "jul",
+                                                                        ifelse(GRA_Brondata$Maand==8, "aug",
+                                                                               ifelse(GRA_Brondata$Maand==9, "sep",
+                                                                                      ifelse(GRA_Brondata$Maand==10, "okt",
+                                                                                             ifelse(GRA_Brondata$Maand==11, "nov",
+                                                                                                    ifelse(GRA_Brondata$Maand==12, "dec",NA))))))))))))
+GRA_Brondata$Datum2 <- paste(GRA_Brondata$Dag, GRA_Brondata$Maand2, sep="/")
+GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
+#GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
+GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Jaar, GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
 
 #CPUE per dag
+for(j in Jaren){
 for(i in Locations){
   
   temp2 <- subset(GRA_Brondata, Location == i )
-  fNaam <- paste(i,"CPUE", sep="_")
+  fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
-  plot <- ggplot(temp2, aes(x=Datum, y=CPUE)) + 
+  plot <- ggplot(temp2, aes(x=Datum3, y=CPUE)) + 
     geom_bar(stat="identity", aes(fill="red"))
   plot <- plot+ggtitle(i)
   plot <- plot + expand_limits(x = 0, y = 0)
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
   plot <- plot + theme(legend.position="none")
-  plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+  plot <- plot + theme(axis.line = element_line(color="black", size = 1))
   print(plot)
   ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
 }
+}
 
 #absoluut per dag
+for(j in Jaren){
 for(i in Locations){
   temp2 <- subset(GRA_Brondata, Location == i )
-  fNaam <- paste(i ,"TOT", sep="_")
+  fNaam <- paste(i ,"TOT", j, sep="_")
   #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
   fNaam <- paste(fNaam, ".jpeg", sep = "")
-  plot <- ggplot(temp2, aes(x=Datum, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+  plot <- ggplot(temp2, aes(x=Datum3, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
   plot <- plot + ggtitle(i)
   plot <- plot + expand_limits(x = 0, y = 0)
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -533,6 +550,7 @@ for(i in Locations){
   plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
   print(plot)
   ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+}
 }
 
 #### tabel duur ####
@@ -611,7 +629,7 @@ for (a in Jaren){
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
   #Juiste kolommen kiezen
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Resterend_Min", "Resterend_Max", "LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Resterend_Min", "Resterend_Max", "LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   GSL$x <- NULL
   
