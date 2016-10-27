@@ -776,6 +776,7 @@ for(a in Locations_Recorder){
         temp6b$Locationname <- FNR2
         temp6b$soort <- q
         Formaat <- unique(FNR3)
+        temp6b$None <- 1
         temp7 <- rbind(temp7, temp6b)
         }else{next}
        }
@@ -785,6 +786,30 @@ for(a in Locations_Recorder){
 }
   
 temp7$x <- NULL
+
+title <- gs_title(x="Bijvangst", verbose = TRUE)
+Soorten <- gs_read(title)
+
+temp8 <- merge(temp7, Soorten)
+temp8$soort <- NULL
+temp8$Sample_Type <- "Schietfuik"
+temp8$L00 <- NA
+temp8$L0 <- NA
+temp8$L1 <- NA
+temp8$L2 <- NA
+temp8$M1 <- NA
+temp8$M2 <- NA
+temp8$AM <- NA
+temp8$AV <- NA
+temp8$TaxonDataAccuracy <- "Estimate"
+temp8 <- merge(temp8, Locaties)
+temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date")]
+
+Recorder_Afvangst$None <- NA
+Recorder_Afvangst$Date <- Recorder_Afvangst$Datum
+Recorder_Afvangst$Datum <- NULL
+
+Recorder_Afvangst_2 <- rbind(Recorder_Afvangst, temp8)
 
 
 #Vergelijken met vorig bestand
