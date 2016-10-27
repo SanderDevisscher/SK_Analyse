@@ -25,12 +25,13 @@ gdrive <- gs_read(title)
 gdrive2 <- gs_read(title, range = cell_cols(12:13))
 offline <- read.csv2("file://Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep=",")
 
-temp <- get0("gdrive", ifnotfound=offline)
+Brondata <- get0("gdrive", ifnotfound=offline)
 
 if(exists("gdrive")){
   ONLINE <- data.frame()
   remove(offline)
 }
+temp <- Brondata
 
 temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,NA)))
 table(temp$Location)
@@ -71,7 +72,7 @@ temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
 
-
+Brondata <- temp
 
 #Enkel Afvangsten voor grafiekjes
 Afvangsten <- subset(temp, Sample_Type == "Afvangst")
@@ -662,7 +663,7 @@ for (a in Jaren){
 
 ####Klaarzetten voor recorder####
 
-Recorder_Ruw <- temp
+Recorder_Ruw <- Brondata
 
 #Afvangsten Klaarzetten #
 temp2 <- data.frame()
@@ -731,39 +732,25 @@ Recorder_Afvangst <- data.frame()
 Recorder_Afvangst <- temp6
 Recorder_Afvangst$Species <- "Lithobates catesbeianus"
 
-Locaties <- gs_title(x="Locaties", verbose = TRUE)
+title <- gs_title(x="Locaties", verbose = TRUE)
+Locaties <- gs_read(title)
 
-Recorder_Afvangst$GridReference <- 0
-Recorder_Afvangst$GridReference <- ifelse(Recorder_Afvangst$Location == "Arendonk 1","201082.5,224313.66", 
-                                          ifelse(Recorder_Afvangst$Location == "Arendonk 2","201489.71,224315.83", 
-                                                 ifelse(Recorder_Afvangst$Location == "Arendonk 3","201339.35,224410.85",
-                                                        ifelse(Recorder_Afvangst$Location == "Arendonk 4","201683.92,224224.99",
-                                                               ifelse(Recorder_Afvangst$Location == "Kasterlee 1","195121.42,217758.1", 
-                                                                      ifelse(Recorder_Afvangst$Location == "Kasterlee 2","195121.1,217798.8",
-                                                                             ifelse(Recorder_Afvangst$Location == "Kasterlee 3","195091.42,217832.27",
-                                                                                    ifelse(Recorder_Afvangst$Location == "Kasterlee 7","195148.88,217918.1",
-                                                                                           ifelse(Recorder_Afvangst$Location == "Kasterlee 9","195027.88,218030.71",
-                                                                                                  ifelse(Recorder_Afvangst$Location == "Kasterlee 12","195234.08,217800.99",
-                                                                                                         ifelse(Recorder_Afvangst$Location == "Kasterlee 13","195149.44,217688.61",
-                                                                                                                ifelse(Recorder_Afvangst$Location == "Kasterlee 14","195176.53,218211.39",
-                                                                                                                       ifelse(Recorder_Afvangst$Location == "Driehoek","176589.0,240619.0",
-                                                                                                                              ifelse(Recorder_Afvangst$Location == "Bospoel","176487.0,240159.0",
-                                                                                                                                     ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 1","176309.0,239860.0",
-                                                                                                                                            ifelse(Recorder_Afvangst$Location == "Rechthoekigevijver 2","176317.0,239845.0", NA))))))))))))))))
+Recorder_Afvangst <- merge(Recorder_Afvangst, Locaties)
 
 Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
 remove(temp6)
 
-#Bijvangsten toevoegen
+#Bijvangsten toevoegen 
 
 temp7 <- data_frame()
+temp6b <- data.frame(x)
 temp2 <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Ruw$Location)
-for(x in Locations_Recorder){
-  temp3 <- subset(temp2, Location == x)
+for(a in Locations_Recorder){
+  temp3 <- subset(temp2, Location == a)
   Datums_Recorder <- unique(temp3$Datum)
-  for(y in Datums_Recorder){
-    temp4 <- subset(temp3, Datum == y)
+  for(t in Datums_Recorder){
+    temp4 <- subset(temp3, Datum == t)
     temp5 <- temp4
     iter <- sum(temp5$`Aantal fuiken (Totaal)`)
     iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
@@ -777,21 +764,27 @@ for(x in Locations_Recorder){
       Recorder_Bijvangst <- c("[3 - doornige stekelbaars]", "[Amerikaanse gevlekte rivierkreeft]"
                               , "[Baars]", "[Blankvoorn]", "[Blauwbandgrondel]","[Brasem]"
                               , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
-                              , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]")
+                              , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]", "[Snoek]"
+                              , "[Kolblei]", "[Chinese wolhandkrab]", "[Geelgerande watertor]", "[Groene kikker]"
+                              , "[Bruine kikker]", "[Pad]", "[Goudvis]", "[Europese meerval]")
       for(q in Recorder_Bijvangst){
         FNR3 <- paste(FNR, q, sep="")
-        temp6 <- subset(temp5, !is.na(FNR3))
-        temp6$soort <- q
-        temp6$Locationname <- FNR2
+        #temp6 <- subset(temp5, !is.na(FNR3))
+        if(!is.na(temp5[FNR3])){
+        temp6b$Location <- unique(temp5$Location)
+        temp6b$Date <- unique(temp5$Datum)
+        temp6b$Locationname <- FNR2
+        temp6b$soort <- q
         Formaat <- unique(FNR3)
-        temp7 <- rbind(temp7, temp6)
-      }
-    }
+        temp7 <- rbind(temp7, temp6b)
+        }else{next}
+       }
+     }
   o <- 0
   }
 }
   
-temp7 <- temp7[, c("Location", "Datum", "Sample_Type", "Locationname", "soort")]
+temp7$x <- NULL
 
 
 #Vergelijken met vorig bestand
