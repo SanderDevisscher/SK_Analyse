@@ -10,12 +10,12 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop
 
 ##WERK##
-#setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
-#imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
+imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
 
 ##THUIS##
-imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
+#imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+#setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
 
 ####Import data####
 title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
@@ -530,7 +530,9 @@ for(i in Locations){
   plot <- plot + expand_limits(x = 0, y = 0)
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
   plot <- plot + theme(legend.position="none")
-  plot <- plot + theme(axis.line = element_line(color="black", size = 1))
+  plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+  plot <- plot + xlab("Datum")
+  plot <- plot + ylab("CPUE")
   print(plot)
   ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
 }
@@ -549,6 +551,8 @@ for(i in Locations){
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
   plot <- plot + theme(legend.position="none")
   plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+  plot <- plot + xlab("Datum")
+  plot <- plot + ylab("Totaal")
   print(plot)
   ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
 }
