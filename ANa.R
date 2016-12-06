@@ -10,30 +10,37 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop
 
 ##WERK##
-setwd("C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse") #Werk
 imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ##THUIS##
 #imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-#setwd("C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse") 
+#wd <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ####Import data####
-title <- gs_title(x = "Stierkikker formulieren - Natuurwerk (Reacties)", verbose = TRUE)
+#Import online data####
+title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
 Token <- gs_auth()
 gs_auth(token = Token)
 gdrive <- gs_read(title)
-gdrive2 <- gs_read(title, range = cell_cols(12:13))
-offline <- read.csv2("file://Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep=",")
 
-Brondata <- get0("gdrive", ifnotfound=offline)
+#Import offline data####
+offlinepath <- paste(wd, "/Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep="" )
+OFFLINE <- read.csv(offlinepath, sep=",")
+
+#Verify connection status####
+Brondata <- get0("gdrive", ifnotfound=OFFLINE)
 
 if(exists("gdrive")){
   ONLINE <- data.frame()
-  remove(offline)
+  remove(OFFLINE)
 }
 temp <- Brondata
 
-temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,NA)))
+temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,
+                        ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,
+                               ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,
+                                      ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Nijlen`,NA))))
 table(temp$Location)
 
 temp$Sample_Type <- temp$`Wat wil je melden`
@@ -520,7 +527,6 @@ GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[
 #CPUE per dag
 for(j in Jaren){
 for(i in Locations){
-  
   temp2 <- subset(GRA_Brondata, Location == i )
   fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
