@@ -14,8 +14,8 @@ imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierk
 wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ##THUIS##
-#imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-#wd <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+wd <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ####Import data####
 #Import online data####
@@ -33,14 +33,20 @@ Brondata <- get0("gdrive", ifnotfound=OFFLINE)
 
 if(exists("gdrive")){
   ONLINE <- data.frame()
+  today <- Sys.Date()
+  today2 <- paste("_", today, sep="")
+  offlinepath2 <- paste(wd,"/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties",today2, sep="")
+  offlinepath2 <- paste(offlinepath2, ".csv", sep="")
+  write.csv2(Brondata, offlinepath2)
   remove(OFFLINE)
 }
 temp <- Brondata
 
+####Check for new locations####
 temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,
                         ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,
                                ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,
-                                      ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Nijlen`,NA))))
+                                      ifelse(!is.na(temp$`Vijver - Nijlen`), temp$`Vijver - Nijlen`,NA))))
 table(temp$Location)
 
 temp$Sample_Type <- temp$`Wat wil je melden`
@@ -53,6 +59,7 @@ if(nrow(NieuweLOC)==0){
   remove(VasteLOC)
 }
 
+####Check fouten invullers####
 table(temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris", "kris meeus", temp$Invuller)
 temp$Recorder <- temp$Invuller
@@ -73,6 +80,7 @@ temp$`Wat wil je melden` <- NULL
 temp$`Vijver - Arendonk` <- NULL
 temp$`Vijver - Kasterlee` <- NULL
 temp$`Vijver - Hoogstraten` <- NULL
+temp$`Vijver - Nijlen` <- NULL
 #temp$Locatie <- NULL
 temp$`Gemeente/Deelgemeente` <- NULL
 temp$Invuller <- NULL
@@ -81,6 +89,7 @@ temp$`Aantal werknemers` <- NULL
 
 Brondata <- temp
 
+####GRAFIEKEN####
 #Enkel Afvangsten voor grafiekjes
 Afvangsten <- subset(temp, Sample_Type == "Afvangst")
 Afvangsten$L00 <- NA
