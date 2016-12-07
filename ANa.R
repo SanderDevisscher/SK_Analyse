@@ -7,7 +7,7 @@ library(dplyr)
 library(reshape2)
 
 
-#### Set standard paths => Veranderen indien andere pc/laptop
+#### Set standard paths => Veranderen indien andere pc/laptop ####
 
 ##WERK##
 imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
@@ -25,24 +25,31 @@ gs_auth(token = Token)
 gdrive <- gs_read(title)
 
 #Import offline data####
-offlinepath <- paste(wd, "/Ruwe Data/Stierkikker formulieren - Natuurwerk (Reacties) - Formulierreacties _2016-08-13.csv", sep="" )
+#Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
+offlinepath <- paste(wd, "/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties_2016-12-07.csv", sep="" )
 OFFLINE <- read.csv(offlinepath, sep=",")
 
 #Verify connection status####
 Brondata <- get0("gdrive", ifnotfound=OFFLINE)
 
 if(exists("gdrive")){
-  ONLINE <- data.frame()
+  ONLINE <- data.frame("x")
+  if(nrow(Brondata)!=nrow(OFFLINE)){
   today <- Sys.Date()
   today2 <- paste("_", today, sep="")
   offlinepath2 <- paste(wd,"/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties",today2, sep="")
   offlinepath2 <- paste(offlinepath2, ".csv", sep="")
   write.csv2(Brondata, offlinepath2)
+  ONLINE$Status <- "OFFLINE has been updated"
+  }
+  if(nrow(Brondata)==nrow(OFFLINE)){ONLINE$Status <-"OFFLINE has equal rows as Brondata"}
   remove(OFFLINE)
 }
+
+####Some Standard checks and simplification####
 temp <- Brondata
 
-####Check for new locations####
+#Check for new locations####
 temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,
                         ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,
                                ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,
@@ -101,6 +108,7 @@ Afvangsten$M2 <- NA
 Afvangsten$AM <- NA
 Afvangsten$AV <- NA
 
+#Sum of all stage specefic columns####
 
 Afvangsten$L00[!is.na(Afvangsten$`Fuik 1 - L00`)
                |!is.na(Afvangsten$`Fuik 2 - L00`)
@@ -415,6 +423,8 @@ print(Afvangsten$M2)
 print(Afvangsten$AM)
 print(Afvangsten$AV)
 
+#Making sure NA's are NA####
+
 if(is.null(Afvangsten$L00)){
   Afvangsten$L00 <- NA
 }
@@ -439,6 +449,13 @@ if(is.null(Afvangsten$AM)){
 if(is.null(Afvangsten$AV)){
   Afvangsten$AV <- NA
 }
+
+#Calculating Total, Total of all larvea, Total larvea for CPUE Calculation####
+#Larvea for CPUE calculation excludes those larvea that are too small (L00)
+#Post - Metamorfs (M1, M2, AM, AV) are excluded by default
+Afvangsten$Totaal <- NA
+Afvangsten$Totaal_Larven.All <- NA
+Afvangsten$Totaal_Larven.CPUE <- NA
 
 Afvangsten$Totaal[!is.na(Afvangsten$L00)
                   |!is.na(Afvangsten$L0)
@@ -492,12 +509,16 @@ Afvangsten$Totaal_Larven.CPUE[!is.na(Afvangsten$L0)
           ,na.rm=T)
 
 Afvangsten$Totaal_Larven.CPUE <- ifelse(is.na(Afvangsten$Totaal_Larven.CPUE),0, Afvangsten$Totaal_Larven.CPUE)
-
-Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Totaal)`
-
 print(Afvangsten$Totaal)
 print(Afvangsten$Totaal_Larven.All)
 print(Afvangsten$Totaal_Larven.CPUE)
+
+####Calculate CPUE####
+#CPUE = Catch per unit of effort.
+#Unit of effort = 1 fyke per 24 hours* 
+#Catch = total of larvea for CPUE calculation
+#*Data is as such that every 24h a number of fykes are used a record is made
+Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Totaal)`
 print(Afvangsten$CPUE)
 
 #### Grafieken ####
@@ -603,8 +624,8 @@ for (a in Jaren){
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
     temp5$LastCapture <- temp7$Totaal
-    temp5$L00 <- ifelse(temp7$L00>0, temp7$L00, "nee")
-    temp5$PostMetamorf <- ifelse(temp7$M1>0, "ja", ifelse(temp7$M2>0, "ja", ifelse(temp7$AM>0, "ja", ifelse(temp7$AV>0, "ja", "nee"))))
+    temp5$LastCapture <- ifelse(!is.na(temp5$LastCapture), temp5$LastCapture, 0)
+    temp5$L00 <- ifelse(!is.na(temp7$L00), temp7$L00, 0)
     temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
     temp7$M2 <- ifelse(is.na(temp7$M2), 0, temp7$M2)
     temp7$AM <- ifelse(is.na(temp7$AM), 0, temp7$AM)
@@ -655,7 +676,7 @@ for (a in Jaren){
   
   
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
-  GSLfNaama <- paste("file://Afbeeldingen/", GSLfNaam, sep="" )
+  GSLfNaama <- paste(imagepath, GSLfNaam, sep="/" )
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #Uitvoeren
@@ -664,6 +685,7 @@ for (a in Jaren){
   write.csv2(GSL, GSLfNaama)
 }
 
+print(GSLfNaama)
 #Opkuis
   remove(temp)
   remove(temp2)
@@ -681,10 +703,10 @@ for (a in Jaren){
   remove(GSLfNaama)
 
 ####Klaarzetten voor recorder####
-
+#Data Selectie
 Recorder_Ruw <- Brondata
 
-#Afvangsten Klaarzetten #
+####Afvangsten voor Recorder ####
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
@@ -702,10 +724,10 @@ for(x in Locations_Recorder){
     Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type) 
     temp5 <- temp4
     iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
-    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
-    iter <- ifelse(iter == 0, 1, iter)
-    print(iter)
+    #iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
+    #iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
+    #iter <- ifelse(iter == 0, 1, iter)
+    #print(iter)
     for(p in 1:iter){
       o <- o + 1
       FNR <- paste("Fuik", o, sep= " ")
@@ -735,7 +757,7 @@ for(x in Locations_Recorder){
 
 #Nuttige kolommen selecteren
 
-temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV")]
+temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
 
 #Tussentijdse opruim
 
@@ -754,9 +776,12 @@ Recorder_Afvangst$Species <- "Lithobates catesbeianus"
 title <- gs_title(x="Locaties", verbose = TRUE)
 Locaties <- gs_read(title)
 
-Recorder_Afvangst <- merge(Recorder_Afvangst, Locaties)
+Recorder_Afvangst <- merge(Recorder_Afvangst, Locaties, all.x=T)
 
 Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
+temp <- subset(Recorder_Afvangst, is.na(GridReference))
+missinglocations <- unique(temp$Location)
+print(missinglocations)
 remove(temp6)
 
 #Bijvangsten toevoegen 
@@ -772,9 +797,6 @@ for(a in Locations_Recorder){
     temp4 <- subset(temp3, Datum == t)
     temp5 <- temp4
     iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
-    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
-    iter <- ifelse(iter == 0, 1, iter)
     print(iter)
     for(p in 1:iter){
       o <- o + 1
@@ -794,6 +816,7 @@ for(a in Locations_Recorder){
         temp6b$Date <- unique(temp5$Datum)
         temp6b$Locationname <- FNR2
         temp6b$soort <- q
+        temp6b$Recorder <- unique(temp5$Recorder)
         Formaat <- unique(FNR3)
         temp6b$None <- 1
         temp7 <- rbind(temp7, temp6b)
@@ -822,7 +845,7 @@ temp8$AM <- NA
 temp8$AV <- NA
 temp8$TaxonDataAccuracy <- "Estimate"
 temp8 <- merge(temp8, Locaties)
-temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date")]
+temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder")]
 
 Recorder_Afvangst$None <- NA
 Recorder_Afvangst$Date <- Recorder_Afvangst$Datum
@@ -845,313 +868,3 @@ remove(tempM2)
 remove(tempAM)
 remove(tempAV)
 
-####Afvangsten SFB klaarzetten####
-unique(Recorder_Ruw$Sample_Type)
-temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst SFB")
-Locations_Recorder2 <- unique(temp3A$Location)
-temp2 <- data.frame()
-for(x in Locations_Recorder2){
-  temp3 <- subset(temp3A, Location == x)
-  temp3$Sample_Type <- "Salamander fuik_bodem"
-  Datums_Recorder <- unique(temp3$Datum)
-  print(temp3$Location)
-  for(y in Datums_Recorder){
-    temp4 <- subset(temp3, Datum == y)
-    Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type) 
-    temp5 <- temp4
-    iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
-    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
-    iter <- ifelse(iter == 0, 1, iter)
-    print(iter)
-    for(p in 1:iter){
-      o <- o + 1
-      FNR <- paste("Fuik", o, sep= " ")
-      temp5$Locationname <- FNR
-      FNRL00 <- paste(FNR, "L00", sep= " - ")
-      FNRL0 <- paste(FNR, "L0", sep= " - ")
-      FNRL1 <- paste(FNR, "L1", sep= " - ")
-      FNRL2 <- paste(FNR, "L2", sep= " - ")
-      FNRM1 <- paste(FNR, "M1", sep= " - ")
-      FNRM2 <- paste(FNR, "M2", sep= " - ")
-      #FNRAM <- paste(FNR, "AM", sep= " - ") => voorlopig geen AM gevangen geeft error :-(
-      FNRAV <- paste(FNR, "AV", sep= " - ")
-      temp5$L00 <- ifelse(is.na(temp5[FNRL00]), 0, temp5[FNRL00])
-      temp5$L0 <- ifelse(is.na(temp5[FNRL0]), 0, temp5[FNRL0])
-      temp5$L1 <- ifelse(is.na(temp5[FNRL1]), 0, temp5[FNRL1])
-      temp5$L2 <- ifelse(is.na(temp5[FNRL2]), 0, temp5[FNRL2])
-      temp5$M1 <- ifelse(is.na(temp5[FNRM1]), 0, temp5[FNRM1])
-      temp5$M2 <- ifelse(is.na(temp5[FNRM2]), 0, temp5[FNRM2])
-      #temp5$AM <- ifelse(is.na(temp5[FNRAM]), 0, temp5[FNRAM]) => voorlopig geen AM gevangen geeft error :-(
-      temp5$AM <- 0
-      temp5$AV <- ifelse(is.na(temp5[FNRAV]), 0, temp5[FNRAV])
-      temp2 <- rbind(temp2,temp5)
-    }
-    o <- 0
-  }
-}
-
-temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV")]
-
-temp6 <- temp2
-remove(temp2)
-remove(temp5)
-remove(temp3)
-remove(temp4)
-
-Recorder_AfvangstSFB <- data.frame()
-
-tempL00 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L00")]
-tempL00$Number <- tempL00$L00
-tempL00$L00 <- NULL
-tempL00$Measurement <- "Abundance of L00"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempL00)
-
-tempL0 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L0")]
-tempL0$Number <- tempL0$L0
-tempL0$L0 <- NULL
-tempL0$Measurement <- "Abundance of L0"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempL0)
-
-tempL1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L1")]
-tempL1$Number <- tempL1$L1
-tempL1$L1 <- NULL
-tempL1$Measurement <- "Abundance of L1"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempL1)
-
-tempL2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L2")]
-tempL2$Number <- tempL2$L2
-tempL2$L2 <- NULL
-tempL2$Measurement <- "Abundance of L2"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempL2)
-
-tempM1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M1")]
-tempM1$Number <- tempM1$M1
-tempM1$M1 <- NULL
-tempM1$Measurement <- "Abundance of M1"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempM1)
-
-tempM2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M2")]
-tempM2$Number <- tempM2$M2
-tempM2$M2 <- NULL
-tempM2$Measurement <- "Abundance of M2"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempM2)
-
-tempAM <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AM")]
-tempAM$Number <- tempAM$AM
-tempAM$AM <- NULL
-tempAM$Measurement <- "Abundance of AM"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempAM)
-
-tempAV <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AV")]
-tempAV$Number <- tempAV$AV
-tempAV$AV <- NULL
-tempAV$Measurement <- "Abundance of AV"
-Recorder_AfvangstSFB <- rbind(Recorder_AfvangstSFB, tempAV)
-Recorder_AfvangstSFB$Number <- as.numeric(Recorder_AfvangstSFB$Number)
-
-#Vergelijken met vorig bestand
-Recorder_AfvangstSFB_Vorig <- read.csv2("file://Ruwe Data/Recorder_AfvangstSFB_2016-08-29.csv")
-Recorder_AfvangstSFB_Vorig$X <- NULL
-RAVnrow <- nrow(Recorder_AfvangstSFB_Vorig)
-RAnrow <- nrow(Recorder_AfvangstSFB)
-if(RAVnrow != RAnrow){
-  Recorder_AfvangstSFB_Nieuw <- merge(Recorder_AfvangstSFB_Vorig, Recorder_AfvangstSFB, all.x=F)
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstSFB", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstSFB_Nieuw, file = RAFN)    
-}
-
-if(!file.exists("file://Ruwe Data/Recorder_AfvangstSFB_2016-08-29.csv")){
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstSFB", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstSFB, file = RAFN) 
-}
-
-#Leegmaken emmers
-unique(Recorder_Ruw$Sample_Type)
-temp3A <- subset(Recorder_Ruw, Sample_Type == "Leegmaken emmers")
-Locations_Recorder2 <- unique(temp3A$Location)
-temp2 <- data.frame()
-for(x in Locations_Recorder2){
-  temp3 <- subset(temp3A, Location == x)
-  temp3$Sample_Type <- "Pitfall trap"
-  Datums_Recorder <- unique(temp3$Datum)
-  print(temp3$Location)
-  for(y in Datums_Recorder){
-    temp4 <- subset(temp3, Datum == y)
-    Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type) 
-    temp5 <- temp4
-    iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
-    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
-    iter <- ifelse(iter == 0, 1, iter)
-    print(iter)
-    for(p in 1:iter){
-      o <- o + 1
-      FNR <- paste("Fuik", o, sep= " ")
-      FNR2 <- paste("Emmer", o, sep= " ")
-      temp5$Locationname <- FNR2
-      FNRL00 <- paste(FNR, "L00", sep= " - ")
-      FNRL0 <- paste(FNR, "L0", sep= " - ")
-      FNRL1 <- paste(FNR, "L1", sep= " - ")
-      FNRL2 <- paste(FNR, "L2", sep= " - ")
-      FNRM1 <- paste(FNR, "M1", sep= " - ")
-      FNRM2 <- paste(FNR, "M2", sep= " - ")
-      #FNRAM <- paste(FNR, "AM", sep= " - ") => voorlopig geen AM gevangen geeft error :-(
-      FNRAV <- paste(FNR, "AV", sep= " - ")
-      temp5$L00 <- ifelse(is.na(temp5[FNRL00]), 0, temp5[FNRL00])
-      temp5$L0 <- ifelse(is.na(temp5[FNRL0]), 0, temp5[FNRL0])
-      temp5$L1 <- ifelse(is.na(temp5[FNRL1]), 0, temp5[FNRL1])
-      temp5$L2 <- ifelse(is.na(temp5[FNRL2]), 0, temp5[FNRL2])
-      temp5$M1 <- ifelse(is.na(temp5[FNRM1]), 0, temp5[FNRM1])
-      temp5$M2 <- ifelse(is.na(temp5[FNRM2]), 0, temp5[FNRM2])
-      #temp5$AM <- ifelse(is.na(temp5[FNRAM]), 0, temp5[FNRAM]) => voorlopig geen AM gevangen geeft error :-(
-      temp5$AM <- 0
-      temp5$AV <- ifelse(is.na(temp5[FNRAV]), 0, temp5[FNRAV])
-      temp2 <- rbind(temp2,temp5)
-    }
-    o <- 0
-  }
-}
-
-temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV")]
-
-temp6 <- temp2
-remove(temp2)
-remove(temp5)
-remove(temp3)
-remove(temp4)
-
-Recorder_AfvangstPT <- data.frame()
-
-tempL00 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L00")]
-tempL00$Number <- tempL00$L00
-tempL00$L00 <- NULL
-tempL00$Measurement <- "Abundance of L00"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempL00)
-
-tempL0 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L0")]
-tempL0$Number <- tempL0$L0
-tempL0$L0 <- NULL
-tempL0$Measurement <- "Abundance of L0"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempL0)
-
-tempL1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L1")]
-tempL1$Number <- tempL1$L1
-tempL1$L1 <- NULL
-tempL1$Measurement <- "Abundance of L1"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempL1)
-
-tempL2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "L2")]
-tempL2$Number <- tempL2$L2
-tempL2$L2 <- NULL
-tempL2$Measurement <- "Abundance of L2"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempL2)
-
-tempM1 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M1")]
-tempM1$Number <- tempM1$M1
-tempM1$M1 <- NULL
-tempM1$Measurement <- "Abundance of M1"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempM1)
-
-tempM2 <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "M2")]
-tempM2$Number <- tempM2$M2
-tempM2$M2 <- NULL
-tempM2$Measurement <- "Abundance of M2"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempM2)
-
-tempAM <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AM")]
-tempAM$Number <- tempAM$AM
-tempAM$AM <- NULL
-tempAM$Measurement <- "Abundance of AM"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempAM)
-
-tempAV <- temp6[, c("Location", "Datum", "Sample_Type", "Locationname", "AV")]
-tempAV$Number <- tempAV$AV
-tempAV$AV <- NULL
-tempAV$Measurement <- "Abundance of AV"
-Recorder_AfvangstPT <- rbind(Recorder_AfvangstPT, tempAV)
-Recorder_AfvangstPT$Number <- as.numeric(Recorder_AfvangstPT$Number)
-
-#Vergelijken met vorig bestand
-Recorder_AfvangstPT_Vorig <- read.csv2("file://Ruwe Data/Recorder_AfvangstPT_2016-08-29.csv")
-Recorder_AfvangstPT_Vorig$X <- NULL
-RAVnrow <- nrow(Recorder_AfvangstPT_Vorig)
-RAnrow <- nrow(Recorder_AfvangstPT)
-if(RAVnrow != RAnrow){
-  Recorder_AfvangstPT_Nieuw <- merge(Recorder_AfvangstPT_Vorig, Recorder_AfvangstPT, all.x=F)
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstPT", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstPT_Nieuw, file = RAFN)    
-}
-
-if(!file.exists("file://Ruwe Data/Recorder_AfvangstPT_2016-08-29.csv")){
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstPT", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstPT, file = RAFN) 
-}
-
-#Leegmaken emmers
-unique(Recorder_Ruw$Sample_Type)
-temp3A <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van fuiken")
-Locations_Recorder2 <- unique(temp3A$Location)
-temp2 <- data.frame()
-for(x in Locations_Recorder2){
-  temp3 <- subset(temp3A, Location == x)
-  temp3$Sample_Type <- "Plaatsen Fuiken"
-  Datums_Recorder <- unique(temp3$Datum)
-  print(temp3$Location)
-  for(y in Datums_Recorder){
-    temp4 <- subset(temp3, Datum == y)
-    Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type) 
-    temp5 <- temp4
-    iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    iter2 <- sum(temp5$`Aantal fuiken geplaatst`)
-    iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
-    iter <- ifelse(iter == 0, 1, iter)
-    print(iter)
-    for(p in 1:iter){
-      o <- o + 1
-      FNR <- paste("Fuik", o, sep= " ")
-      FNR2 <- paste("Emmer", o, sep= " ")
-      temp5$Locationname <- FNR
-      temp2 <- rbind(temp2,temp5)
-    }
-    o <- 0
-  }
-}
-
-temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname")]
-
-temp6 <- temp2
-remove(temp2)
-remove(temp5)
-remove(temp3)
-remove(temp4)
-
-Recorder_AfvangstPF <- temp6
-
-#Vergelijken met vorig bestand
-Recorder_AfvangstPF_Vorig <- read.csv2("file://Ruwe Data/Recorder_AfvangstPF_2016-08-29.csv")
-Recorder_AfvangstPF_Vorig$X <- NULL
-RAVnrow <- nrow(Recorder_AfvangstPF_Vorig)
-RAnrow <- nrow(Recorder_AfvangstPF)
-if(RAVnrow != RAnrow){
-  Recorder_AfvangstPF_Nieuw <- merge(Recorder_AfvangstPF_Vorig, Recorder_AfvangstPF, all.x=F)
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstPF", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstPF, file = RAFN)    
-}
-
-if(!file.exists("file://Ruwe Data/Recorder_AfvangstPF_2016-08-29.csv")){
-  Today <- Sys.Date()
-  RAFN <- paste("file://Ruwe Data/Recorder_AfvangstPF", Today, sep = "_")
-  RAFN <- paste(RAFN, ".csv", sep="")
-  write.csv2(x=Recorder_AfvangstPF, file = RAFN) 
-}
