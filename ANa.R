@@ -14,8 +14,8 @@ imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierk
 wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ##THUIS##
-imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
-wd <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+#imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
+#wd <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ####Import data####
 #Import online data####
@@ -853,6 +853,18 @@ Recorder_Afvangst$Datum <- NULL
 
 Recorder_Afvangst_2 <- rbind(Recorder_Afvangst, temp8)
 
+Recorder_Afvangst_2$L00 <- as.numeric(Recorder_Afvangst_2$L00)
+Recorder_Afvangst_2$L0 <- as.numeric(Recorder_Afvangst_2$L0)
+Recorder_Afvangst_2$L1 <- as.numeric(Recorder_Afvangst_2$L1)
+Recorder_Afvangst_2$L2 <- as.numeric(Recorder_Afvangst_2$L2)
+Recorder_Afvangst_2$M1 <- as.numeric(Recorder_Afvangst_2$M1)
+Recorder_Afvangst_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
+Recorder_Afvangst_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
+Recorder_Afvangst_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
+
+rec_afvg_fname <- paste(wd, "/Ruwe Data/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(rec_afvg_fname, ".csv")
+write.csv2(rec_afvg_fname, Recorder_Afvangst_2)
 
 #Vergelijken met vorig bestand
 
@@ -867,4 +879,5 @@ remove(tempM1)
 remove(tempM2)
 remove(tempAM)
 remove(tempAV)
+
 
