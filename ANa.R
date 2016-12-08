@@ -862,9 +862,11 @@ Recorder_Afvangst_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
 Recorder_Afvangst_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
 Recorder_Afvangst_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
 
+Today <- Sys.Date()
+
 rec_afvg_fname <- paste(wd, "/Ruwe Data/Recorder_Afvangst_",Today, sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv")
-write.csv2(rec_afvg_fname, Recorder_Afvangst_2)
+write.csv2(Recorder_Afvangst_2, rec_afvg_fname)
 
 #Vergelijken met vorig bestand
 
