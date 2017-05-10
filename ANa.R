@@ -10,8 +10,8 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop ####
 
 ##WERK##
-imagepath <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
-wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+imagepath <- "C://Users/sander_devisscher/Google Drive/Faunabeheer/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+#wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ##THUIS##
 #imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
@@ -26,6 +26,7 @@ gdrive <- gs_read(title)
 
 #Import offline data####
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
+OFFLINE <- data.frame()
 offlinepath <- paste(wd, "/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties_2016-12-07.csv", sep="" )
 OFFLINE <- read.csv(offlinepath, sep=",")
 
@@ -53,7 +54,9 @@ temp <- Brondata
 temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,
                         ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,
                                ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,
-                                      ifelse(!is.na(temp$`Vijver - Nijlen`), temp$`Vijver - Nijlen`,NA))))
+                                      ifelse(!is.na(temp$`Vijver - Nijlen`), temp$`Vijver - Nijlen`,
+                                             ifelse(!is.na(temp$`Vijver - Scheps`),temp$`Vijver - Scheps`, NA)))))
+
 table(temp$Location)
 
 temp$Sample_Type <- temp$`Wat wil je melden`
@@ -68,7 +71,9 @@ if(nrow(NieuweLOC)==0){
 
 ####Check fouten invullers####
 table(temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "kris", "kris meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
 temp$Recorder <- temp$Invuller
 for (i in nrow(temp)){ 
   n <- temp$`Aantal werknemers`
@@ -88,6 +93,7 @@ temp$`Vijver - Arendonk` <- NULL
 temp$`Vijver - Kasterlee` <- NULL
 temp$`Vijver - Hoogstraten` <- NULL
 temp$`Vijver - Nijlen` <- NULL
+temp$`Vijver - Scheps` <- NULL
 #temp$Locatie <- NULL
 temp$`Gemeente/Deelgemeente` <- NULL
 temp$Invuller <- NULL
@@ -525,7 +531,7 @@ print(Afvangsten$CPUE)
 #Selecteer brondata voor grafieken
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
 
-Locations <- unique(GRA_Brondata$Location)
+
 
 GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum,'%d-%m-%Y')
 GRA_Brondata$Dag <- format(GRA_Brondata$Datum, format='%d')
@@ -556,13 +562,15 @@ GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[
 
 #CPUE per dag
 for(j in Jaren){
+  temp2 <- subset(GRA_Brondata, Jaar == j)
+  Locations <- unique(temp2$Location)
 for(i in Locations){
-  temp2 <- subset(GRA_Brondata, Location == i )
+  temp3 <- subset(temp2, Location == i )
   fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
-  plot <- ggplot(temp2, aes(x=Datum3, y=CPUE)) + 
+  plot <- ggplot(temp3, aes(x=Datum3, y=CPUE)) + 
     geom_bar(stat="identity", aes(fill="red"))
-  plot <- plot+ggtitle(i)
+  plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
   plot <- plot + expand_limits(x = 0, y = 0)
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
   plot <- plot + theme(legend.position="none")
@@ -576,13 +584,15 @@ for(i in Locations){
 
 #absoluut per dag
 for(j in Jaren){
+  temp2 <- subset(GRA_Brondata, Jaar == j)
+  Locations <- unique(temp2$Location)
 for(i in Locations){
-  temp2 <- subset(GRA_Brondata, Location == i )
+  temp3 <- subset(temp2, Location == i )
   fNaam <- paste(i ,"TOT", j, sep="_")
   #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
   fNaam <- paste(fNaam, ".jpeg", sep = "")
-  plot <- ggplot(temp2, aes(x=Datum3, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
-  plot <- plot + ggtitle(i)
+  plot <- ggplot(temp3, aes(x=Datum3, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+  plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", j))
   plot <- plot + expand_limits(x = 0, y = 0)
   plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
   plot <- plot + theme(legend.position="none")
