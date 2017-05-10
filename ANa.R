@@ -611,13 +611,14 @@ for(i in Locations){
 #### Bereken GSL ####
 GSL <- data.frame(X = Locations)
 Jaren <- unique(GRA_Brondata$Jaar)
-Locations <- unique(GRA_Brondata$Location)
+
 remove(temp6)
 temp6 <- data.frame()
 Locations <- sort(Locations)
 
 for (a in Jaren){
   temp <- subset(GRA_Brondata, Jaar == a) #=> Opgedeeld per jaar
+  Locations <- unique(temp$Location)
   for(i in Locations){
     temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
     number <- count(temp2)                #=> #records
@@ -817,7 +818,7 @@ for(a in Locations_Recorder){
                               , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
                               , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]", "[Snoek]"
                               , "[Kolblei]", "[Chinese wolhandkrab]", "[Geelgerande watertor]", "[Groene kikker]"
-                              , "[Bruine kikker]", "[Pad]", "[Goudvis]", "[Europese meerval]")
+                              , "[Bruine kikker]", "[Pad]", "[Goudvis]", "[Europese meerval]", )
       for(q in Recorder_Bijvangst){
         FNR3 <- paste(FNR, q, sep="")
         #temp6 <- subset(temp5, !is.na(FNR3))
