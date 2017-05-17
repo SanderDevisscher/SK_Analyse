@@ -11,7 +11,7 @@ library(reshape2)
 
 ##WERK##
 imagepath <- "C://Users/sander_devisscher/Google Drive/Faunabeheer/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
-#wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 
 ##THUIS##
 #imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
@@ -518,6 +518,8 @@ Afvangsten$Totaal_Larven.CPUE <- ifelse(is.na(Afvangsten$Totaal_Larven.CPUE),0, 
 print(Afvangsten$Totaal)
 print(Afvangsten$Totaal_Larven.All)
 print(Afvangsten$Totaal_Larven.CPUE)
+Afvangsten$`Aantal fuiken (Totaal)` <- as.numeric(Afvangsten$`Aantal fuiken (Totaal)`)
+print(Afvangsten$`Aantal fuiken (Totaal)`)
 
 ####Calculate CPUE####
 #CPUE = Catch per unit of effort.
@@ -609,16 +611,20 @@ for(i in Locations){
 
 
 #### Bereken GSL ####
-GSL <- data.frame(X = Locations)
+
 Jaren <- unique(GRA_Brondata$Jaar)
 
 remove(temp6)
 temp6 <- data.frame()
-Locations <- sort(Locations)
+GRA_Brondata2 <- subset(GRA_Brondata, !is.na(Location))
+
 
 for (a in Jaren){
-  temp <- subset(GRA_Brondata, Jaar == a) #=> Opgedeeld per jaar
+  temp6 <- data.frame()
+  temp <- subset(GRA_Brondata2, Jaar == a) #=> Opgedeeld per jaar
   Locations <- unique(temp$Location)
+  GSL <- data.frame(X = Locations)
+  Locations <- sort(Locations)
   for(i in Locations){
     temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
     number <- count(temp2)                #=> #records
@@ -693,10 +699,12 @@ for (a in Jaren){
   #Uitvoeren
   #test <- gs_new(title = "Geschat startaantal larven", ws_title = "GSL", input = GSL, trim = TRUE)
   #file.create(file=GSLfNaama, overwrite=T)
-  write.csv2(GSL, GSLfNaama)
+  write.csv(GSL, GSLfNaama)
+  print(GSLfNaama)
 }
 
-print(GSLfNaama)
+
+
 #Opkuis
   remove(temp)
   remove(temp2)
@@ -716,6 +724,8 @@ print(GSLfNaama)
 ####Klaarzetten voor recorder####
 #Data Selectie
 Recorder_Ruw <- Brondata
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 
 ####Afvangsten voor Recorder ####
 temp2 <- data.frame()
@@ -818,7 +828,7 @@ for(a in Locations_Recorder){
                               , "[Bruine Amerikaanse dwergmeerval]", "[Giebel]", "[Karper]", "[Paling]" 
                               , "[Rietvoorn]", "[Riviergrondel]", "[Zonnebaars]", "[Zeelt]", "[Snoek]"
                               , "[Kolblei]", "[Chinese wolhandkrab]", "[Geelgerande watertor]", "[Groene kikker]"
-                              , "[Bruine kikker]", "[Pad]", "[Goudvis]", "[Europese meerval]", )
+                              , "[Bruine kikker]", "[Pad]", "[Goudvis]", "[Europese meerval]" )
       for(q in Recorder_Bijvangst){
         FNR3 <- paste(FNR, q, sep="")
         #temp6 <- subset(temp5, !is.na(FNR3))
@@ -877,7 +887,7 @@ Today <- Sys.Date()
 
 rec_afvg_fname <- paste(wd, "/Ruwe Data/Recorder_Afvangst_",Today, sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv")
-write.csv2(Recorder_Afvangst_2, rec_afvg_fname)
+write.csv(Recorder_Afvangst_2, rec_afvg_fname)
 
 #Vergelijken met vorig bestand
 
