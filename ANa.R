@@ -562,11 +562,13 @@ GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
 #GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
 GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Jaar, GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
 
+temp <- subset(GRA_Brondata, !is.na(Location))
+
 #CPUE per dag
 for(j in Jaren){
-  temp2 <- subset(GRA_Brondata, Jaar == j)
+  temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
-for(i in Locations){
+  for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
@@ -586,9 +588,9 @@ for(i in Locations){
 
 #absoluut per dag
 for(j in Jaren){
-  temp2 <- subset(GRA_Brondata, Jaar == j)
+  temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
-for(i in Locations){
+  for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   fNaam <- paste(i ,"TOT", j, sep="_")
   #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
