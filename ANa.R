@@ -78,6 +78,7 @@ table(temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "kris meeus (prive)", "Kris Meeus", temp$Invuller)
 temp$Recorder <- temp$Invuller
 for (i in nrow(temp)){ 
   n <- temp$`Aantal werknemers`
@@ -565,19 +566,20 @@ GRA_Brondata$Datum2 <- paste(GRA_Brondata$Dag, GRA_Brondata$Maand2, sep="/")
 GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
 #GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
 
-GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Jaar, GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
+GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
 
 temp <- subset(GRA_Brondata, !is.na(Location))
-
+#### Grafieken per jaar ####
 #CPUE per dag
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
   for(i in Locations){
   temp3 <- subset(temp2, Location == i )
+  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
   fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
-  plot <- ggplot(temp3, aes(x=Datum2, y=CPUE)) + 
+  plot <- ggplot(temp3, aes(x=Datum3, y=CPUE)) + 
     geom_bar(stat="identity", aes(fill="red"))
   plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
   plot <- plot + expand_limits(x = 0, y = 0)
@@ -597,6 +599,7 @@ for(j in Jaren){
   Locations <- unique(temp2$Location)
   for(i in Locations){
   temp3 <- subset(temp2, Location == i )
+  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
   fNaam <- paste(i ,"TOT", j, sep="_")
   #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
   fNaam <- paste(fNaam, ".jpeg", sep = "")
@@ -612,6 +615,65 @@ for(j in Jaren){
   ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
 }
 }
+
+####Grafieken alle Jaren ####
+#CPUE per dag
+temp2 <- subset(GRA_Brondata, !is.na(Location))
+
+for(i in Locations){
+  temp3 <- subset(temp2, Location == i )
+  o <- n_distinct(temp3$Jaar)
+  if(o > 1){
+  temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
+  jmax <- max(temp3$Jaar)
+  jmin <- min(temp3$Jaar)
+  fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
+  fNaam <- paste(fNaam, ".jpeg", sep="")
+  plot <- ggplot(temp3, aes(x=Datum3, y=CPUE)) + 
+    geom_bar(stat="identity", aes(fill="red"))
+  plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", jmin, "-", jmax))
+  plot <- plot + expand_limits(x = 0, y = 0)
+  plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+  plot <- plot + theme(legend.position="none")
+  plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+  plot <- plot + xlab("Datum")
+  plot <- plot + ylab("CPUE")
+  print(plot)
+  ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+  }
+  else{
+    print(paste(i, "heeft slechts 1 jaar data"))
+  }
+}
+#absoluut per dag
+for(i in Locations){
+    temp3 <- subset(temp2, Location == i )
+    o <- n_distinct(temp3$Jaar)
+    if(o > 1){
+      temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+      temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
+      jmax <- max(temp3$Jaar)
+      jmin <- min(temp3$Jaar)
+    temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
+    fNaam <- paste(i ,"TOT",jmin, jmax, sep="_")
+    #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
+    fNaam <- paste(fNaam, ".jpeg", sep = "")
+    plot <- ggplot(temp3, aes(x=Datum3, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+    plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", jmin, "-", jmax))
+    plot <- plot + expand_limits(x = 0, y = 0)
+    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + theme(legend.position="none")
+    plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+    plot <- plot + xlab("Datum")
+    plot <- plot + ylab("Totaal")
+    print(plot)
+    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    }
+    else{
+      print(paste(i, "heeft slechts 1 jaar data"))}
+}
+
 
 #### tabel duur ####
 
