@@ -10,8 +10,12 @@ library(reshape2)
 #### Set standard paths => Veranderen indien andere pc/laptop ####
 
 ##WERK##
-imagepath <- "C://Users/sander_devisscher/Google Drive/Faunabeheer/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
-wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+#imagepath <- "C://Users/sander_devisscher/Google Drive/Faunabeheer/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
+#wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
+imagepath <- "./Output/" #Werk
+wd <- "./Input/SK Analyse"
+
+
 
 ##THUIS##
 #imagepath <- "C://Users/Sander/Google Drive Werk/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen"
@@ -560,6 +564,7 @@ GRA_Brondata$Maand2 <- ifelse(GRA_Brondata$Maand==1, "jan",
 GRA_Brondata$Datum2 <- paste(GRA_Brondata$Dag, GRA_Brondata$Maand2, sep="/")
 GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
 #GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
+
 GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Jaar, GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
 
 temp <- subset(GRA_Brondata, !is.na(Location))
@@ -572,7 +577,7 @@ for(j in Jaren){
   temp3 <- subset(temp2, Location == i )
   fNaam <- paste(i,"CPUE", j, sep="_")
   fNaam <- paste(fNaam, ".jpeg", sep="")
-  plot <- ggplot(temp3, aes(x=Datum3, y=CPUE)) + 
+  plot <- ggplot(temp3, aes(x=Datum2, y=CPUE)) + 
     geom_bar(stat="identity", aes(fill="red"))
   plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
   plot <- plot + expand_limits(x = 0, y = 0)
