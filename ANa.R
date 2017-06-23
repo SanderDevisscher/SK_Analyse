@@ -568,7 +568,34 @@ GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
 
 GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
 
+#Foute locaties verwijderen
 temp <- subset(GRA_Brondata, !is.na(Location))
+
+#Dubbele inputs verwijderen
+DubbeleInputs <- data.frame()
+temp4 <- temp
+for(j in Jaren){
+  temp2 <- subset(temp, Jaar == j)
+  Locations <- unique(temp2$Location)
+  for(i in Locations){
+   temp3 <- subset(temp2, Location == i )
+   Aantalrecords <- nrow(temp3)
+   Aantaldatums <- n_distinct(temp3$Datum)
+   if(Aantalrecords != Aantaldatums){
+     ThisLocation <- data.frame(x=i,y=j)
+     DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
+     temp4 <- subset(temp, Location != i & Jaar != j)
+   }
+  }
+}
+print("dubbele inputs verwijderd")
+temp <- temp4
+
+remove(temp2)
+remove(temp3)
+remove(temp4)
+remove(ThisLocation)
+
 #### Grafieken per jaar ####
 #CPUE per dag
 for(j in Jaren){
