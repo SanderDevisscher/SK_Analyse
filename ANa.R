@@ -13,7 +13,7 @@ library(reshape2)
 #imagepath <- "C://Users/sander_devisscher/Google Drive/Faunabeheer/EU_IAS/Stierkikker/Stierkikker data-analyse/Afbeeldingen" #Werk
 #wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 imagepath <- "./Output/" #Werk
-wd <- "./Input/SK Analyse"
+wd <- "./Input/"
 
 
 
@@ -31,7 +31,7 @@ gdrive <- gs_read(title)
 #Import offline data####
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
 OFFLINE <- data.frame()
-offlinepath <- paste(wd, "/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties_2016-12-07.csv", sep="" )
+offlinepath <- paste(wd, "Stierkikkerformulieren(Reacties)-Formulierreacties_2017-06-23.csv", sep="" )
 OFFLINE <- read.csv(offlinepath, sep=",")
 
 #Verify connection status####
@@ -549,7 +549,7 @@ GRA_Brondata$Maand <- as.numeric(GRA_Brondata$Maand)
 GRA_Brondata$Dag <- as.numeric(GRA_Brondata$Dag)
 
 
-Jaren <- unique(GRA_Brondata$Jaar)
+
 GRA_Brondata$Maand2 <- ifelse(GRA_Brondata$Maand==1, "jan", 
                               ifelse(GRA_Brondata$Maand==2, "feb",
                                      ifelse(GRA_Brondata$Maand==3, "mar",
@@ -572,7 +572,9 @@ GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[
 temp <- subset(GRA_Brondata, !is.na(Location))
 
 #Dubbele inputs verwijderen
+Jaren <- unique(GRA_Brondata$Jaar)
 DubbeleInputs <- data.frame()
+temp7 <- data.frame()
 temp4 <- temp
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
@@ -584,16 +586,22 @@ for(j in Jaren){
    if(Aantalrecords != Aantaldatums){
      ThisLocation <- data.frame(x=i,y=j)
      DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
-     temp4 <- subset(temp, Location != i & Jaar != j)
+     temp4 <- subset(temp, Location != i)
+     temp5 <- subset(temp, Location == i)
+     temp6 <- subset(temp5, Jaar != j)
+     temp7 <- rbind(temp4, temp6)
    }
   }
 }
 print("dubbele inputs verwijderd")
-temp <- temp4
+temp <- temp7
 
 remove(temp2)
 remove(temp3)
 remove(temp4)
+remove(temp5)
+remove(temp6)
+remove(temp7)
 remove(ThisLocation)
 
 #### Grafieken per jaar ####
