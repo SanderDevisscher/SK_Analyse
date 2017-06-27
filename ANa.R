@@ -575,7 +575,7 @@ temp <- subset(GRA_Brondata, !is.na(Location))
 Jaren <- unique(GRA_Brondata$Jaar)
 DubbeleInputs <- data.frame()
 temp7 <- data.frame()
-temp4 <- temp
+temp8 <- temp
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
@@ -594,7 +594,12 @@ for(j in Jaren){
   }
 }
 print("dubbele inputs verwijderd")
-temp <- temp7
+if(nrow(temp8)==nrow(temp4)){
+  temp <- temp8
+}else{
+  temp <- temp7
+}
+
 
 remove(temp2)
 remove(temp3)
@@ -602,6 +607,7 @@ remove(temp4)
 remove(temp5)
 remove(temp6)
 remove(temp7)
+remove(temp8)
 remove(ThisLocation)
 
 #### Grafieken per jaar ####
