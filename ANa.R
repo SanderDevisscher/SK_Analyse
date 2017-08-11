@@ -31,7 +31,7 @@ gdrive <- gs_read(title)
 #Import offline data####
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
 OFFLINE <- data.frame()
-offlinepath <- paste(wd, "Stierkikkerformulieren(Reacties)-Formulierreacties_2017-06-23.csv", sep="" )
+offlinepath <- paste(wd, "Stierkikkerformulieren(Reacties)-Formulierreacties_2017-08-11.csv", sep="" )
 OFFLINE <- read.csv(offlinepath, sep=",")
 
 #Verify connection status####
@@ -42,7 +42,7 @@ if(exists("gdrive")){
   if(nrow(Brondata)!=nrow(OFFLINE)){
   today <- Sys.Date()
   today2 <- paste("_", today, sep="")
-  offlinepath2 <- paste(wd,"/Ruwe Data/Stierkikkerformulieren(Reacties)-Formulierreacties",today2, sep="")
+  offlinepath2 <- paste(wd,"Stierkikkerformulieren(Reacties)-Formulierreacties",today2, sep="")
   offlinepath2 <- paste(offlinepath2, ".csv", sep="")
   write.csv2(Brondata, offlinepath2)
   ONLINE$Status <- "OFFLINE has been updated"
@@ -55,6 +55,11 @@ if(exists("gdrive")){
 temp <- Brondata
 
 #Check for new locations####
+temp$`Vijver - Kasterlee` <- ifelse(temp$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
+                                    ifelse(temp$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
+                                           ifelse(temp$`Vijver - Kasterlee` == "watermolen", "Watermolen", temp$`Vijver - Kasterlee`)))
+temp$`Vijver - Arendonk` <- ifelse(temp$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", temp$`Vijver - Arendonk`)
+
 temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk`,
                         ifelse(!is.na(temp$`Vijver - Kasterlee`), temp$`Vijver - Kasterlee`,
                                ifelse(!is.na(temp$`Vijver - Hoogstraten`), temp$`Vijver - Hoogstraten`,
@@ -62,6 +67,7 @@ temp$Location <- ifelse(!is.na(temp$`Vijver - Arendonk`),temp$`Vijver - Arendonk
                                              ifelse(!is.na(temp$`Vijver - Scheps`),temp$`Vijver - Scheps`, NA)))))
 
 table(temp$Location)
+
 
 temp$Sample_Type <- temp$`Wat wil je melden`
 table(temp$Sample_Type)
