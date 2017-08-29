@@ -729,8 +729,6 @@ temp_duur <- Brondata[c("Startuur", "Einduur", "Sample_Type", "Aantal fuiken (To
 temp_duur$secs <- (temp_duur$Einduur-temp_duur$Startuur)
 temp_duur$mins <- temp_duur$secs/60
 temp_duur$hours <- temp_duur$mins/60
-#temp_duur$hours_2 <- trunc(temp_duur$hours)
-#temp_duur$mins_2 <- temp_duur$mins - (temp_duur$hours_2*60)
 temp_duur$Aantal_Fuiken <- ifelse(!is.na(temp_duur$`Aantal fuiken (Totaal)`),temp_duur$`Aantal fuiken (Totaal)`, temp_duur$`Aantal fuiken geplaatst`)
 temp_duur$Aantal_Fuiken <- as.numeric(temp_duur$Aantal_Fuiken)
 
@@ -747,6 +745,29 @@ for (s in Sample_Types){
   temp2$m_hours <- m_hours
   temp3 <- rbind(temp3, temp2)
 }
+
+tijdsconsumtie <- temp3
+temp_succes <- GRA_Brondata
+temp_succes$Totaal <- ifelse(!is.na(temp_succes$Totaal),temp_succes$Totaal,0)
+Locations <- unique(temp_succes$Location)
+temp3 <- data.frame()
+temp2 <- data.frame(x)
+for(l in Locations){
+  temp <- subset(temp_succes, Location == l)
+  temp2$Totaal <- sum(temp$Totaal)
+  temp2$Location <- l
+  temp2$m_CPUE <- mean(temp$CPUE)
+  temp3 <- rbind(temp3, temp2)
+}
+
+Succesrate <- temp3
+Succesrate$t_vangst <- Succesrate$m_CPUE/Succesrate$Totaal
+t_vangst <- subset(Succesrate, !is.na(t_vangst))
+print("Aantal eenheden van inspanning gemiddeld nodig voor het detecteren van 1 individu")
+print(m_t_vangst <- mean(t_vangst$t_vangst))
+temp_UE <- subset(tijdsconsumtie, Sample_Type == c("Plaatsen van fuiken", "Afvangst"))
+temp_UE$m_hours <- as.numeric(temp_UE$m_hours)
+TPUE <- sum(temp_UE$m_hours)
 
 #### Bereken GSL ####
 
