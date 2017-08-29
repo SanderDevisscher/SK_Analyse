@@ -32,7 +32,7 @@ gdrive <- gs_read(title)
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
 OFFLINE <- data.frame()
 offlinepath <- paste(wd, "Stierkikkerformulieren(Reacties)-Formulierreacties_2017-08-11.csv", sep="" )
-OFFLINE <- read.csv(offlinepath, sep=",")
+OFFLINE <- read.csv(offlinepath, sep=";")
 
 #Verify connection status####
 Brondata <- get0("gdrive", ifnotfound=OFFLINE)
@@ -723,8 +723,30 @@ for(i in Locations){
 
 
 #### tabel duur ####
+library(chron)
 
+temp_duur <- Brondata[c("Startuur", "Einduur", "Sample_Type", "Aantal fuiken (Totaal)", "Aantal fuiken geplaatst")]
+temp_duur$secs <- (temp_duur$Einduur-temp_duur$Startuur)
+temp_duur$mins <- temp_duur$secs/60
+temp_duur$hours <- temp_duur$mins/60
+#temp_duur$hours_2 <- trunc(temp_duur$hours)
+#temp_duur$mins_2 <- temp_duur$mins - (temp_duur$hours_2*60)
+temp_duur$Aantal_Fuiken <- ifelse(!is.na(temp_duur$`Aantal fuiken (Totaal)`),temp_duur$`Aantal fuiken (Totaal)`, temp_duur$`Aantal fuiken geplaatst`)
+temp_duur$Aantal_Fuiken <- as.numeric(temp_duur$Aantal_Fuiken)
 
+temp_duur <- subset(temp_duur, !is.na(Aantal_Fuiken))
+temp_duur$h_per_fuik <- temp_duur$hours/temp_duur$Aantal_Fuiken
+
+Sample_Types <- unique(temp_duur$Sample_Type)
+temp3 <- data.frame()
+temp2 <- data.frame(x)
+for (s in Sample_Types){
+  temp <- subset(temp_duur, Sample_Type == s)
+  m_hours <- mean(temp$h_per_fuik)
+  temp2$Sample_Type <- s
+  temp2$m_hours <- m_hours
+  temp3 <- rbind(temp3, temp2)
+}
 
 #### Bereken GSL ####
 
