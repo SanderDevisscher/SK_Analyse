@@ -727,7 +727,44 @@ library(chron)
 #Select Data
 temp_duur <- Brondata[c("Datum","Locatie","Startuur", "Einduur", "Sample_Type", "Aantal fuiken (Totaal)", "Aantal fuiken geplaatst")]
 
-#Remove proefvangsten due to abnormally long duration of action.
+#Remove startup catches due to abnormally long duration of action.
+#Arendonk 26-4-2016 & 27-4-2016
+temp_duur1 <- subset(temp_duur, Locatie == "Arendonk") 
+temp_duur1 <- subset(temp_duur1, Datum != "26-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Arendonk") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+temp_duur1 <- subset(temp_duur, Locatie == "Arendonk") 
+temp_duur1 <- subset(temp_duur1, Datum != "27-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Arendonk") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Kasterlee 26-4-2016 & 27-4-2016
+temp_duur1 <- subset(temp_duur, Locatie == "Kasterlee") 
+temp_duur1 <- subset(temp_duur1, Datum != "26-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Kasterlee") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+temp_duur1 <- subset(temp_duur, Locatie == "Kasterlee") 
+temp_duur1 <- subset(temp_duur1, Datum != "27-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Kasterlee") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Hoogstraten 28-4-2016 & 29-4-2016
+temp_duur1 <- subset(temp_duur, Locatie == "Hoogstraten") 
+temp_duur1 <- subset(temp_duur1, Datum != "28-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Hoogstraten") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+temp_duur1 <- subset(temp_duur, Locatie == "Hoogstraten") 
+temp_duur1 <- subset(temp_duur1, Datum != "29-4-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Hoogstraten") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Nijlen 25-7-2016 & 26-7-2016
+temp_duur1 <- subset(temp_duur, Locatie == "Nijlen") 
+temp_duur1 <- subset(temp_duur1, Datum != "25-7-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Nijlen") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+temp_duur1 <- subset(temp_duur, Locatie == "Nijlen") 
+temp_duur1 <- subset(temp_duur1, Datum != "26-7-2016")
+temp_duur2 <- subset(temp_duur, Locatie != "Nijlen") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+
 #Hoogstraten 19-4-2017
 temp_duur1 <- subset(temp_duur, Locatie == "Hoogstraten") 
 temp_duur1 <- subset(temp_duur1, Datum != "19-4-2017")
