@@ -724,8 +724,31 @@ for(i in Locations){
 
 #### tabel duur ####
 library(chron)
+#Select Data
+temp_duur <- Brondata[c("Datum","Locatie","Startuur", "Einduur", "Sample_Type", "Aantal fuiken (Totaal)", "Aantal fuiken geplaatst")]
 
-temp_duur <- Brondata[c("Startuur", "Einduur", "Sample_Type", "Aantal fuiken (Totaal)", "Aantal fuiken geplaatst")]
+#Remove proefvangsten due to abnormally long duration of action.
+#Hoogstraten 19-4-2017
+temp_duur1 <- subset(temp_duur, Locatie == "Hoogstraten") 
+temp_duur1 <- subset(temp_duur1, Datum != "19-4-2017")
+temp_duur2 <- subset(temp_duur, Locatie != "Hoogstraten") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Arendonk 26-4-2017
+temp_duur1 <- subset(temp_duur, Locatie == "Arendonk") 
+temp_duur1 <- subset(temp_duur1, Datum != "26-4-2017")
+temp_duur2 <- subset(temp_duur, Locatie != "Arendonk") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Kasterlee 26-4-2017
+temp_duur1 <- subset(temp_duur, Locatie == "Kasterlee") 
+temp_duur1 <- subset(temp_duur1, Datum != "26-4-2017")
+temp_duur2 <- subset(temp_duur, Locatie != "Kasterlee") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+#Nijlen 10-5-2017
+temp_duur1 <- subset(temp_duur, Locatie == "Nijlen") 
+temp_duur1 <- subset(temp_duur1, Datum != "10-5-2017")
+temp_duur2 <- subset(temp_duur, Locatie != "Nijlen") 
+temp_duur <- rbind(temp_duur1,temp_duur2)
+
 temp_duur$secs <- (temp_duur$Einduur-temp_duur$Startuur)
 temp_duur$mins <- temp_duur$secs/60
 temp_duur$hours <- temp_duur$mins/60
