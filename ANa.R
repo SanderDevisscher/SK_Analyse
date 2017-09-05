@@ -860,6 +860,7 @@ for (a in Jaren){
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
     temp5$LastCapture <- temp7$Totaal
+    temp5$Datum_LastCapture <- temp7$Datum
     temp5$LastCapture <- ifelse(!is.na(temp5$LastCapture), temp5$LastCapture, 0)
     temp5$L00 <- ifelse(!is.na(temp7$L00), temp7$L00, 0)
     temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
@@ -906,7 +907,7 @@ for (a in Jaren){
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
   #Juiste kolommen kiezen
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Resterend_Min", "Resterend_Max", "LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   GSL$x <- NULL
   
