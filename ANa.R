@@ -796,7 +796,7 @@ temp_duur$Aantal_Fuiken <- as.numeric(temp_duur$Aantal_Fuiken)
 temp_duur <- subset(temp_duur, !is.na(Aantal_Fuiken))
 temp_duur$h_per_fuik <- temp_duur$hours/temp_duur$Aantal_Fuiken
 
-tijdsconsumtie <- ddply(temp_duur, c("Sample_Type", "Locatie"), summarise,
+tijdsconsumtie_pLoc <- ddply(temp_duur, c("Sample_Type", "Locatie"), summarise,
                    Gemiddelde = mean(h_per_fuik, na.rm=TRUE),
                    N = length(h_per_fuik),
                    sd   = sd(h_per_fuik, na.rm=TRUE),
@@ -804,7 +804,7 @@ tijdsconsumtie <- ddply(temp_duur, c("Sample_Type", "Locatie"), summarise,
                    min= min(h_per_fuik),
                    error = qnorm(0.975)*sd/sqrt(N))
 
-ggplot(tijdsconsumtie, aes(x=as.factor(Sample_Type))) + 
+ggplot(tijdsconsumtie_pLoc, aes(x=as.factor(Sample_Type))) + 
   geom_point(aes (y=Gemiddelde), size=4) +
   geom_errorbar(aes(ymin = Gemiddelde-error, ymax = Gemiddelde+error), width=0, size=1) + 
   theme_bw() +
@@ -814,9 +814,25 @@ ggplot(tijdsconsumtie, aes(x=as.factor(Sample_Type))) +
   xlab("Sample_Type")
 #ggsave(file = "./Output/Onderkaken_licentiejacht_2017_error.jpg", width = 22.4 /2.54, height = 15 / 2.54, dpi = 300)
 
+tijdsconsumtie <- ddply(temp_duur, c("Sample_Type"), summarise,
+                        Gemiddelde = mean(h_per_fuik, na.rm=TRUE),
+                        N = length(h_per_fuik),
+                        sd   = sd(h_per_fuik, na.rm=TRUE),
+                        max= max(h_per_fuik),
+                        min= min(h_per_fuik),
+                        error = qnorm(0.975)*sd/sqrt(N))
 
-tijdsconsumtie <- temp3
+ggplot(tijdsconsumtie, aes(x=as.factor(Sample_Type))) + 
+  geom_point(aes (y=Gemiddelde), size=4) +
+  geom_errorbar(aes(ymin = Gemiddelde-error, ymax = Gemiddelde+error), width=0, size=1) + 
+  theme_bw() +
+  #theme_inbo(13) +
+  ylab("Gemiddelde (+/-fout)")+
+  xlab("Sample_Type")
 
+ggplot(temp_duur, aes(x=Aantal_Fuiken, y=hours))+
+         geom_point()+
+        facet
 
 
 #Succes => Voorlopig niet
