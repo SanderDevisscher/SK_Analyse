@@ -5,6 +5,7 @@ library(ggplot2)
 library(plyr)
 library(dplyr)
 library(reshape2)
+library(INBOtheme)
 
 
 #### Set standard paths => Veranderen indien andere pc/laptop ####
@@ -795,18 +796,30 @@ temp_duur$Aantal_Fuiken <- as.numeric(temp_duur$Aantal_Fuiken)
 temp_duur <- subset(temp_duur, !is.na(Aantal_Fuiken))
 temp_duur$h_per_fuik <- temp_duur$hours/temp_duur$Aantal_Fuiken
 
-Sample_Types <- unique(temp_duur$Sample_Type)
-temp3 <- data.frame()
-temp2 <- data.frame(x)
-for (s in Sample_Types){
-  temp <- subset(temp_duur, Sample_Type == s)
-  m_hours <- mean(temp$h_per_fuik)
-  temp2$Sample_Type <- s
-  temp2$m_hours <- m_hours
-  temp3 <- rbind(temp3, temp2)
-}
+tijdsconsumtie <- ddply(temp_duur, c("Sample_Type", "Locatie"), summarise,
+                   Gemiddelde = mean(h_per_fuik, na.rm=TRUE),
+                   N = length(h_per_fuik),
+                   sd   = sd(h_per_fuik, na.rm=TRUE),
+                   max= max(h_per_fuik),
+                   min= min(h_per_fuik),
+                   error = qnorm(0.975)*sd/sqrt(N))
+
+ggplot(tijdsconsumtie, aes(x=as.factor(Sample_Type))) + 
+  geom_point(aes (y=Gemiddelde), size=4) +
+  geom_errorbar(aes(ymin = Gemiddelde-error, ymax = Gemiddelde+error), width=0, size=1) + 
+  theme_bw() +
+  facet_wrap(~Locatie)+
+  #theme_inbo(13) +
+  ylab("Gemiddelde (+/-fout)")+
+  xlab("Sample_Type")
+#ggsave(file = "./Output/Onderkaken_licentiejacht_2017_error.jpg", width = 22.4 /2.54, height = 15 / 2.54, dpi = 300)
+
 
 tijdsconsumtie <- temp3
+
+
+
+#Succes => Voorlopig niet
 temp_succes <- GRA_Brondata
 temp_succes$Totaal <- ifelse(!is.na(temp_succes$Totaal),temp_succes$Totaal,0)
 Locations <- unique(temp_succes$Location)
