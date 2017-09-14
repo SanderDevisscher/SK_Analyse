@@ -73,6 +73,22 @@ table(temp$Location)
 temp$Sample_Type <- temp$`Wat wil je melden`
 table(temp$Sample_Type)
 
+#Newlocs loop
+VasteLOC <- subset(temp, !is.na(temp$Location))
+NieuweLOC <- subset(temp, is.na(temp$Location))
+if(nrow(NieuweLOC)==0){
+  remove(NieuweLOC)
+  remove(VasteLOC)
+}
+
+#Remove incorrect new locs
+temp <- subset(temp, Tijdstempel != "15-5-2017 23:50:47")
+temp <- subset(temp, Tijdstempel != "15-5-2017 23:58:58")
+temp <- subset(temp, Tijdstempel != "15-5-2017 23:45:35")
+temp <- subset(temp, Tijdstempel != "15-5-2017 23:47:36")
+temp <- subset(temp, Tijdstempel != "17-5-2017 11:50:04")
+temp <- subset(temp, Tijdstempel != "17-5-2017 11:56:51")
+#Rerun newlocs loop
 VasteLOC <- subset(temp, !is.na(temp$Location))
 NieuweLOC <- subset(temp, is.na(temp$Location))
 if(nrow(NieuweLOC)==0){
