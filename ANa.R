@@ -846,9 +846,10 @@ ggplot(tijdsconsumtie, aes(x=as.factor(Sample_Type))) +
   ylab("Gemiddelde (+/-fout)")+
   xlab("Sample_Type")
 
-ggplot(temp_duur, aes(x=Aantal_Fuiken, y=hours))+
+ggplot(temp_duur, aes(x=Aantal_Fuiken, y=hours, shape = factor(temp_duur$Locatie)))+
          geom_point()+
-        facet
+          facet_wrap(~Sample_Type)+
+
 
 
 #Succes => Voorlopig niet
