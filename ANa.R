@@ -128,6 +128,9 @@ temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
 
+#Manually correct NA's in Aantal fuiken in Brondata
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
+
 Brondata <- temp
 
 ####GRAFIEKEN####
@@ -548,6 +551,9 @@ print(Afvangsten$Totaal_Larven.All)
 print(Afvangsten$Totaal_Larven.CPUE)
 Afvangsten$`Aantal fuiken (Totaal)` <- as.numeric(Afvangsten$`Aantal fuiken (Totaal)`)
 print(Afvangsten$`Aantal fuiken (Totaal)`)
+
+
+
 
 ####Calculate CPUE####
 #CPUE = Catch per unit of effort.

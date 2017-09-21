@@ -10,6 +10,7 @@ Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken 
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
+sum(temp3A$`Aantal fuiken (Totaal)`)
 Locations_Recorder <- unique(Recorder_Ruw$Location)
 
 #Resultaten Doelsoort toevoegen
@@ -38,7 +39,7 @@ for(x in Locations_Recorder){
       FNRL2 <- paste(FNR, "L2", sep= " - ")
       FNRM1 <- paste(FNR, "M1", sep= " - ")
       FNRM2 <- paste(FNR, "M2", sep= " - ")
-      #FNRAM <- paste(FNR, "AM", sep= " - ") => voorlopig geen AM gevangen geeft error :-(
+      FNRAM <- paste(FNR, "AM", sep= " - ")
       FNRAV <- paste(FNR, "AV", sep= " - ")
       temp5$L00 <- ifelse(is.na(temp5[FNRL00]), 0, temp5[FNRL00])
       temp5$L0 <- ifelse(is.na(temp5[FNRL0]), 0, temp5[FNRL0])
@@ -46,8 +47,7 @@ for(x in Locations_Recorder){
       temp5$L2 <- ifelse(is.na(temp5[FNRL2]), 0, temp5[FNRL2])
       temp5$M1 <- ifelse(is.na(temp5[FNRM1]), 0, temp5[FNRM1])
       temp5$M2 <- ifelse(is.na(temp5[FNRM2]), 0, temp5[FNRM2])
-      #temp5$AM <- ifelse(is.na(temp5[FNRAM]), 0, temp5[FNRAM]) => voorlopig geen AM gevangen geeft error :-(
-      temp5$AM <- 0
+      temp5$AM <- ifelse(is.na(temp5[FNRAM]), 0, temp5[FNRAM])
       temp5$AV <- ifelse(is.na(temp5[FNRAV]), 0, temp5[FNRAV])
       temp2 <- rbind(temp2,temp5)
     }
@@ -57,8 +57,8 @@ for(x in Locations_Recorder){
 
 #Nuttige kolommen selecteren
 
-temp2 <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
-
+Recorder_Afvangst <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
+temp2 <- NULL
 #Tussentijdse opruim
 
 temp6 <- temp2
