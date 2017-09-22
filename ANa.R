@@ -130,6 +130,26 @@ temp$`Aantal werknemers` <- NULL
 
 ####Manually correct NA's in Aantal fuiken in Brondata####
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:45:28", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:50:30", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:04:04", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:18:34", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:12:05", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:48:21", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:52:58", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:55:16", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:56:54", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:59:21", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 13:02:53", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 13:06:01", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "19-5-2016 0:08:54", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:25:13", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:41:34", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:55:46", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:48:47", 4, temp$`Aantal fuiken (Totaal)`)
+
+test <- subset(temp, Sample_Type == "Afvangst")
+test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
 
 ####Dubbele inputs verwijderen####
 #Dubbele datums verwijderen
