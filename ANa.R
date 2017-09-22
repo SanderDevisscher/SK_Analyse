@@ -128,14 +128,85 @@ temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
 
-#Manually correct NA's in Aantal fuiken in Brondata
+####Manually correct NA's in Aantal fuiken in Brondata####
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
+
+####Dubbele inputs verwijderen####
+#Dubbele datums verwijderen
+temp <- subset(temp, Tijdstempel != "14-5-2016 13:06:01")
+temp <- subset(temp, Tijdstempel != "9-8-2016 23:58:14")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:16:52")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:18:19")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:19:35")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:21:58")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:28:57")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:18:18")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:13:07")
+
+
+#foute sample type fixen
+temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:49:54", "Afvangst SFB",temp$Sample_Type )
+temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:51:44", "Afvangst SFD",temp$Sample_Type )
+temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:34:23", "Afvangst SFB",temp$Sample_Type )
+temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:35:49", "Afvangst SFD",temp$Sample_Type )
+
+#Check loop
+temp$Jaar <- format(temp$Datum, format='%Y')
+Jaren <- unique(temp$Jaar)
+DubbeleInputs <- data.frame()
+DubbeleDatums <- data.frame()
+temp7 <- data.frame()
+temp8 <- temp
+for(j in Jaren){
+  temp2 <- subset(temp, Jaar == j)
+  Locations <- unique(temp2$Location)
+  for(i in Locations){
+    temp3 <- subset(temp2, Location == i )
+    Aantalrecords <- nrow(temp3)
+    Aantaldatums <- n_distinct(temp3$Datum)
+    if(Aantalrecords != Aantaldatums){
+      ThisLocation <- data.frame(x=i,y=j)
+      DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
+      temp4 <- subset(temp, Location != i)
+      temp5 <- subset(temp, Location == i)
+      temp6 <- subset(temp5, Jaar != j)
+      temp7 <- rbind(temp4, temp6)
+      #Filter Duplicates
+      temp5 <- subset(temp5, Sample_Type == "Afvangst" )
+      datums <- unique(temp5$Datum)
+      for(d in datums){
+        DubbeleDatums <- subset(temp5, Datum == d)
+        if(nrow(DubbeleDatums)>1){
+          stop("dubbele datums")
+        }
+      }
+    }
+  }
+}
+print("dubbele inputs verwijderd")
+if(nrow(temp8)==nrow(temp4)){
+  temp <- temp8
+}else{
+  temp <- temp7
+}
+
+
+remove(temp2)
+remove(temp3)
+remove(temp4)
+remove(temp5)
+remove(temp6)
+remove(temp7)
+remove(temp8)
+remove(ThisLocation)
+
+
 
 Brondata <- temp
 
 ####GRAFIEKEN####
 #Enkel Afvangsten voor grafiekjes
-Afvangsten <- subset(temp, Sample_Type == "Afvangst")
+Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
 Afvangsten$L00 <- NA
 Afvangsten$L0 <- NA
 Afvangsten$L1 <- NA
@@ -599,45 +670,7 @@ GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[
 
 #Foute locaties verwijderen
 temp <- subset(GRA_Brondata, !is.na(Location))
-
-#Dubbele inputs verwijderen
-Jaren <- unique(GRA_Brondata$Jaar)
-DubbeleInputs <- data.frame()
-temp7 <- data.frame()
-temp8 <- temp
-for(j in Jaren){
-  temp2 <- subset(temp, Jaar == j)
-  Locations <- unique(temp2$Location)
-  for(i in Locations){
-   temp3 <- subset(temp2, Location == i )
-   Aantalrecords <- nrow(temp3)
-   Aantaldatums <- n_distinct(temp3$Datum)
-   if(Aantalrecords != Aantaldatums){
-     ThisLocation <- data.frame(x=i,y=j)
-     DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
-     temp4 <- subset(temp, Location != i)
-     temp5 <- subset(temp, Location == i)
-     temp6 <- subset(temp5, Jaar != j)
-     temp7 <- rbind(temp4, temp6)
-   }
-  }
-}
-print("dubbele inputs verwijderd")
-if(nrow(temp8)==nrow(temp4)){
-  temp <- temp8
-}else{
-  temp <- temp7
-}
-
-
-remove(temp2)
-remove(temp3)
-remove(temp4)
-remove(temp5)
-remove(temp6)
-remove(temp7)
-remove(temp8)
-remove(ThisLocation)
+Jaren <- unique(temp$Jaar)
 
 #### Grafieken per jaar ####
 #CPUE per dag

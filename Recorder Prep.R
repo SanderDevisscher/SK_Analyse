@@ -10,7 +10,7 @@ Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken 
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
-sum(temp3A$`Aantal fuiken (Totaal)`)
+checksum <- sum(temp3A$`Aantal fuiken (Totaal)`)
 Locations_Recorder <- unique(Recorder_Ruw$Location)
 
 #Resultaten Doelsoort toevoegen
@@ -58,6 +58,12 @@ for(x in Locations_Recorder){
 #Nuttige kolommen selecteren
 
 Recorder_Afvangst <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
+if(nrow(Recorder_Afvangst) != checksum){
+  print("checksum fail")
+}
+ 
+
+
 temp2 <- NULL
 #Tussentijdse opruim
 
