@@ -147,6 +147,11 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:25:13"
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:41:34", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:55:46", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:48:47", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:00:13", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:15:32", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
