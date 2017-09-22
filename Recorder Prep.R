@@ -11,7 +11,7 @@ temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
 checksum <- sum(temp3A$`Aantal fuiken (Totaal)`)
-Locations_Recorder <- unique(Recorder_Ruw$Location)
+Locations_Recorder <- unique(temp3A$Location)
 
 #Resultaten Doelsoort toevoegen
 
@@ -60,23 +60,19 @@ for(x in Locations_Recorder){
 Recorder_Afvangst <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
 if(nrow(Recorder_Afvangst) != checksum){
   print("checksum fail")
+}else{
+  temp2 <- NULL
 }
- 
 
-
-temp2 <- NULL
 #Tussentijdse opruim
 
-temp6 <- temp2
-remove(temp2)
 remove(temp5)
 remove(temp3)
+remove(temp3A)
 remove(temp4)
 
 #Soort, Grid reference en accuracy toevoegen
 
-Recorder_Afvangst <- data.frame()
-Recorder_Afvangst <- temp6
 Recorder_Afvangst$Species <- "Lithobates catesbeianus"
 
 title <- gs_title(x="Locaties", verbose = TRUE)
@@ -170,8 +166,8 @@ Recorder_Afvangst_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
 
 Today <- Sys.Date()
 
-rec_afvg_fname <- paste(wd, "/Ruwe Data/Recorder_Afvangst_",Today, sep="")
-rec_afvg_fname <- paste(rec_afvg_fname, ".csv")
+rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
 write.csv(Recorder_Afvangst_2, rec_afvg_fname)
 
 #Vergelijken met vorig bestand
