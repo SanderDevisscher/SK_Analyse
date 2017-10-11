@@ -486,7 +486,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -509,7 +509,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
-    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -537,7 +537,7 @@ for(i in Locations){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))
@@ -565,7 +565,7 @@ for(i in Locations){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
-    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
@@ -792,7 +792,7 @@ for (a in Jaren){
   
   
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
-  GSLfNaama <- paste(imagepath, GSLfNaam, sep="/" )
+  GSLfNaama <- paste(imagepath2, GSLfNaam, sep="/" )
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #Uitvoeren

@@ -15,6 +15,7 @@ library(reshape2)
 #wd <- "C://Users/sander_devisscher/Google Drive/EU_IAS/Stierkikker/Stierkikker data-analyse/SK Analyse"
 imagepath <- "./Output/" #Werk
 wd <- "./Input/"
+imagepath2 <- "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker (Lithobates catesbeianus)/Opvolging beheer/Stierkikker data-analyse/Afbeeldingen/"
 
 
 
