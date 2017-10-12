@@ -1,5 +1,7 @@
 #RUN ANa.R first
 
+library(googlesheets) 
+
 ####Klaarzetten voor recorder####
 #Data Selectie
 Recorder_Ruw <- Brondata
@@ -170,9 +172,23 @@ rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
 write.csv(Recorder_Afvangst_2, rec_afvg_fname)
 
-#Vergelijken met vorig bestand
+Log <- read.csv("./Input/Recorder/Log.csv")
+Log$X <- NULL
+Log$Date <- as.Date.factor(Log$Date)
+i <- tail(Log$i, n=1)+1
+temp_Log <- data.frame(i)
+temp_Log$Date <- as.Date.factor(Today)
+temp_Log$FileName <- rec_afvg_fname
+Log <- rbind(Log, temp_Log)
+write.csv(Log, "./Input/Recorder/Log.csv")
 
-Recorder_Afvangst_Vorig <- read.csv2("file://Ruwe Data/Recorder_Afvangst_2016-08-29.csv")
+####Vergelijken met vorige imports####
+#Import 2016
+Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/SK Analyse/Ruwe Data/Recorder_Afvangst_2016-12-12 .csv")
+
+#
+
+
 
 #Opruimen
 remove(tempL00) 
