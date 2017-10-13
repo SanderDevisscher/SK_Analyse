@@ -1,6 +1,8 @@
 #RUN ANa.R first
 
 library(googlesheets) 
+library(dplyr)
+
 
 ####Klaarzetten voor recorder####
 #Data Selectie
@@ -185,10 +187,22 @@ write.csv(Log, "./Input/Recorder/Log.csv")
 ####Vergelijken met vorige imports####
 #Import 2016
 Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/SK Analyse/Ruwe Data/Recorder_Afvangst_2016-12-12 .csv")
+#Import 2017
+#Nog uit te voeren
 
-#
+#Merge
+#Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
+Recorder_Afvangst_vorig <- Recorder_Afvangst_2016
+
+#Compare
+
+Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date, 
+                                            Recorder_Afvangst_vorig$Locationname, Recorder_Afvangst_vorig$Species)
+Recorder_Afvangst_2$comparekey <- paste(Recorder_Afvangst_2$Location, Recorder_Afvangst_2$Date, 
+                                        Recorder_Afvangst_2$Locationname, Recorder_Afvangst_2$Species)
 
 
+Recorder_Afvangst_3 <- anti_join(Recorder_Afvangst_2, Recorder_Afvangst_vorig, by = "comparekey")
 
 #Opruimen
 remove(tempL00) 
