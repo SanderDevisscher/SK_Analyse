@@ -168,25 +168,11 @@ Recorder_Afvangst_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
 Recorder_Afvangst_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
 Recorder_Afvangst_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
 
-Today <- Sys.Date()
 
-rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
-rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
-write.csv(Recorder_Afvangst_2, rec_afvg_fname)
-
-Log <- read.csv("./Input/Recorder/Log.csv")
-Log$X <- NULL
-Log$Date <- as.Date.factor(Log$Date)
-i <- tail(Log$i, n=1)+1
-temp_Log <- data.frame(i)
-temp_Log$Date <- as.Date.factor(Today)
-temp_Log$FileName <- rec_afvg_fname
-Log <- rbind(Log, temp_Log)
-write.csv(Log, "./Input/Recorder/Log.csv")
 
 ####Vergelijken met vorige imports####
 #Import 2016
-Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/SK Analyse/Ruwe Data/Recorder_Afvangst_2016-12-12 .csv")
+Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
 #Import 2017
 #Nog uit te voeren
 
@@ -225,7 +211,26 @@ Recorder_Afvangst_vorig$comparekey <- ordered(x =Recorder_Afvangst_vorig$compare
 Recorder_Afvangst_vorig$comparekey <- as.character(Recorder_Afvangst_vorig$comparekey)
 Recorder_Afvangst_2$comparekey <- ordered(x=Recorder_Afvangst_2$comparekey)
 Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
-Recorder_Afvangst_3 <- full_join(Recorder_Afvangst_2, Recorder_Afvangst_vorig, by = "comparekey")
+
+Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
+
+####Output####
+Today <- Sys.Date()
+
+rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
+write.csv(Recorder_Afvangst_3, rec_afvg_fname)
+
+Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+Log$X <- NULL
+Log$Date <- as.Date.factor(Log$Date)
+i <- tail(Log$i, n=1)+1
+temp_Log <- data.frame(i)
+temp_Log$Date <- as.Date.factor(Today)
+temp_Log$FileName <- rec_afvg_fname
+temp_Log$rows <- nrow(Recorder_Afvangst_3)
+Log <- rbind(Log, temp_Log)
+write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 
 #Opruimen
 remove(tempL00) 
