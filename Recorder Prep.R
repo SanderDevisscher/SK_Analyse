@@ -196,6 +196,11 @@ Recorder_Afvangst_vorig <- Recorder_Afvangst_2016
 
 #Compare
 
+Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date, 
+                                            Recorder_Afvangst_vorig$Locationname, Recorder_Afvangst_vorig$Species)
+Recorder_Afvangst_2$comparekey <- paste(Recorder_Afvangst_2$Location, Recorder_Afvangst_2$Date, 
+                                        Recorder_Afvangst_2$Locationname, Recorder_Afvangst_2$Species)
+
 Recorder_Afvangst_vorig$Location <- as.character(Recorder_Afvangst_vorig$Location)
 Recorder_Afvangst_vorig$Sample_Type <- as.character(Recorder_Afvangst_vorig$Sample_Type)
 Recorder_Afvangst_vorig$Locationname <- as.character(Recorder_Afvangst_vorig$Locationname)
@@ -216,7 +221,11 @@ Recorder_Afvangst_vorig$Date <- as.character(Recorder_Afvangst_vorig$Date)
 Recorder_Afvangst_vorig$comparekey <- as.character(Recorder_Afvangst_vorig$comparekey)
 Recorder_Afvangst_vorig$X <- NULL
 
-Recorder_Afvangst_3 <- anti_join(Recorder_Afvangst_2, Recorder_Afvangst_vorig, by = "comparekey")
+Recorder_Afvangst_vorig$comparekey <- ordered(x =Recorder_Afvangst_vorig$comparekey)
+Recorder_Afvangst_vorig$comparekey <- as.character(Recorder_Afvangst_vorig$comparekey)
+Recorder_Afvangst_2$comparekey <- ordered(x=Recorder_Afvangst_2$comparekey)
+Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
+Recorder_Afvangst_3 <- full_join(Recorder_Afvangst_2, Recorder_Afvangst_vorig, by = "comparekey")
 
 #Opruimen
 remove(tempL00) 
