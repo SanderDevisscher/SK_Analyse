@@ -196,11 +196,25 @@ Recorder_Afvangst_vorig <- Recorder_Afvangst_2016
 
 #Compare
 
-Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date, 
-                                            Recorder_Afvangst_vorig$Locationname, Recorder_Afvangst_vorig$Species)
-Recorder_Afvangst_2$comparekey <- paste(Recorder_Afvangst_2$Location, Recorder_Afvangst_2$Date, 
-                                        Recorder_Afvangst_2$Locationname, Recorder_Afvangst_2$Species)
-
+Recorder_Afvangst_vorig$Location <- as.character(Recorder_Afvangst_vorig$Location)
+Recorder_Afvangst_vorig$Sample_Type <- as.character(Recorder_Afvangst_vorig$Sample_Type)
+Recorder_Afvangst_vorig$Locationname <- as.character(Recorder_Afvangst_vorig$Locationname)
+Recorder_Afvangst_vorig$L00 <- as.numeric(Recorder_Afvangst_vorig$L00)
+Recorder_Afvangst_vorig$L0 <- as.numeric(Recorder_Afvangst_vorig$L0)
+Recorder_Afvangst_vorig$L1 <- as.numeric(Recorder_Afvangst_vorig$L1)
+Recorder_Afvangst_vorig$L2 <- as.numeric(Recorder_Afvangst_vorig$L2)
+Recorder_Afvangst_vorig$M1 <- as.numeric(Recorder_Afvangst_vorig$M1)
+Recorder_Afvangst_vorig$M2 <- as.numeric(Recorder_Afvangst_vorig$M2)
+Recorder_Afvangst_vorig$AV <- as.numeric(Recorder_Afvangst_vorig$AV)
+Recorder_Afvangst_vorig$AM <- as.numeric(Recorder_Afvangst_vorig$AM)
+Recorder_Afvangst_vorig$Recorder <- as.character(Recorder_Afvangst_vorig$Recorder)
+Recorder_Afvangst_vorig$Species <- as.character(Recorder_Afvangst_vorig$Species)
+Recorder_Afvangst_vorig$GridReference <- as.character(Recorder_Afvangst_vorig$GridReference)
+Recorder_Afvangst_vorig$TaxonDataAccuracy <- as.character(Recorder_Afvangst_vorig$TaxonDataAccuracy)
+Recorder_Afvangst_vorig$None <- as.numeric(Recorder_Afvangst_vorig$None)
+Recorder_Afvangst_vorig$Date <- as.character(Recorder_Afvangst_vorig$Date)
+Recorder_Afvangst_vorig$comparekey <- as.character(Recorder_Afvangst_vorig$comparekey)
+Recorder_Afvangst_vorig$X <- NULL
 
 Recorder_Afvangst_3 <- anti_join(Recorder_Afvangst_2, Recorder_Afvangst_vorig, by = "comparekey")
 
