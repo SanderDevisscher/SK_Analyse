@@ -11,9 +11,11 @@ Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuike
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 
 ####Afvangsten voor Recorder####
+Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type)
+for(s in Sample_Types_Recorder){
 temp2 <- data.frame()
 o <- 0
-temp3A <- subset(Recorder_Ruw, Sample_Type == "Afvangst" )
+temp3A <- subset(Recorder_Ruw, Sample_Type == s )
 checksum <- sum(temp3A$`Aantal fuiken (Totaal)`)
 Locations_Recorder <- unique(temp3A$Location)
 
@@ -21,7 +23,9 @@ Locations_Recorder <- unique(temp3A$Location)
 
 for(x in Locations_Recorder){
   temp3 <- subset(temp3A, Location == x)
-  temp3$Sample_Type <- "Schietfuik"
+  if(s=="Afvangst"){
+    temp3$Sample_Type <- s
+  }
   Datums_Recorder <- unique(temp3$Datum)
   print(temp3$Location)
   for(y in Datums_Recorder){
@@ -61,8 +65,8 @@ for(x in Locations_Recorder){
 
 #Nuttige kolommen selecteren
 
-Recorder_Afvangst <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
-if(nrow(Recorder_Afvangst) != checksum){
+Recorder_Prep <- temp2[, c("Location", "Datum", "Sample_Type", "Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Recorder")]
+if(nrow(Recorder_Prep) != checksum){
   print("checksum fail")
 }else{
   temp2 <- NULL
@@ -77,15 +81,15 @@ remove(temp4)
 
 #Soort, Grid reference en accuracy toevoegen
 
-Recorder_Afvangst$Species <- "Lithobates catesbeianus"
+Recorder_Prep$Species <- "Lithobates catesbeianus"
 
 title <- gs_title(x="Locaties", verbose = TRUE)
 Locaties <- gs_read(title)
 
-Recorder_Afvangst <- merge(Recorder_Afvangst, Locaties, all.x=T)
+Recorder_Prep <- merge(Recorder_Prep, Locaties, all.x=T)
 
-Recorder_Afvangst$TaxonDataAccuracy <- "Exact"
-temp <- subset(Recorder_Afvangst, is.na(GridReference))
+Recorder_Prep$TaxonDataAccuracy <- "Exact"
+temp <- subset(Recorder_Prep, is.na(GridReference))
 missinglocations <- unique(temp$Location)
 print(missinglocations)
 remove(temp6)
@@ -94,7 +98,7 @@ remove(temp6)
 
 temp7 <- data_frame()
 temp6b <- data.frame(x)
-temp2 <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
+temp2 <- subset(Recorder_Ruw, Sample_Type == s)
 Locations_Recorder <- unique(Recorder_Ruw$Location)
 for(a in Locations_Recorder){
   temp3 <- subset(temp2, Location == a)
@@ -140,7 +144,12 @@ Soorten <- gs_read(title)
 
 temp8 <- merge(temp7, Soorten)
 temp8$soort <- NULL
-temp8$Sample_Type <- "Schietfuik"
+if(s=="Afvangst"){
+  temp8$Sample_Type <- "Schietfuik" 
+}else{
+  temp8$Sample_Type <- s
+}
+
 temp8$L00 <- NA
 temp8$L0 <- NA
 temp8$L1 <- NA
@@ -153,22 +162,37 @@ temp8$TaxonDataAccuracy <- "Estimate"
 temp8 <- merge(temp8, Locaties)
 temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder")]
 
-Recorder_Afvangst$None <- NA
-Recorder_Afvangst$Date <- Recorder_Afvangst$Datum
-Recorder_Afvangst$Datum <- NULL
+Recorder_Prep$None <- NA
+Recorder_Prep$Date <- Recorder_Afvangst$Datum
+Recorder_Prep$Datum <- NULL
 
-Recorder_Afvangst_2 <- rbind(Recorder_Afvangst, temp8)
+Recorder_Prep_2 <- rbind(Recorder_Afvangst, temp8)
 
-Recorder_Afvangst_2$L00 <- as.numeric(Recorder_Afvangst_2$L00)
-Recorder_Afvangst_2$L0 <- as.numeric(Recorder_Afvangst_2$L0)
-Recorder_Afvangst_2$L1 <- as.numeric(Recorder_Afvangst_2$L1)
-Recorder_Afvangst_2$L2 <- as.numeric(Recorder_Afvangst_2$L2)
-Recorder_Afvangst_2$M1 <- as.numeric(Recorder_Afvangst_2$M1)
-Recorder_Afvangst_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
-Recorder_Afvangst_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
-Recorder_Afvangst_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
+Recorder_Prep_2$L00 <- as.numeric(Recorder_Afvangst_2$L00)
+Recorder_Prep_2$L0 <- as.numeric(Recorder_Afvangst_2$L0)
+Recorder_Prep_2$L1 <- as.numeric(Recorder_Afvangst_2$L1)
+Recorder_Prep_2$L2 <- as.numeric(Recorder_Afvangst_2$L2)
+Recorder_Prep_2$M1 <- as.numeric(Recorder_Afvangst_2$M1)
+Recorder_Prep_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
+Recorder_Prep_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
+Recorder_Prep_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
 
+rec_fname <- paste(wd, "Recorder/Recorder", s ,Today, sep="_")
+rec_fname <- paste(rec_fname, ".csv", sep="")
+write.csv(Recorder_Prep_2, rec_fname)
 
+Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+Log$X <- NULL
+Log$Date <- as.Date.factor(Log$Date)
+i <- tail(Log$i, n=1)+1
+temp_Log <- data.frame(i)
+temp_Log$Date <- as.Date.factor(Today)
+temp_Log$FileName <- rec_fname
+temp_Log$rows <- nrow(Recorder_Prep_2)
+Log <- rbind(Log, temp_Log)
+write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+
+}
 
 ####Afvangsten Vergelijken met vorige imports####
 #Import 2016
@@ -231,6 +255,7 @@ temp_Log$FileName <- rec_afvg_fname
 temp_Log$rows <- nrow(Recorder_Afvangst_3)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+
 
 #Opruimen
 remove(tempL00) 
