@@ -7,9 +7,12 @@ library(dplyr)
 ####Klaarzetten voor recorder####
 #Data Selectie
 Recorder_Ruw <- Brondata
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), Recorder_Ruw$`Aantal fuiken geplaatst`, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
+gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`))
+Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
 
 ####Afvangsten voor Recorder####
 Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type)
@@ -40,6 +43,7 @@ for(x in Locations_Recorder){
     #print(iter)
     for(p in 1:iter){
       o <- o + 1
+      if(o<=12){
       FNR <- paste("Fuik", o, sep= " ")
       temp5$Locationname <- FNR
       FNRL00 <- paste(FNR, "L00", sep= " - ")
@@ -59,6 +63,7 @@ for(x in Locations_Recorder){
       temp5$AM <- ifelse(is.na(temp5[FNRAM]), 0, temp5[FNRAM])
       temp5$AV <- ifelse(is.na(temp5[FNRAV]), 0, temp5[FNRAV])
       temp2 <- rbind(temp2,temp5)
+      }else{break}
     }
     o <- 0
   }
@@ -101,6 +106,7 @@ temp7 <- data_frame()
 temp6b <- data.frame(x)
 temp2 <- subset(Recorder_Ruw, Sample_Type == s)
 Locations_Recorder <- unique(Recorder_Ruw$Location)
+if(temp2$Sample_Type != "Plaatsen van fuiken"){
 for(a in Locations_Recorder){
   temp3 <- subset(temp2, Location == a)
   Datums_Recorder <- unique(temp3$Datum)
@@ -108,9 +114,10 @@ for(a in Locations_Recorder){
     temp4 <- subset(temp3, Datum == t)
     temp5 <- temp4
     iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    print(iter)
+    print(c(s,a,iter))
     for(p in 1:iter){
       o <- o + 1
+      if(o <= 12){
       FNR <- paste("Fuik", o, "- Bijvangst ", sep= " ")
       FNR2 <- paste("Fuik", o, sep= " ")
       Recorder_Bijvangst <- c("[3 - doornige stekelbaars]", "[Amerikaanse gevlekte rivierkreeft]"
@@ -122,6 +129,7 @@ for(a in Locations_Recorder){
       for(q in Recorder_Bijvangst){
         FNR3 <- paste(FNR, q, sep="")
         #temp6 <- subset(temp5, !is.na(FNR3))
+        if(FNR3 %in% colnames(temp5)){
         if(!is.na(temp5[FNR3])){
           temp6b$Location <- unique(temp5$Location)
           temp6b$Date <- unique(temp5$Datum)
@@ -132,11 +140,14 @@ for(a in Locations_Recorder){
           temp6b$None <- 1
           temp7 <- rbind(temp7, temp6b)
         }else{next}
+        }else{next}
       }
+      }else{break}
     }
     o <- 0
   }
 }
+
 
 temp7$x <- NULL
 
@@ -164,21 +175,23 @@ temp8 <- merge(temp8, Locaties)
 temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder")]
 
 Recorder_Prep$None <- NA
-Recorder_Prep$Date <- Recorder_Afvangst$Datum
+Recorder_Prep$Date <- Recorder_Prep$Datum
 Recorder_Prep$Datum <- NULL
 
-Recorder_Prep_2 <- rbind(Recorder_Afvangst, temp8)
+Recorder_Prep_2 <- rbind(Recorder_Prep, temp8)
+}else{
+  Recorder_Prep_2 <- Recorder_Prep
+}
+Recorder_Prep_2$L00 <- as.numeric(Recorder_Prep_2$L00)
+Recorder_Prep_2$L0 <- as.numeric(Recorder_Prep_2$L0)
+Recorder_Prep_2$L1 <- as.numeric(Recorder_Prep_2$L1)
+Recorder_Prep_2$L2 <- as.numeric(Recorder_Prep_2$L2)
+Recorder_Prep_2$M1 <- as.numeric(Recorder_Prep_2$M1)
+Recorder_Prep_2$M2 <- as.numeric(Recorder_Prep_2$M2)
+Recorder_Prep_2$AM <- as.numeric(Recorder_Prep_2$AM)
+Recorder_Prep_2$AV <- as.numeric(Recorder_Prep_2$AV)
 
-Recorder_Prep_2$L00 <- as.numeric(Recorder_Afvangst_2$L00)
-Recorder_Prep_2$L0 <- as.numeric(Recorder_Afvangst_2$L0)
-Recorder_Prep_2$L1 <- as.numeric(Recorder_Afvangst_2$L1)
-Recorder_Prep_2$L2 <- as.numeric(Recorder_Afvangst_2$L2)
-Recorder_Prep_2$M1 <- as.numeric(Recorder_Afvangst_2$M1)
-Recorder_Prep_2$M2 <- as.numeric(Recorder_Afvangst_2$M2)
-Recorder_Prep_2$AM <- as.numeric(Recorder_Afvangst_2$AM)
-Recorder_Prep_2$AV <- as.numeric(Recorder_Afvangst_2$AV)
-
-rec_fname <- paste(wd, "Recorder/Recorder", s ,Today, sep="_")
+rec_fname <- paste(wd, "Recorder/Recorder_", s ,"_",Today, sep="")
 rec_fname <- paste(rec_fname, ".csv", sep="")
 write.csv(Recorder_Prep_2, rec_fname)
 
