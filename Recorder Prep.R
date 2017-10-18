@@ -32,6 +32,7 @@ for(x in Locations_Recorder){
   }
   Datums_Recorder <- unique(temp3$Datum)
   print(temp3$Location)
+  print(c("doelsoort",s,x))
   for(y in Datums_Recorder){
     temp4 <- subset(temp3, Datum == y)
     Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type) 
@@ -41,8 +42,10 @@ for(x in Locations_Recorder){
     #iter <- ifelse(is.na(iter), ifelse(is.na(iter2), 1, iter2 ),iter)
     #iter <- ifelse(iter == 0, 1, iter)
     #print(iter)
+    print(c("doelsoort",s,x,y))
     for(p in 1:iter){
       o <- o + 1
+      print(c("doelsoort",s,x,y,iter))
       if(o<=12){
       FNR <- paste("Fuik", o, sep= " ")
       temp5$Locationname <- FNR
@@ -105,16 +108,17 @@ remove(temp6)
 temp7 <- data_frame()
 temp6b <- data.frame(x)
 temp2 <- subset(Recorder_Ruw, Sample_Type == s)
-Locations_Recorder <- unique(Recorder_Ruw$Location)
+Locations_Recorder <- unique(temp2$Location)
 if(temp2$Sample_Type != "Plaatsen van fuiken"){
 for(a in Locations_Recorder){
   temp3 <- subset(temp2, Location == a)
   Datums_Recorder <- unique(temp3$Datum)
+  print(c("bijvangst",s,a))
   for(t in Datums_Recorder){
     temp4 <- subset(temp3, Datum == t)
     temp5 <- temp4
     iter <- sum(temp5$`Aantal fuiken (Totaal)`)
-    print(c(s,a,iter))
+    print(c("bijvangst", s,a,t,iter))
     for(p in 1:iter){
       o <- o + 1
       if(o <= 12){
@@ -131,6 +135,7 @@ for(a in Locations_Recorder){
         #temp6 <- subset(temp5, !is.na(FNR3))
         if(FNR3 %in% colnames(temp5)){
         if(!is.na(temp5[FNR3])){
+          print(c("bijvangst", s,a,t,iter,q))
           temp6b$Location <- unique(temp5$Location)
           temp6b$Date <- unique(temp5$Datum)
           temp6b$Locationname <- FNR2
@@ -138,8 +143,13 @@ for(a in Locations_Recorder){
           temp6b$Recorder <- unique(temp5$Recorder)
           Formaat <- unique(FNR3)
           temp6b$None <- 1
+          
           temp7 <- rbind(temp7, temp6b)
-        }else{next}
+          
+        }else{
+          print(c("bijvangst", s,a,t,q,"is NA"))
+          next
+          }
         }else{next}
       }
       }else{break}
@@ -153,7 +163,7 @@ temp7$x <- NULL
 
 title <- gs_title(x="Bijvangst", verbose = TRUE)
 Soorten <- gs_read(title)
-
+if(nrow(temp7)>0){
 temp8 <- merge(temp7, Soorten)
 temp8$soort <- NULL
 if(s=="Afvangst"){
@@ -161,7 +171,9 @@ if(s=="Afvangst"){
 }else{
   temp8$Sample_Type <- s
 }
-
+}else{
+  print(c(s,a,t,q,"geen bijvangst"))
+  next}
 temp8$L00 <- NA
 temp8$L0 <- NA
 temp8$L1 <- NA
