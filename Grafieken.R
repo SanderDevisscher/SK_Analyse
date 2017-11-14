@@ -486,7 +486,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -509,7 +509,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
-    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -521,7 +521,7 @@ for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
   if(o > 1){
-    temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+    #temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
@@ -536,8 +536,9 @@ for(i in Locations){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
+    plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))
@@ -548,7 +549,7 @@ for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
   if(o > 1){
-    temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+    #temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
@@ -564,8 +565,9 @@ for(i in Locations){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
+    plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
