@@ -521,7 +521,7 @@ for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
   if(o > 1){
-    #temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+    temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
@@ -545,11 +545,12 @@ for(i in Locations){
   }
 }
 #absoluut per dag
+temp2 <- subset(GRA_Brondata, !is.na(Location))
 for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
   if(o > 1){
-    #temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+    temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
