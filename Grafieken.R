@@ -794,7 +794,7 @@ for (a in Jaren){
   
   
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
-  GSLfNaama <- paste(imagepath2, GSLfNaam, sep="/" )
+  GSLfNaama <- paste(imagepath, GSLfNaam, sep="/" )
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #Uitvoeren
