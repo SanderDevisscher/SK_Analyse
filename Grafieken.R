@@ -696,8 +696,8 @@ ggplot(temp_duur, aes(x=Aantal_Fuiken, y=hours, shape = factor(temp_duur$Locatie
   
   
   
-  #Succes => Voorlopig niet
-  temp_succes <- GRA_Brondata
+ #Succes => Voorlopig niet
+temp_succes <- GRA_Brondata
 temp_succes$Totaal <- ifelse(!is.na(temp_succes$Totaal),temp_succes$Totaal,0)
 Locations <- unique(temp_succes$Location)
 temp3 <- data.frame()
@@ -738,9 +738,13 @@ for (a in Jaren){
     temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
     number <- count(temp2)                #=> #records
     print(i)
+    #if(i == "Scheps 8"){break()}
     print(number)
     temp3 <- head(temp2, n=1)             #=> Eerste record
-    temp7 <- tail(temp2, n=1)
+    Datum_LastCapture <- as.character(paste(temp2$Dag, temp2$Maand, temp2$Jaar, sep="/"))
+    Datum_LastCapture2 <- as.Date(Datum_LastCapture, format("%d/%m/%Y"))
+    Datum_LastCapture2 <- max(Datum_LastCapture2)
+    temp7 <- subset(temp2, Datum == Datum_LastCapture2)
     temp5 <- data.frame(x=1)
     if(number>=3){
       temp4 <- tail(temp2, n=3)
@@ -750,7 +754,7 @@ for (a in Jaren){
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
     temp5$LastCapture <- temp7$Totaal
-    temp5$Datum_LastCapture <- temp7$Datum
+    temp5$Datum_LastCapture <- Datum_LastCapture2
     temp5$LastCapture <- ifelse(!is.na(temp5$LastCapture), temp5$LastCapture, 0)
     temp5$L00 <- ifelse(!is.na(temp7$L00), temp7$L00, 0)
     temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
