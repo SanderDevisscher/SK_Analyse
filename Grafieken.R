@@ -539,7 +539,11 @@ for(i in Locations){
     plot <- plot + ylab("CPUE")
     plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    width <- ifelse(nrow(temp3)<10, 10.5, (nrow(temp3)/2*1.5))
+    height<- ifelse(nrow(temp3)<10, 5, (nrow(temp3)/5*1.5))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(filename = fNaam, path = imagepath, width=width, height=height, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))
@@ -568,7 +572,11 @@ for(i in Locations){
     plot <- plot + ylab("Totaal")
     plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
+    width <- ifelse(nrow(temp3)<10, 10.5, (nrow(temp3)/2*1.5))
+    height<- ifelse(nrow(temp3)<10, 5, (nrow(temp3)/5*1.5))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(fNaam, path= imagepath, width=width, height=height, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
