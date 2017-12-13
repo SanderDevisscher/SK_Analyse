@@ -29,6 +29,7 @@ title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
 Token <- gs_auth()
 gs_auth(token = Token)
 gdrive <- gs_read(title)
+tail(gdrive$Tijdstempel)
 
 #Import offline data####
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
@@ -103,6 +104,12 @@ temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris meeus (prive)", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter liekebns", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter Liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
 temp$Recorder <- temp$Invuller
 for (i in nrow(temp)){ 
   n <- temp$`Aantal werknemers`
@@ -156,7 +163,9 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17"
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
-
+if(nrow(test)==0){
+  remove(test)
+}
 ####Dubbele inputs verwijderen####
 #Dubbele datums verwijderen
 temp <- subset(temp, Tijdstempel != "14-5-2016 13:06:01")
@@ -177,7 +186,9 @@ temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:34:23", "Afvangst SF
 temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:35:49", "Afvangst SFD",temp$Sample_Type )
 
 #Check loop
+temp$Datum <- as.Date(temp$Datum, "%d-%m-%Y")
 temp$Jaar <- format(temp$Datum, format='%Y')
+table(temp$Jaar)
 Jaren <- unique(temp$Jaar)
 DubbeleInputs <- data.frame()
 DubbeleDatums <- data.frame()
@@ -216,16 +227,8 @@ if(nrow(temp8)==nrow(temp4)){
   temp <- temp7
 }
 
-
-
-
-
-
 Brondata <- temp
-
-
-
-
+tail(Brondata$Tijdstempel)
 
 ####Opkuis####
 remove(DubbeleDatums)
