@@ -1,3 +1,4 @@
+library(ggplot2)
 ####GRAFIEKEN####
 #Enkel Afvangsten voor grafiekjes
 Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
