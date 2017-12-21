@@ -103,7 +103,7 @@ missinglocations <- unique(temp$Location)
 print(missinglocations)
 remove(temp6)
 
-#Bijvangsten toevoegen 
+####Bijvangsten toevoegen#### 
 
 temp7 <- data_frame()
 temp6b <- data.frame(x)
@@ -217,6 +217,9 @@ temp_Log$FileName <- rec_fname
 temp_Log$rows <- nrow(Recorder_Prep_2)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+if(s == "Afvangst"){
+  Recorder_Afvangst_2 <- Recorder_Prep_2
+}
 
 }
 
