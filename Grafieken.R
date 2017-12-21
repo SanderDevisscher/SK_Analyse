@@ -1,4 +1,5 @@
 library(ggplot2)
+library(plyr)
 ####GRAFIEKEN####
 #Enkel Afvangsten voor grafiekjes
 Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
@@ -737,7 +738,7 @@ for (a in Jaren){
   Locations <- sort(Locations)
   for(i in Locations){
     temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
-    number <- count(temp2)                #=> #records
+    number <- nrow(temp2)                #=> #records
     print(i)
     #if(i == "Scheps 8"){break()}
     print(number)
@@ -765,14 +766,17 @@ for (a in Jaren){
     temp5$PostMetamorf2 <- temp7$M1 + temp7$M2 + temp7$AM + temp7$AV
     temp5$Location <- i
     temp5$StartCPUE <- temp3$CPUE
-    temp5$Uitgevoerd <- number$n
+    temp5$Uitgevoerd <- number
+    temp5$Totale_Vangst <- sum(temp2$Totaal, na.rm = T)
+    temp5$GevangenLarven <- sum(temp2$Totaal_Larven.All, na.rm = T)
+    temp5$GevangenPostMetamorf <- temp5$Totale_Vangst - temp5$GevangenLarven 
     if(is.na(temp5$MeanCPUE)){
       print(i)
       print(temp4)
       break}
     temp6 <- rbind(temp6, temp5)
   }
-  
+
   temp6$x <- NULL
   GSL <- temp6
   
@@ -802,7 +806,7 @@ for (a in Jaren){
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
   #Juiste kolommen kiezen
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   GSL$x <- NULL
   
