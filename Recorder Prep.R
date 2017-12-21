@@ -270,7 +270,7 @@ Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_v
 ####Output####
 Today <- Sys.Date()
 
-rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, "_Compared", sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
 write.csv(Recorder_Afvangst_3, rec_afvg_fname)
 
