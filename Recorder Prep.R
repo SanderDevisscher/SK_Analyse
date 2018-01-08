@@ -10,9 +10,18 @@ Recorder_Ruw <- Brondata
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), Recorder_Ruw$`Aantal fuiken geplaatst`, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+summary(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+table(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
-gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`))
+gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken (Totaal)`==0)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
+
+####Foutieve NA in aantal fuiken corrigeren
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
+
 
 ####Afvangsten voor Recorder####
 Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type)
