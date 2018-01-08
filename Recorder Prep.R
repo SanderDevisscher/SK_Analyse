@@ -112,7 +112,7 @@ missinglocations <- unique(temp$Location)
 print(missinglocations)
 remove(temp6)
 
-#Bijvangsten toevoegen 
+####Bijvangsten toevoegen#### 
 
 temp7 <- data_frame()
 temp6b <- data.frame(x)
@@ -212,7 +212,7 @@ Recorder_Prep_2$M2 <- as.numeric(Recorder_Prep_2$M2)
 Recorder_Prep_2$AM <- as.numeric(Recorder_Prep_2$AM)
 Recorder_Prep_2$AV <- as.numeric(Recorder_Prep_2$AV)
 
-rec_fname <- paste(wd, "Recorder/Recorder_", s ,"_",Today, sep="")
+rec_fname <- paste(wd, "Recorder/Recorder_", s ,"_",today, sep="")
 rec_fname <- paste(rec_fname, ".csv", sep="")
 write.csv(Recorder_Prep_2, rec_fname)
 
@@ -226,6 +226,9 @@ temp_Log$FileName <- rec_fname
 temp_Log$rows <- nrow(Recorder_Prep_2)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+if(s == "Afvangst"){
+  Recorder_Afvangst_2 <- Recorder_Prep_2
+}
 
 }
 
@@ -276,7 +279,7 @@ Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_v
 ####Output####
 Today <- Sys.Date()
 
-rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, "_Compared", sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
 write.csv(Recorder_Afvangst_3, rec_afvg_fname)
 

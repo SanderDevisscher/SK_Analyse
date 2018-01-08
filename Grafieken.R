@@ -1,3 +1,5 @@
+library(ggplot2)
+library(plyr)
 ####GRAFIEKEN####
 imagepath2 <- "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker (Lithobates catesbeianus)/Opvolging beheer/Stierkikker data-analyse/Afbeeldingen"
 imagepath2 <- "./Output/"
@@ -490,7 +492,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(filename = fNaam, path = imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -513,7 +515,7 @@ for(j in Jaren){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
-    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= imagepath, width=10.5, height=5, units = c("in"), dpi = 300)
   }
 }
 
@@ -524,10 +526,17 @@ temp2 <- subset(GRA_Brondata, !is.na(Location))
 for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
+  temp3$Datum4 <- temp3$Datum2
+  temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
   if(o > 1){
+<<<<<<< HEAD
     temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
+=======
+   jmax <- max(temp3$Jaar)
+>>>>>>> origin/master
     jmin <- min(temp3$Jaar)
     fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep="")
@@ -542,22 +551,31 @@ for(i in Locations){
     plot <- plot + ylab("CPUE")
     plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(filename = fNaam, path = imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    width <- ifelse(nrow(temp3)<10, 10.5, (nrow(temp3)/2*1.5))
+    height<- ifelse(nrow(temp3)<10, 5, (nrow(temp3)/5*1.5))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(filename = fNaam, path = imagepath, width=width, height=height, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))
   }
 }
 #absoluut per dag
+temp2 <- subset(GRA_Brondata, !is.na(Location))
 for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
+  temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
+  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
   if(o > 1){
+<<<<<<< HEAD
     temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, sep="/")
     temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
+=======
+>>>>>>> origin/master
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
-    temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     fNaam <- paste(i ,"TOT",jmin, jmax, sep="_")
     #fNaam <- paste("file://Afbeeldingen/", fNaam, sep="")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
@@ -571,7 +589,11 @@ for(i in Locations){
     plot <- plot + ylab("Totaal")
     plot <- plot + facet_wrap(~Jaar, scales = "free_x")
     print(plot)
-    ggsave(fNaam, path= imagepath2, width=10.5, height=5, units = c("in"), dpi = 300)
+    width <- ifelse(nrow(temp3)<10, 10.5, (nrow(temp3)/2*1.5))
+    height<- ifelse(nrow(temp3)<10, 5, (nrow(temp3)/5*1.5))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(fNaam, path= imagepath, width=width, height=height, units = c("in"), dpi = 300)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
@@ -691,8 +713,8 @@ ggplot(temp_duur, aes(x=Aantal_Fuiken, y=hours, shape = factor(temp_duur$Locatie
   
   
   
-  #Succes => Voorlopig niet
-  temp_succes <- GRA_Brondata
+ #Succes => Voorlopig niet
+temp_succes <- GRA_Brondata
 temp_succes$Totaal <- ifelse(!is.na(temp_succes$Totaal),temp_succes$Totaal,0)
 Locations <- unique(temp_succes$Location)
 temp3 <- data.frame()
@@ -731,11 +753,15 @@ for (a in Jaren){
   Locations <- sort(Locations)
   for(i in Locations){
     temp2 <- subset(temp, Location == i ) #=> Opgedeeld per locatie
-    number <- count(temp2)                #=> #records
+    number <- nrow(temp2)                #=> #records
     print(i)
+    #if(i == "Scheps 8"){break()}
     print(number)
     temp3 <- head(temp2, n=1)             #=> Eerste record
-    temp7 <- tail(temp2, n=1)
+    Datum_LastCapture <- as.character(paste(temp2$Dag, temp2$Maand, temp2$Jaar, sep="/"))
+    Datum_LastCapture2 <- as.Date(Datum_LastCapture, format("%d/%m/%Y"))
+    Datum_LastCapture2 <- max(Datum_LastCapture2)
+    temp7 <- subset(temp2, Datum == Datum_LastCapture2)
     temp5 <- data.frame(x=1)
     if(number>=3){
       temp4 <- tail(temp2, n=3)
@@ -745,7 +771,7 @@ for (a in Jaren){
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
     temp5$LastCapture <- temp7$Totaal
-    temp5$Datum_LastCapture <- temp7$Datum
+    temp5$Datum_LastCapture <- Datum_LastCapture2
     temp5$LastCapture <- ifelse(!is.na(temp5$LastCapture), temp5$LastCapture, 0)
     temp5$L00 <- ifelse(!is.na(temp7$L00), temp7$L00, 0)
     temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
@@ -755,14 +781,17 @@ for (a in Jaren){
     temp5$PostMetamorf2 <- temp7$M1 + temp7$M2 + temp7$AM + temp7$AV
     temp5$Location <- i
     temp5$StartCPUE <- temp3$CPUE
-    temp5$Uitgevoerd <- number$n
+    temp5$Uitgevoerd <- number
+    temp5$Totale_Vangst <- sum(temp2$Totaal, na.rm = T)
+    temp5$GevangenLarven <- sum(temp2$Totaal_Larven.All, na.rm = T)
+    temp5$GevangenPostMetamorf <- temp5$Totale_Vangst - temp5$GevangenLarven 
     if(is.na(temp5$MeanCPUE)){
       print(i)
       print(temp4)
       break}
     temp6 <- rbind(temp6, temp5)
   }
-  
+
   temp6$x <- NULL
   GSL <- temp6
   
@@ -792,13 +821,13 @@ for (a in Jaren){
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
   #Juiste kolommen kiezen
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
+  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
   
   GSL$x <- NULL
   
   
   GSLfNaam <- paste("Geschat startaantal larven",a, sep="_")
-  GSLfNaama <- paste(imagepath2, GSLfNaam, sep="/" )
+  GSLfNaama <- paste(imagepath, GSLfNaam, sep="/" )
   GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
   
   #Uitvoeren
