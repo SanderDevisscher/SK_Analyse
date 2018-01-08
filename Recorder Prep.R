@@ -233,18 +233,23 @@ if(s == "Afvangst"){
 }
 
 ####Afvangsten Vergelijken met vorige imports####
-#Import 2016
+##Import 2016
 Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
 #Import 2017
 #Nog uit te voeren
 
+#Foutje in date fixen
+Recorder_Afvangst_2016$Date <- gsub("-", "/", Recorder_Afvangst_2016$Date)
+Recorder_Afvangst_2016$Date2 <- as.Date(Recorder_Afvangst_2016$Date, "%d/%m/%Y")
+Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d/%m/%Y')
+
 #Merge
-#Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
+##Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
 Recorder_Afvangst_vorig <- Recorder_Afvangst_2016
 
 #Compare
 
-Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date, 
+Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date3, 
                                             Recorder_Afvangst_vorig$Locationname, Recorder_Afvangst_vorig$Species)
 Recorder_Afvangst_2$comparekey <- paste(Recorder_Afvangst_2$Location, Recorder_Afvangst_2$Date, 
                                         Recorder_Afvangst_2$Locationname, Recorder_Afvangst_2$Species)
@@ -275,6 +280,7 @@ Recorder_Afvangst_2$comparekey <- ordered(x=Recorder_Afvangst_2$comparekey)
 Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
 
 Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
+
 
 ####Output####
 Today <- Sys.Date()
