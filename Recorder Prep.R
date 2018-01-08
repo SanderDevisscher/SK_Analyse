@@ -16,16 +16,42 @@ Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
 gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken (Totaal)`==0)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
 
-####Foutieve NA in aantal fuiken corrigeren
+####Foutieve NA in aantal fuiken corrigeren####
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
 
+summary(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`))
+if(nrow(gnFuiken) >= 1) {
+  ERROR_Aantal_Fuiken <- data_frame()
+}else{
+  remove(gnFuiken)
+}
 
-####Afvangsten voor Recorder####
+Recorder_Ruw$comparekey <- paste(Recorder_Ruw$Location, Recorder_Ruw$Datum)
+
+#Data geïmporteerde data
+#Import 2016
+Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
+Recorder_Afvangst_2016$comparekey <- paste(Recorder_Ruw$Location, Recorder_Ruw$Date)
+
+#Import 2017
+#Nog uit te voeren
+
+#=>Recorder_Ruw
+
+####Data per Sample_Type####
 Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type)
 for(s in Sample_Types_Recorder){
+  
+}
+
+
+
+
+
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == s )
@@ -230,10 +256,7 @@ write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verorde
 }
 
 ####Afvangsten Vergelijken met vorige imports####
-#Import 2016
-Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
-#Import 2017
-#Nog uit te voeren
+
 
 #Merge
 #Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
