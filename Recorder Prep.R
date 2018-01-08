@@ -37,6 +37,8 @@ Locations_Recorder <- unique(temp3A$Location)
 for(x in Locations_Recorder){
   temp3 <- subset(temp3A, Location == x)
   if(s=="Afvangst"){
+    temp3$Sample_Type <- "Schietfuik"
+  }else{
     temp3$Sample_Type <- s
   }
   Datums_Recorder <- unique(temp3$Datum)
@@ -280,6 +282,10 @@ Recorder_Afvangst_2$comparekey <- ordered(x=Recorder_Afvangst_2$comparekey)
 Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
 
 Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
+
+Recorder_Afvangst_3$Date2 <- as.Date(Recorder_Afvangst_3$Date, '%d/%m/%Y')
+Recorder_Afvangst_3$Jaar <- format(Recorder_Afvangst_3$Date2, '%Y')
+temp <- subset(Recorder_Afvangst_3, Jaar == 2016)
 
 
 ####Output####
