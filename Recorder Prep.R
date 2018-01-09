@@ -195,7 +195,7 @@ temp8$AM <- NA
 temp8$AV <- NA
 temp8$TaxonDataAccuracy <- "Estimate"
 temp8 <- merge(temp8, Locaties)
-temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder")]
+temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder", "Recorder_Status")]
 
 Recorder_Prep$None <- NA
 Recorder_Prep$Date <- Recorder_Prep$Datum
@@ -306,8 +306,21 @@ temp_Log$rows <- nrow(Recorder_Afvangst_3)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 
+Recorder_Afvangst_4 <- subset(Recorder_Afvangst_3, Recorder_Status == 1)
 
+rec_afvg_fname2 <- paste(wd, "Recorder/Recorder_Afvangst_",Today, "_Compared_Ready", sep="")
+rec_afvg_fname2 <- paste(rec_afvg_fname2, ".csv", sep="")
+write.csv(Recorder_Afvangst_4, rec_afvg_fname2)
 
-
+Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+Log$X <- NULL
+Log$Date <- as.Date.factor(Log$Date)
+i <- tail(Log$i, n=1)+1
+temp_Log <- data.frame(i)
+temp_Log$Date <- as.Date.factor(Today)
+temp_Log$FileName <- rec_afvg_fname2
+temp_Log$rows <- nrow(Recorder_Afvangst_4)
+Log <- rbind(Log, temp_Log)
+write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 
 
