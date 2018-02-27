@@ -223,7 +223,7 @@ Log$X <- NULL
 Log$Date <- as.Date.factor(Log$Date)
 i <- tail(Log$i, n=1)+1
 temp_Log <- data.frame(i)
-temp_Log$Date <- as.Date.factor(Today)
+temp_Log$Date <- as.Date.factor(today)
 temp_Log$FileName <- rec_fname
 temp_Log$rows <- nrow(Recorder_Prep_2)
 Log <- rbind(Log, temp_Log)
@@ -243,7 +243,7 @@ Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring e
 #Foutje in date fixen
 Recorder_Afvangst_2016$Date <- gsub("-", "/", Recorder_Afvangst_2016$Date)
 Recorder_Afvangst_2016$Date2 <- as.Date(Recorder_Afvangst_2016$Date, "%d/%m/%Y")
-Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d/%m/%Y')
+Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d-%m-%Y')
 
 #Merge
 ##Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
@@ -283,7 +283,7 @@ Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
 
 Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
 
-Recorder_Afvangst_3$Date2 <- as.Date(Recorder_Afvangst_3$Date, '%d/%m/%Y')
+Recorder_Afvangst_3$Date2 <- as.Date.character(Recorder_Afvangst_3$Date, '%d-%m-%Y')
 Recorder_Afvangst_3$Jaar <- format(Recorder_Afvangst_3$Date2, '%Y')
 temp <- subset(Recorder_Afvangst_3, Jaar == 2016)
 
