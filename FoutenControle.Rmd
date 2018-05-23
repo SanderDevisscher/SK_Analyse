@@ -24,7 +24,16 @@ gdrive <- gs_read(title)
 SKData <- gdrive
 ```
 
-```{r}
+```{r Controle ontbrekende locaties}
+
+#Bekende problemen verwijderen
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:50:47")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:58:58")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:45:35")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:47:36")
+SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:50:04")
+SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:56:51")
+
 SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
                                     ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
                                            ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
@@ -51,5 +60,124 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
   }
 }
 
+```
+
+```{r Controle recorders}
+temp <- Records_met_Location
+
+#Bekende problemen oplossen
+temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "kris meeus (prive)", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter liekebns", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter Liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
+table(temp$Invuller, useNA = "ifany")
+temp$Recorder <- temp$Invuller
+#Voeg naamloze arbeiders toe
+for (i in nrow(temp)){ 
+  n <- temp$`Aantal werknemers`
+  temp$Recorder2 <- ifelse(n==2 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", sep=";" ), 
+                           ifelse(n==3 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", "Arbeider 2", sep=";" ), 
+                                  ifelse(n==4 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", "Arbeider 2", "Arbeider 3", sep=";" ), 
+                                         temp$Invuller)))
+}
+
+table(temp$Recorder2)
+temp$Recorder <- temp$Recorder2
+
+Records_met_recorders <- temp
+```
+
+```{r Tussentijdse opruim}
+temp <- Records_met_recorders
+temp$Sample_Type <- temp$`Wat wil je melden`
+temp$`Wat wil je melden` <- NULL
+temp$`Vijver - Arendonk` <- NULL
+temp$`Vijver - Kasterlee` <- NULL
+temp$`Vijver - Hoogstraten` <- NULL
+temp$`Vijver - Nijlen` <- NULL
+temp$`Vijver - Scheps` <- NULL
+#temp$Locatie <- NULL
+temp$`Gemeente/Deelgemeente` <- NULL
+temp$Invuller <- NULL
+temp$Recorder2 <- NULL
+temp$`Aantal werknemers` <- NULL
+```
+
+```{r Invullen NA's in aantal fuiken}
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:45:28", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:50:30", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:04:04", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:18:34", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:12:05", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:48:21", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:52:58", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:55:16", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:56:54", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 12:59:21", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 13:02:53", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "14-5-2016 13:06:01", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "19-5-2016 0:08:54", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:25:13", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:41:34", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:55:46", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 22:48:47", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:00:13", 4, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:15:32", 2, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03", 1, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
+
+test <- subset(temp, Sample_Type == "Afvangst")
+test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
+if(nrow(test)==0){
+  remove(test)
+}
+Records_met_fuiken <- temp
+```
+
+```{r Datums corrigeren}
+temp <- Records_met_fuiken
+#Bekende problemen oplossen 
+#Voornamelijk dubbele datums
+temp <- subset(temp, Tijdstempel != "14-5-2016 13:06:01")
+temp <- subset(temp, Tijdstempel != "9-8-2016 23:58:14")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:16:52")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:18:19")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:19:35")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:21:58")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:28:57")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:18:18")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:13:07")
+print(paste(nrow(Records_met_fuiken)-nrow(temp), "Records verwijderd"))
+
+#NA datums verwijderen
+NA_Datums <- subset(temp, is.na(Datum))
+
+if(nrow(NA_Datums)>0){
+  print(paste(nrow(NA_Datums), "NA datums gevonden"))
+  temp2 <- subset(temp, !is.na(Datum))
+  print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
+}
+
+Records_met_datums <- temp
+```
+
+```{r Export}
+if (file.exists(file = "./Intermediate/Brondata.csv")==T){
+  today <- as.Date(Sys.time(), format="%Y%m%d")
+  backup <- read_csv("./Intermediate/Brondata.csv")
+  fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
+  write_csv(backup, fn)
+}
+
+
+write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
 ```
 
