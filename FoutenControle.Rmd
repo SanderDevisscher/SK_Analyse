@@ -142,4 +142,31 @@ if(nrow(test)==0){
 Records_met_fuiken <- temp
 ```
 
+```{r Datums corrigeren}
+temp <- Records_met_fuiken
+#Bekende problemen oplossen 
+#Voornamelijk dubbele datums
+temp <- subset(temp, Tijdstempel != "14-5-2016 13:06:01")
+temp <- subset(temp, Tijdstempel != "9-8-2016 23:58:14")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:16:52")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:18:19")
+temp <- subset(temp, Tijdstempel != "26-10-2016 20:19:35")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:21:58")
+temp <- subset(temp, Tijdstempel != "17-5-2017 23:28:57")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:18:18")
+temp <- subset(temp, Tijdstempel != "6-6-2017 17:13:07")
+print(paste(nrow(Records_met_fuiken)-nrow(temp), "Records verwijderd"))
+
+#NA datums verwijderen
+NA_Datums <- subset(temp, is.na(Datum))
+
+if(nrow(NA_Datums)>0){
+  print(paste(nrow(NA_Datums), "NA datums gevonden"))
+  temp2 <- subset(temp, !is.na(Datum))
+  print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
+}
+
+Records_met_datums <- temp
+```
+
 
