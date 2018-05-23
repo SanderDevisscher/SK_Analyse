@@ -21,3 +21,329 @@ Brondata <- read_csv("./Intermediate/Brondata.csv")
 Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
 ```
 
+```{r prep dataframe}
+Afvangsten$L00 <- NA
+Afvangsten$L0 <- NA
+Afvangsten$L1 <- NA
+Afvangsten$L2 <- NA
+Afvangsten$M1 <- NA
+Afvangsten$M2 <- NA
+Afvangsten$AM <- NA
+Afvangsten$AV <- NA
+```
+
+```{r Sum of all stage specefic columns}
+Afvangsten$L00[!is.na(Afvangsten$`Fuik 1 - L00`)
+               |!is.na(Afvangsten$`Fuik 2 - L00`)
+               |!is.na(Afvangsten$`Fuik 3 - L00`)
+               |!is.na(Afvangsten$`Fuik 4 - L00`)
+               |!is.na(Afvangsten$`Fuik 5 - L00`)
+               |!is.na(Afvangsten$`Fuik 6 - L00`)
+               |!is.na(Afvangsten$`Fuik 7 - L00`)
+               |!is.na(Afvangsten$`Fuik 8 - L00`)
+               |!is.na(Afvangsten$`Fuik 9 - L00`)
+               |!is.na(Afvangsten$`Fuik 10 - L00`)
+               |!is.na(Afvangsten$`Fuik 11 - L00`)
+               |!is.na(Afvangsten$`Fuik 12 - L00`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - L00`)
+                     |!is.na(Afvangsten$`Fuik 2 - L00`)
+                     |!is.na(Afvangsten$`Fuik 3 - L00`)
+                     |!is.na(Afvangsten$`Fuik 4 - L00`)
+                     |!is.na(Afvangsten$`Fuik 5 - L00`)
+                     |!is.na(Afvangsten$`Fuik 6 - L00`)
+                     |!is.na(Afvangsten$`Fuik 7 - L00`)
+                     |!is.na(Afvangsten$`Fuik 8 - L00`)
+                     |!is.na(Afvangsten$`Fuik 9 - L00`)
+                     |!is.na(Afvangsten$`Fuik 10 - L00`)
+                     |!is.na(Afvangsten$`Fuik 11 - L00`)
+                     |!is.na(Afvangsten$`Fuik 12 - L00`), 
+                     c('Fuik 1 - L00', 
+                       'Fuik 2 - L00',
+                       'Fuik 3 - L00',
+                       'Fuik 4 - L00',
+                       'Fuik 5 - L00',
+                       'Fuik 6 - L00',
+                       'Fuik 7 - L00',
+                       'Fuik 8 - L00',
+                       'Fuik 9 - L00',
+                       'Fuik 10 - L00',
+                       'Fuik 11 - L00',
+                       'Fuik 12 - L00')], 
+          na.rm = T)
+
+Afvangsten$L0[!is.na(Afvangsten$`Fuik 1 - L0`)
+              |!is.na(Afvangsten$`Fuik 2 - L0`)
+              |!is.na(Afvangsten$`Fuik 3 - L0`)
+              |!is.na(Afvangsten$`Fuik 4 - L0`)
+              |!is.na(Afvangsten$`Fuik 5 - L0`)
+              |!is.na(Afvangsten$`Fuik 6 - L0`)
+              |!is.na(Afvangsten$`Fuik 7 - L0`)
+              |!is.na(Afvangsten$`Fuik 8 - L0`)
+              |!is.na(Afvangsten$`Fuik 9 - L0`)
+              |!is.na(Afvangsten$`Fuik 10 - L0`)
+              |!is.na(Afvangsten$`Fuik 11 - L0`)
+              |!is.na(Afvangsten$`Fuik 12 - L0`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - L0`)
+                     |!is.na(Afvangsten$`Fuik 2 - L0`)
+                     |!is.na(Afvangsten$`Fuik 3 - L0`)
+                     |!is.na(Afvangsten$`Fuik 4 - L0`)
+                     |!is.na(Afvangsten$`Fuik 5 - L0`)
+                     |!is.na(Afvangsten$`Fuik 6 - L0`)
+                     |!is.na(Afvangsten$`Fuik 7 - L0`)
+                     |!is.na(Afvangsten$`Fuik 8 - L0`)
+                     |!is.na(Afvangsten$`Fuik 9 - L0`)
+                     |!is.na(Afvangsten$`Fuik 10 - L0`)
+                     |!is.na(Afvangsten$`Fuik 11 - L0`)
+                     |!is.na(Afvangsten$`Fuik 12 - L0`), 
+                     c('Fuik 1 - L0', 
+                       'Fuik 2 - L0',
+                       'Fuik 3 - L0',
+                       'Fuik 4 - L0',
+                       'Fuik 5 - L0',
+                       'Fuik 6 - L0',
+                       'Fuik 7 - L0',
+                       'Fuik 8 - L0',
+                       'Fuik 9 - L0',
+                       'Fuik 10 - L0',
+                       'Fuik 11 - L0',
+                       'Fuik 12 - L0')], 
+          na.rm = T)
+
+Afvangsten$L1[!is.na(Afvangsten$`Fuik 1 - L1`)
+              |!is.na(Afvangsten$`Fuik 2 - L1`)
+              |!is.na(Afvangsten$`Fuik 3 - L1`)
+              |!is.na(Afvangsten$`Fuik 4 - L1`)
+              |!is.na(Afvangsten$`Fuik 5 - L1`)
+              |!is.na(Afvangsten$`Fuik 6 - L1`)
+              |!is.na(Afvangsten$`Fuik 7 - L1`)
+              |!is.na(Afvangsten$`Fuik 8 - L1`)
+              |!is.na(Afvangsten$`Fuik 9 - L1`)
+              |!is.na(Afvangsten$`Fuik 10 - L1`)
+              |!is.na(Afvangsten$`Fuik 11 - L1`)
+              |!is.na(Afvangsten$`Fuik 12 - L1`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - L1`)
+                     |!is.na(Afvangsten$`Fuik 2 - L1`)
+                     |!is.na(Afvangsten$`Fuik 3 - L1`)
+                     |!is.na(Afvangsten$`Fuik 4 - L1`)
+                     |!is.na(Afvangsten$`Fuik 5 - L1`)
+                     |!is.na(Afvangsten$`Fuik 6 - L1`)
+                     |!is.na(Afvangsten$`Fuik 7 - L1`)
+                     |!is.na(Afvangsten$`Fuik 8 - L1`)
+                     |!is.na(Afvangsten$`Fuik 9 - L1`)
+                     |!is.na(Afvangsten$`Fuik 10 - L1`)
+                     |!is.na(Afvangsten$`Fuik 11 - L1`)
+                     |!is.na(Afvangsten$`Fuik 12 - L1`), 
+                     c('Fuik 1 - L1', 
+                       'Fuik 2 - L1',
+                       'Fuik 3 - L1',
+                       'Fuik 4 - L1',
+                       'Fuik 5 - L1',
+                       'Fuik 6 - L1',
+                       'Fuik 7 - L1',
+                       'Fuik 8 - L1',
+                       'Fuik 9 - L1',
+                       'Fuik 10 - L1',
+                       'Fuik 11 - L1',
+                       'Fuik 12 - L1')], 
+          na.rm = T)
+
+Afvangsten$L2[!is.na(Afvangsten$`Fuik 1 - L2`)
+              |!is.na(Afvangsten$`Fuik 2 - L2`)
+              |!is.na(Afvangsten$`Fuik 3 - L2`)
+              |!is.na(Afvangsten$`Fuik 4 - L2`)
+              |!is.na(Afvangsten$`Fuik 5 - L2`)
+              |!is.na(Afvangsten$`Fuik 6 - L2`)
+              |!is.na(Afvangsten$`Fuik 7 - L2`)
+              |!is.na(Afvangsten$`Fuik 8 - L2`)
+              |!is.na(Afvangsten$`Fuik 9 - L2`)
+              |!is.na(Afvangsten$`Fuik 10 - L2`)
+              |!is.na(Afvangsten$`Fuik 11 - L2`)
+              |!is.na(Afvangsten$`Fuik 12 - L2`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - L2`)
+                     |!is.na(Afvangsten$`Fuik 2 - L2`)
+                     |!is.na(Afvangsten$`Fuik 3 - L2`)
+                     |!is.na(Afvangsten$`Fuik 4 - L2`)
+                     |!is.na(Afvangsten$`Fuik 5 - L2`)
+                     |!is.na(Afvangsten$`Fuik 6 - L2`)
+                     |!is.na(Afvangsten$`Fuik 7 - L2`)
+                     |!is.na(Afvangsten$`Fuik 8 - L2`)
+                     |!is.na(Afvangsten$`Fuik 9 - L2`)
+                     |!is.na(Afvangsten$`Fuik 10 - L2`)
+                     |!is.na(Afvangsten$`Fuik 11 - L2`)
+                     |!is.na(Afvangsten$`Fuik 12 - L2`), 
+                     c('Fuik 1 - L2', 
+                       'Fuik 2 - L2',
+                       'Fuik 3 - L2',
+                       'Fuik 4 - L2',
+                       'Fuik 5 - L2',
+                       'Fuik 6 - L2',
+                       'Fuik 7 - L2',
+                       'Fuik 8 - L2',
+                       'Fuik 9 - L2',
+                       'Fuik 10 - L2',
+                       'Fuik 11 - L2',
+                       'Fuik 12 - L2')], 
+          na.rm = T)
+
+Afvangsten$M1[!is.na(Afvangsten$`Fuik 1 - M1`)
+              |!is.na(Afvangsten$`Fuik 2 - M1`)
+              |!is.na(Afvangsten$`Fuik 3 - M1`)
+              |!is.na(Afvangsten$`Fuik 4 - M1`)
+              |!is.na(Afvangsten$`Fuik 5 - M1`)
+              |!is.na(Afvangsten$`Fuik 6 - M1`)
+              |!is.na(Afvangsten$`Fuik 7 - M1`)
+              |!is.na(Afvangsten$`Fuik 8 - M1`)
+              |!is.na(Afvangsten$`Fuik 9 - M1`)
+              |!is.na(Afvangsten$`Fuik 10 - M1`)
+              |!is.na(Afvangsten$`Fuik 11 - M1`)
+              |!is.na(Afvangsten$`Fuik 12 - M1`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - M1`)
+                     |!is.na(Afvangsten$`Fuik 2 - M1`)
+                     |!is.na(Afvangsten$`Fuik 3 - M1`)
+                     |!is.na(Afvangsten$`Fuik 4 - M1`)
+                     |!is.na(Afvangsten$`Fuik 5 - M1`)
+                     |!is.na(Afvangsten$`Fuik 6 - M1`)
+                     |!is.na(Afvangsten$`Fuik 7 - M1`)
+                     |!is.na(Afvangsten$`Fuik 8 - M1`)
+                     |!is.na(Afvangsten$`Fuik 9 - M1`)
+                     |!is.na(Afvangsten$`Fuik 10 - M1`)
+                     |!is.na(Afvangsten$`Fuik 11 - M1`)
+                     |!is.na(Afvangsten$`Fuik 12 - M1`), 
+                     c('Fuik 1 - M1', 
+                       'Fuik 2 - M1',
+                       'Fuik 3 - M1',
+                       'Fuik 4 - M1',
+                       'Fuik 5 - M1',
+                       'Fuik 6 - M1',
+                       'Fuik 7 - M1',
+                       'Fuik 8 - M1',
+                       'Fuik 9 - M1',
+                       'Fuik 10 - M1',
+                       'Fuik 11 - M1',
+                       'Fuik 12 - M1')], 
+          na.rm = T)
+
+Afvangsten$M2[!is.na(Afvangsten$`Fuik 1 - M2`)
+              |!is.na(Afvangsten$`Fuik 2 - M2`)
+              |!is.na(Afvangsten$`Fuik 3 - M2`)
+              |!is.na(Afvangsten$`Fuik 4 - M2`)
+              |!is.na(Afvangsten$`Fuik 5 - M2`)
+              |!is.na(Afvangsten$`Fuik 6 - M2`)
+              |!is.na(Afvangsten$`Fuik 7 - M2`)
+              |!is.na(Afvangsten$`Fuik 8 - M2`)
+              |!is.na(Afvangsten$`Fuik 9 - M2`)
+              |!is.na(Afvangsten$`Fuik 10 - M2`)
+              |!is.na(Afvangsten$`Fuik 11 - M2`)
+              |!is.na(Afvangsten$`Fuik 12 - M2`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - M2`)
+                     |!is.na(Afvangsten$`Fuik 2 - M2`)
+                     |!is.na(Afvangsten$`Fuik 3 - M2`)
+                     |!is.na(Afvangsten$`Fuik 4 - M2`)
+                     |!is.na(Afvangsten$`Fuik 5 - M2`)
+                     |!is.na(Afvangsten$`Fuik 6 - M2`)
+                     |!is.na(Afvangsten$`Fuik 7 - M2`)
+                     |!is.na(Afvangsten$`Fuik 8 - M2`)
+                     |!is.na(Afvangsten$`Fuik 9 - M2`)
+                     |!is.na(Afvangsten$`Fuik 10 - M2`)
+                     |!is.na(Afvangsten$`Fuik 11 - M2`)
+                     |!is.na(Afvangsten$`Fuik 12 - M2`), 
+                     c('Fuik 1 - M2', 
+                       'Fuik 2 - M2',
+                       'Fuik 3 - M2',
+                       'Fuik 4 - M2',
+                       'Fuik 5 - M2',
+                       'Fuik 6 - M2',
+                       'Fuik 7 - M2',
+                       'Fuik 8 - M2',
+                       'Fuik 9 - M2',
+                       'Fuik 10 - M2',
+                       'Fuik 11 - M2',
+                       'Fuik 12 - M2')], 
+          na.rm = T)
+
+Afvangsten$AM[!is.na(Afvangsten$`Fuik 1 - AM`)
+              |!is.na(Afvangsten$`Fuik 2 - AM`)
+              |!is.na(Afvangsten$`Fuik 3 - AM`)
+              |!is.na(Afvangsten$`Fuik 4 - AM`)
+              |!is.na(Afvangsten$`Fuik 5 - AM`)
+              |!is.na(Afvangsten$`Fuik 6 - AM`)
+              |!is.na(Afvangsten$`Fuik 7 - AM`)
+              |!is.na(Afvangsten$`Fuik 8 - AM`)
+              |!is.na(Afvangsten$`Fuik 9 - AM`)
+              |!is.na(Afvangsten$`Fuik 10 - AM`)
+              |!is.na(Afvangsten$`Fuik 11 - AM`)
+              |!is.na(Afvangsten$`Fuik 12 - AM`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - AM`)
+                     |!is.na(Afvangsten$`Fuik 2 - AM`)
+                     |!is.na(Afvangsten$`Fuik 3 - AM`)
+                     |!is.na(Afvangsten$`Fuik 4 - AM`)
+                     |!is.na(Afvangsten$`Fuik 5 - AM`)
+                     |!is.na(Afvangsten$`Fuik 6 - AM`)
+                     |!is.na(Afvangsten$`Fuik 7 - AM`)
+                     |!is.na(Afvangsten$`Fuik 8 - AM`)
+                     |!is.na(Afvangsten$`Fuik 9 - AM`)
+                     |!is.na(Afvangsten$`Fuik 10 - AM`)
+                     |!is.na(Afvangsten$`Fuik 11 - AM`)
+                     |!is.na(Afvangsten$`Fuik 12 - AM`), 
+                     c('Fuik 1 - AM', 
+                       'Fuik 2 - AM',
+                       'Fuik 3 - AM',
+                       'Fuik 4 - AM',
+                       'Fuik 5 - AM',
+                       'Fuik 6 - AM',
+                       'Fuik 7 - AM',
+                       'Fuik 8 - AM',
+                       'Fuik 9 - AM',
+                       'Fuik 10 - AM',
+                       'Fuik 11 - AM',
+                       'Fuik 12 - AM')], 
+          na.rm = T)
+
+Afvangsten$AV[!is.na(Afvangsten$`Fuik 1 - AV`)
+              |!is.na(Afvangsten$`Fuik 2 - AV`)
+              |!is.na(Afvangsten$`Fuik 3 - AV`)
+              |!is.na(Afvangsten$`Fuik 4 - AV`)
+              |!is.na(Afvangsten$`Fuik 5 - AV`)
+              |!is.na(Afvangsten$`Fuik 6 - AV`)
+              |!is.na(Afvangsten$`Fuik 7 - AV`)
+              |!is.na(Afvangsten$`Fuik 8 - AV`)
+              |!is.na(Afvangsten$`Fuik 9 - AV`)
+              |!is.na(Afvangsten$`Fuik 10 - AV`)
+              |!is.na(Afvangsten$`Fuik 11 - AV`)
+              |!is.na(Afvangsten$`Fuik 12 - AV`)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$`Fuik 1 - AV`)
+                     |!is.na(Afvangsten$`Fuik 2 - AV`)
+                     |!is.na(Afvangsten$`Fuik 3 - AV`)
+                     |!is.na(Afvangsten$`Fuik 4 - AV`)
+                     |!is.na(Afvangsten$`Fuik 5 - AV`)
+                     |!is.na(Afvangsten$`Fuik 6 - AV`)
+                     |!is.na(Afvangsten$`Fuik 7 - AV`)
+                     |!is.na(Afvangsten$`Fuik 8 - AV`)
+                     |!is.na(Afvangsten$`Fuik 9 - AV`)
+                     |!is.na(Afvangsten$`Fuik 10 - AV`)
+                     |!is.na(Afvangsten$`Fuik 11 - AV`)
+                     |!is.na(Afvangsten$`Fuik 12 - AV`), 
+                     c('Fuik 1 - AV', 
+                       'Fuik 2 - AV',
+                       'Fuik 3 - AV',
+                       'Fuik 4 - AV',
+                       'Fuik 5 - AV',
+                       'Fuik 6 - AV',
+                       'Fuik 7 - AV',
+                       'Fuik 8 - AV',
+                       'Fuik 9 - AV',
+                       'Fuik 10 - AV',
+                       'Fuik 11 - AV',
+                       'Fuik 12 - AV')], 
+          na.rm = T)
+
+print(Afvangsten$L00)
+print(Afvangsten$L0)
+print(Afvangsten$L1)
+print(Afvangsten$L2)
+print(Afvangsten$M1)
+print(Afvangsten$M2)
+print(Afvangsten$AM)
+print(Afvangsten$AV)
+```
+
