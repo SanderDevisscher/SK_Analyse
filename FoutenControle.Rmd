@@ -24,7 +24,16 @@ gdrive <- gs_read(title)
 SKData <- gdrive
 ```
 
-```{r}
+```{r Controle ontbrekende locaties}
+
+#Bekende problemen verwijderen
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:50:47")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:58:58")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:45:35")
+SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:47:36")
+SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:50:04")
+SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:56:51")
+
 SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
                                     ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
                                            ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
@@ -50,6 +59,10 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
     print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
   }
 }
+
+```
+
+```{r Controle recorders}
 
 ```
 
