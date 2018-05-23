@@ -581,13 +581,17 @@ for(j in Jaren){
       geom_bar(stat="identity", aes(fill="red"))
     plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0), wrap_format(width = 5)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
     plot <- plot + theme(legend.position="none")
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     print(plot)
-    ggsave(filename = fNaam, path = "./Output/", width=10.5, height=5, units = c("in"), dpi = 300)
+    if(nrow(temp3)>7){
+    ggsave(filename = fNaam, path = "./Output/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
+    }else{
+    ggsave(filename = fNaam, path = "./Output/", width= 20, height = 5, units = c("cm"), dpi = 300)
+    }
   }
 }
 ```
