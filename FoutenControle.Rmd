@@ -278,7 +278,7 @@ if(nrow(NA_Datums)>0){
   print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
 }
 
-Records_met_datums <- temp
+Records_met_datums <- temp2
 ```
 
 ```{r Export}
