@@ -588,9 +588,9 @@ for(j in Jaren){
     plot <- plot + ylab("CPUE")
     print(plot)
     if(nrow(temp3)>7){
-    ggsave(filename = fNaam, path = "./Output/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
     }else{
-    ggsave(filename = fNaam, path = "./Output/", width= 20, height = 5, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 20, height = 5, units = c("cm"), dpi = 300)
     }
   }
 }
