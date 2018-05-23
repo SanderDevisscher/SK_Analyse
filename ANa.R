@@ -28,6 +28,7 @@ title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
 Token <- gs_auth()
 gs_auth(token = Token)
 gdrive <- gs_read(title)
+tail(gdrive$Tijdstempel)
 
 #Import offline data####
 #Check in de ruwe datamap of reeds nieuwere brondata backups zijn 
@@ -102,6 +103,12 @@ temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "kris meeus (prive)", "Kris Meeus", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter liekebns", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pieter Liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
 temp$Recorder <- temp$Invuller
 for (i in nrow(temp)){ 
   n <- temp$`Aantal werknemers`
@@ -155,7 +162,9 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17"
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
-
+if(nrow(test)==0){
+  remove(test)
+}
 ####Dubbele inputs verwijderen####
 #Dubbele datums verwijderen
 temp <- subset(temp, Tijdstempel != "14-5-2016 13:06:01")
@@ -175,56 +184,59 @@ temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:51:44", "Afvangst SF
 temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:34:23", "Afvangst SFB",temp$Sample_Type )
 temp$Sample_Type <- ifelse(temp$Tijdstempel == "9-8-2016 23:35:49", "Afvangst SFD",temp$Sample_Type )
 
+#NA datums verwijderen
+temp <- subset(temp, !is.na(Datum))
+
+Brondata_Backup <- temp
+temp <- Brondata_Backup 
 #Check loop
+temp$Datum <- as.Date(temp$Datum, "%d-%m-%Y")
 temp$Jaar <- format(temp$Datum, format='%Y')
+table(temp$Jaar)
 Jaren <- unique(temp$Jaar)
+Jaren <- Jaren[!is.na(Jaren)]
+
 DubbeleInputs <- data.frame()
 DubbeleDatums <- data.frame()
 temp7 <- data.frame()
 temp8 <- temp
-for(j in Jaren){
-  temp2 <- subset(temp, Jaar == j)
-  Locations <- unique(temp2$Location)
-  for(i in Locations){
-    temp3 <- subset(temp2, Location == i )
-    Aantalrecords <- nrow(temp3)
-    Aantaldatums <- n_distinct(temp3$Datum)
-    if(Aantalrecords != Aantaldatums){
-      ThisLocation <- data.frame(x=i,y=j)
-      DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
-      temp4 <- subset(temp, Location != i)
-      temp5 <- subset(temp, Location == i)
-      temp6 <- subset(temp5, Jaar != j)
-      temp7 <- rbind(temp4, temp6)
+#for(j in Jaren){
+ # temp2 <- subset(temp, Jaar == j)
+  #Locations <- unique(temp2$Location)
+  #for(i in Locations){
+   # temp3 <- subset(temp2, Location == i )
+  #  Aantalrecords <- nrow(temp3)
+   # Aantaldatums <- n_distinct(temp3$Datum)
+    #if(Aantalrecords != Aantaldatums){
+     # ThisLocation <- data.frame(x=i,y=j)
+      #DubbeleInputs <- rbind(DubbeleInputs, ThisLocation)
+      #temp4 <- subset(temp, Location != i)
+#      temp5 <- subset(temp, Location == i)
+ #     temp6 <- subset(temp5, Jaar != j)
+  #    temp7 <- rbind(temp4, temp6)
       #Filter Duplicates
-      temp5 <- subset(temp5, Sample_Type == "Afvangst" )
-      datums <- unique(temp5$Datum)
-      for(d in datums){
-        DubbeleDatums <- subset(temp5, Datum == d)
-        if(nrow(DubbeleDatums)>1){
-          stop("dubbele datums")
-        }
-      }
-    }
-  }
-}
-print("dubbele inputs verwijderd")
-if(nrow(temp8)==nrow(temp4)){
-  temp <- temp8
-}else{
-  temp <- temp7
-}
+   #   temp5 <- subset(temp5, Sample_Type == "Afvangst" )
+    #  datums <- unique(temp5$Datum)
+     # for(d in datums){
+      #  DubbeleDatums <- subset(temp5, Datum == d)
+       # if(nrow(DubbeleDatums)>1){
+        #  stop("dubbele datums")
+#        }
+ #     }
+  #  }
+#  }
+#}
+#print("dubbele inputs verwijderd")
+#if(nrow(temp8)==nrow(temp4)){
+ # temp <- temp8
+#}else{
+ # temp <- temp7
+#}
 
-
-
-
-
-
-Brondata <- temp
-
-
-
-
+#Brondata <- temp
+Brondata <- Brondata_Backup
+tail(Brondata$Tijdstempel)
+unique(Brondata$Location)
 
 ####Opkuis####
 remove(DubbeleDatums)

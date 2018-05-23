@@ -63,6 +63,8 @@ Locations_Recorder <- unique(temp3A$Location)
 for(x in Locations_Recorder){
   temp3 <- subset(temp3A, Location == x)
   if(s=="Afvangst"){
+    temp3$Sample_Type <- "Schietfuik"
+  }else{
     temp3$Sample_Type <- s
   }
   Datums_Recorder <- unique(temp3$Datum)
@@ -138,7 +140,7 @@ missinglocations <- unique(temp$Location)
 print(missinglocations)
 remove(temp6)
 
-#Bijvangsten toevoegen 
+####Bijvangsten toevoegen#### 
 
 temp7 <- data_frame()
 temp6b <- data.frame(x)
@@ -219,7 +221,7 @@ temp8$AM <- NA
 temp8$AV <- NA
 temp8$TaxonDataAccuracy <- "Estimate"
 temp8 <- merge(temp8, Locaties)
-temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder")]
+temp8 <- temp8[,c("Location", "Sample_Type","Locationname", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Species", "GridReference", "TaxonDataAccuracy", "None", "Date","Recorder", "Recorder_Status")]
 
 Recorder_Prep$None <- NA
 Recorder_Prep$Date <- Recorder_Prep$Datum
@@ -238,7 +240,7 @@ Recorder_Prep_2$M2 <- as.numeric(Recorder_Prep_2$M2)
 Recorder_Prep_2$AM <- as.numeric(Recorder_Prep_2$AM)
 Recorder_Prep_2$AV <- as.numeric(Recorder_Prep_2$AV)
 
-rec_fname <- paste(wd, "Recorder/Recorder_", s ,"_",Today, sep="")
+rec_fname <- paste(wd, "Recorder/Recorder_", s ,"_",today, sep="")
 rec_fname <- paste(rec_fname, ".csv", sep="")
 write.csv(Recorder_Prep_2, rec_fname)
 
@@ -247,24 +249,35 @@ Log$X <- NULL
 Log$Date <- as.Date.factor(Log$Date)
 i <- tail(Log$i, n=1)+1
 temp_Log <- data.frame(i)
-temp_Log$Date <- as.Date.factor(Today)
+temp_Log$Date <- as.Date.factor(today)
 temp_Log$FileName <- rec_fname
 temp_Log$rows <- nrow(Recorder_Prep_2)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+if(s == "Afvangst"){
+  Recorder_Afvangst_2 <- Recorder_Prep_2
+}
 
 }
 
 ####Afvangsten Vergelijken met vorige imports####
+##Import 2016
+Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
+#Import 2017
+#Nog uit te voeren
 
+#Foutje in date fixen
+Recorder_Afvangst_2016$Date <- gsub("-", "/", Recorder_Afvangst_2016$Date)
+Recorder_Afvangst_2016$Date2 <- as.Date(Recorder_Afvangst_2016$Date, "%d/%m/%Y")
+Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d-%m-%Y')
 
 #Merge
-#Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
+##Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
 Recorder_Afvangst_vorig <- Recorder_Afvangst_2016
 
 #Compare
 
-Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date, 
+Recorder_Afvangst_vorig$comparekey <- paste(Recorder_Afvangst_vorig$Location, Recorder_Afvangst_vorig$Date3, 
                                             Recorder_Afvangst_vorig$Locationname, Recorder_Afvangst_vorig$Species)
 Recorder_Afvangst_2$comparekey <- paste(Recorder_Afvangst_2$Location, Recorder_Afvangst_2$Date, 
                                         Recorder_Afvangst_2$Locationname, Recorder_Afvangst_2$Species)
@@ -296,10 +309,15 @@ Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
 
 Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
 
+Recorder_Afvangst_3$Date2 <- as.Date.character(Recorder_Afvangst_3$Date, '%d-%m-%Y')
+Recorder_Afvangst_3$Jaar <- format(Recorder_Afvangst_3$Date2, '%Y')
+temp <- subset(Recorder_Afvangst_3, Jaar == 2016)
+
+
 ####Output####
 Today <- Sys.Date()
 
-rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, sep="")
+rec_afvg_fname <- paste(wd, "Recorder/Recorder_Afvangst_",Today, "_Compared", sep="")
 rec_afvg_fname <- paste(rec_afvg_fname, ".csv", sep="")
 write.csv(Recorder_Afvangst_3, rec_afvg_fname)
 
@@ -314,8 +332,21 @@ temp_Log$rows <- nrow(Recorder_Afvangst_3)
 Log <- rbind(Log, temp_Log)
 write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 
+Recorder_Afvangst_4 <- subset(Recorder_Afvangst_3, Recorder_Status == 1)
 
+rec_afvg_fname2 <- paste(wd, "Recorder/Recorder_Afvangst_",Today, "_Compared_Ready", sep="")
+rec_afvg_fname2 <- paste(rec_afvg_fname2, ".csv", sep="")
+write.csv(Recorder_Afvangst_4, rec_afvg_fname2)
 
-
+Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+Log$X <- NULL
+Log$Date <- as.Date.factor(Log$Date)
+i <- tail(Log$i, n=1)+1
+temp_Log <- data.frame(i)
+temp_Log$Date <- as.Date.factor(Today)
+temp_Log$FileName <- rec_afvg_fname2
+temp_Log$rows <- nrow(Recorder_Afvangst_4)
+Log <- rbind(Log, temp_Log)
+write.csv(Log, "G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 
 
