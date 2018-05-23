@@ -15,6 +15,115 @@ library(tidyverse)
 
 ```{r Read data}
 Brondata <- read_csv("./Intermediate/Brondata.csv")
+
+#Fuik 1
+Brondata$`Fuik 1 - L00` <- as.numeric(Brondata$`Fuik 1 - L00`)
+Brondata$`Fuik 1 - L0` <- as.numeric(Brondata$`Fuik 1 - L0`)
+Brondata$`Fuik 1 - L1` <- as.numeric(Brondata$`Fuik 1 - L1`)
+Brondata$`Fuik 1 - L2` <- as.numeric(Brondata$`Fuik 1 - L2`)
+Brondata$`Fuik 1 - M1` <- as.numeric(Brondata$`Fuik 1 - M1`)
+Brondata$`Fuik 1 - M2` <- as.numeric(Brondata$`Fuik 1 - M2`)
+Brondata$`Fuik 1 - AM` <- as.numeric(Brondata$`Fuik 1 - AM`)
+Brondata$`Fuik 1 - AV` <- as.numeric(Brondata$`Fuik 1 - AV`)
+#Fuik 2
+Brondata$`Fuik 2 - L00` <- as.numeric(Brondata$`Fuik 2 - L00`)
+Brondata$`Fuik 2 - L0` <- as.numeric(Brondata$`Fuik 2 - L0`)
+Brondata$`Fuik 2 - L1` <- as.numeric(Brondata$`Fuik 2 - L1`)
+Brondata$`Fuik 2 - L2` <- as.numeric(Brondata$`Fuik 2 - L2`)
+Brondata$`Fuik 2 - M1` <- as.numeric(Brondata$`Fuik 2 - M1`)
+Brondata$`Fuik 2 - M2` <- as.numeric(Brondata$`Fuik 2 - M2`)
+Brondata$`Fuik 2 - AM` <- as.numeric(Brondata$`Fuik 2 - AM`)
+Brondata$`Fuik 2 - AV` <- as.numeric(Brondata$`Fuik 2 - AV`)
+#Fuik 3
+Brondata$`Fuik 3 - L00` <- as.numeric(Brondata$`Fuik 3 - L00`)
+Brondata$`Fuik 3 - L0` <- as.numeric(Brondata$`Fuik 3 - L0`)
+Brondata$`Fuik 3 - L1` <- as.numeric(Brondata$`Fuik 3 - L1`)
+Brondata$`Fuik 3 - L2` <- as.numeric(Brondata$`Fuik 3 - L2`)
+Brondata$`Fuik 3 - M1` <- as.numeric(Brondata$`Fuik 3 - M1`)
+Brondata$`Fuik 3 - M2` <- as.numeric(Brondata$`Fuik 3 - M2`)
+Brondata$`Fuik 3 - AM` <- as.numeric(Brondata$`Fuik 3 - AM`)
+Brondata$`Fuik 3 - AV` <- as.numeric(Brondata$`Fuik 3 - AV`)
+#Fuik 4
+Brondata$`Fuik 4 - L00` <- as.numeric(Brondata$`Fuik 4 - L00`)
+Brondata$`Fuik 4 - L0` <- as.numeric(Brondata$`Fuik 4 - L0`)
+Brondata$`Fuik 4 - L1` <- as.numeric(Brondata$`Fuik 4 - L1`)
+Brondata$`Fuik 4 - L2` <- as.numeric(Brondata$`Fuik 4 - L2`)
+Brondata$`Fuik 4 - M1` <- as.numeric(Brondata$`Fuik 4 - M1`)
+Brondata$`Fuik 4 - M2` <- as.numeric(Brondata$`Fuik 4 - M2`)
+Brondata$`Fuik 4 - AM` <- as.numeric(Brondata$`Fuik 4 - AM`)
+Brondata$`Fuik 4 - AV` <- as.numeric(Brondata$`Fuik 4 - AV`)
+#Fuik 5
+Brondata$`Fuik 5 - L00` <- as.numeric(Brondata$`Fuik 5 - L00`)
+Brondata$`Fuik 5 - L0` <- as.numeric(Brondata$`Fuik 5 - L0`)
+Brondata$`Fuik 5 - L1` <- as.numeric(Brondata$`Fuik 5 - L1`)
+Brondata$`Fuik 5 - L2` <- as.numeric(Brondata$`Fuik 5 - L2`)
+Brondata$`Fuik 5 - M1` <- as.numeric(Brondata$`Fuik 5 - M1`)
+Brondata$`Fuik 5 - M2` <- as.numeric(Brondata$`Fuik 5 - M2`)
+Brondata$`Fuik 5 - AM` <- as.numeric(Brondata$`Fuik 5 - AM`)
+Brondata$`Fuik 5 - AV` <- as.numeric(Brondata$`Fuik 5 - AV`)
+#Fuik 6
+Brondata$`Fuik 6 - L00` <- as.numeric(Brondata$`Fuik 6 - L00`)
+Brondata$`Fuik 6 - L0` <- as.numeric(Brondata$`Fuik 6 - L0`)
+Brondata$`Fuik 6 - L1` <- as.numeric(Brondata$`Fuik 6 - L1`)
+Brondata$`Fuik 6 - L2` <- as.numeric(Brondata$`Fuik 6 - L2`)
+Brondata$`Fuik 6 - M1` <- as.numeric(Brondata$`Fuik 6 - M1`)
+Brondata$`Fuik 6 - M2` <- as.numeric(Brondata$`Fuik 6 - M2`)
+Brondata$`Fuik 6 - AM` <- as.numeric(Brondata$`Fuik 6 - AM`)
+Brondata$`Fuik 6 - AV` <- as.numeric(Brondata$`Fuik 6 - AV`)
+#Fuik 7
+Brondata$`Fuik 7 - L00` <- as.numeric(Brondata$`Fuik 7 - L00`)
+Brondata$`Fuik 7 - L0` <- as.numeric(Brondata$`Fuik 7 - L0`)
+Brondata$`Fuik 7 - L1` <- as.numeric(Brondata$`Fuik 7 - L1`)
+Brondata$`Fuik 7 - L2` <- as.numeric(Brondata$`Fuik 7 - L2`)
+Brondata$`Fuik 7 - M1` <- as.numeric(Brondata$`Fuik 7 - M1`)
+Brondata$`Fuik 7 - M2` <- as.numeric(Brondata$`Fuik 7 - M2`)
+Brondata$`Fuik 7 - AM` <- as.numeric(Brondata$`Fuik 7 - AM`)
+Brondata$`Fuik 7 - AV` <- as.numeric(Brondata$`Fuik 7 - AV`)
+#Fuik 8
+Brondata$`Fuik 8 - L00` <- as.numeric(Brondata$`Fuik 8 - L00`)
+Brondata$`Fuik 8 - L0` <- as.numeric(Brondata$`Fuik 8 - L0`)
+Brondata$`Fuik 8 - L1` <- as.numeric(Brondata$`Fuik 8 - L1`)
+Brondata$`Fuik 8 - L2` <- as.numeric(Brondata$`Fuik 8 - L2`)
+Brondata$`Fuik 8 - M1` <- as.numeric(Brondata$`Fuik 8 - M1`)
+Brondata$`Fuik 8 - M2` <- as.numeric(Brondata$`Fuik 8 - M2`)
+Brondata$`Fuik 8 - AM` <- as.numeric(Brondata$`Fuik 8 - AM`)
+Brondata$`Fuik 8 - AV` <- as.numeric(Brondata$`Fuik 8 - AV`)
+#Fuik 9
+Brondata$`Fuik 9 - L00` <- as.numeric(Brondata$`Fuik 9 - L00`)
+Brondata$`Fuik 9 - L0` <- as.numeric(Brondata$`Fuik 9 - L0`)
+Brondata$`Fuik 9 - L1` <- as.numeric(Brondata$`Fuik 9 - L1`)
+Brondata$`Fuik 9 - L2` <- as.numeric(Brondata$`Fuik 9 - L2`)
+Brondata$`Fuik 9 - M1` <- as.numeric(Brondata$`Fuik 9 - M1`)
+Brondata$`Fuik 9 - M2` <- as.numeric(Brondata$`Fuik 9 - M2`)
+Brondata$`Fuik 9 - AM` <- as.numeric(Brondata$`Fuik 9 - AM`)
+Brondata$`Fuik 9 - AV` <- as.numeric(Brondata$`Fuik 9 - AV`)
+#Fuik 10
+Brondata$`Fuik 10 - L00` <- as.numeric(Brondata$`Fuik 10 - L00`)
+Brondata$`Fuik 10 - L0` <- as.numeric(Brondata$`Fuik 10 - L0`)
+Brondata$`Fuik 10 - L1` <- as.numeric(Brondata$`Fuik 10 - L1`)
+Brondata$`Fuik 10 - L2` <- as.numeric(Brondata$`Fuik 10 - L2`)
+Brondata$`Fuik 10 - M1` <- as.numeric(Brondata$`Fuik 10 - M1`)
+Brondata$`Fuik 10 - M2` <- as.numeric(Brondata$`Fuik 10 - M2`)
+Brondata$`Fuik 10 - AM` <- as.numeric(Brondata$`Fuik 10 - AM`)
+Brondata$`Fuik 10 - AV` <- as.numeric(Brondata$`Fuik 10 - AV`)
+#Fuik 11
+Brondata$`Fuik 11 - L00` <- as.numeric(Brondata$`Fuik 11 - L00`)
+Brondata$`Fuik 11 - L0` <- as.numeric(Brondata$`Fuik 11 - L0`)
+Brondata$`Fuik 11 - L1` <- as.numeric(Brondata$`Fuik 11 - L1`)
+Brondata$`Fuik 11 - L2` <- as.numeric(Brondata$`Fuik 11 - L2`)
+Brondata$`Fuik 11 - M1` <- as.numeric(Brondata$`Fuik 11 - M1`)
+Brondata$`Fuik 11 - M2` <- as.numeric(Brondata$`Fuik 11 - M2`)
+Brondata$`Fuik 11 - AM` <- as.numeric(Brondata$`Fuik 11 - AM`)
+Brondata$`Fuik 11 - AV` <- as.numeric(Brondata$`Fuik 11 - AV`)
+#Fuik 12
+Brondata$`Fuik 12 - L00` <- as.numeric(Brondata$`Fuik 12 - L00`)
+Brondata$`Fuik 12 - L0` <- as.numeric(Brondata$`Fuik 12 - L0`)
+Brondata$`Fuik 12 - L1` <- as.numeric(Brondata$`Fuik 12 - L1`)
+Brondata$`Fuik 12 - L2` <- as.numeric(Brondata$`Fuik 12 - L2`)
+Brondata$`Fuik 12 - M1` <- as.numeric(Brondata$`Fuik 12 - M1`)
+Brondata$`Fuik 12 - M2` <- as.numeric(Brondata$`Fuik 12 - M2`)
+Brondata$`Fuik 12 - AM` <- as.numeric(Brondata$`Fuik 12 - AM`)
+Brondata$`Fuik 12 - AV` <- as.numeric(Brondata$`Fuik 12 - AV`)
 ```
 
 ```{r Subset data}
@@ -22,14 +131,14 @@ Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
 ```
 
 ```{r prep dataframe}
-Afvangsten$L00 <- NA
-Afvangsten$L0 <- NA
-Afvangsten$L1 <- NA
-Afvangsten$L2 <- NA
-Afvangsten$M1 <- NA
-Afvangsten$M2 <- NA
-Afvangsten$AM <- NA
-Afvangsten$AV <- NA
+Afvangsten$L00 <- as.numeric(NA)
+Afvangsten$L0 <- as.numeric(NA)
+Afvangsten$L1 <- as.numeric(NA)
+Afvangsten$L2 <- as.numeric(NA)
+Afvangsten$M1 <- as.numeric(NA)
+Afvangsten$M2 <- as.numeric(NA)
+Afvangsten$AM <- as.numeric(NA)
+Afvangsten$AV <- as.numeric(NA)
 ```
 
 ```{r Sum of all stage specefic columns}
