@@ -169,4 +169,15 @@ if(nrow(NA_Datums)>0){
 Records_met_datums <- temp
 ```
 
+```{r Export}
+if (file.exists(file = "./Intermediate/Brondata.csv")==T){
+  today <- as.Date(Sys.time(), format="%Y%m%d")
+  backup <- read_csv("./Intermediate/Brondata.csv")
+  fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
+  write_csv(backup, fn)
+}
+
+
+write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+```
 
