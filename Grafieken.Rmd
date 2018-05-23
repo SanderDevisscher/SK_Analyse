@@ -11,6 +11,7 @@ rm(list = ls())
 
 ```{r Libraries}
 library(tidyverse)
+library(scales)
 ```
 
 ```{r Read data}
@@ -533,6 +534,61 @@ print(Afvangsten$CPUE)
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
+```
 
+```{r Datums juist zetten}
+GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum,'%d-%m-%Y')
+GRA_Brondata$Dag <- format(GRA_Brondata$Datum, format='%d')
+GRA_Brondata$Maand <- format(GRA_Brondata$Datum, format='%m')
+GRA_Brondata$Jaar <- format(GRA_Brondata$Datum, format='%Y')
+GRA_Brondata$Jaar <- as.numeric(GRA_Brondata$Jaar)
+GRA_Brondata$Maand <- as.numeric(GRA_Brondata$Maand)
+GRA_Brondata$Dag <- as.numeric(GRA_Brondata$Dag)
+
+
+
+GRA_Brondata$Maand2 <- ifelse(GRA_Brondata$Maand==1, "jan", 
+                              ifelse(GRA_Brondata$Maand==2, "feb",
+                                     ifelse(GRA_Brondata$Maand==3, "mar",
+                                            ifelse(GRA_Brondata$Maand==4, "apr",
+                                                   ifelse(GRA_Brondata$Maand==5, "mei",
+                                                          ifelse(GRA_Brondata$Maand==6, "jun",
+                                                                 ifelse(GRA_Brondata$Maand==7, "jul",
+                                                                        ifelse(GRA_Brondata$Maand==8, "aug",
+                                                                               ifelse(GRA_Brondata$Maand==9, "sep",
+                                                                                      ifelse(GRA_Brondata$Maand==10, "okt",
+                                                                                             ifelse(GRA_Brondata$Maand==11, "nov",
+                                                                                                    ifelse(GRA_Brondata$Maand==12, "dec",NA))))))))))))
+GRA_Brondata$Datum2 <- paste(GRA_Brondata$Dag, GRA_Brondata$Maand2, sep="/")
+#GRA_Brondata <- GRA_Brondata[with(GRA_Brondata, reorder(Jaar, Maand, Dag)),]
+#GRA_Brondata$Datum <- format(GRA_Brondata$Datum, format= '%d-%m-%Y')
+
+#GRA_Brondata$Datum3 <- factor(GRA_Brondata$Datum2, levels = GRA_Brondata$Datum2[order(GRA_Brondata$Maand, GRA_Brondata$Dag)], ordered = TRUE)
+```
+
+```{r CPUE/dag per jaar}
+Jaren <- unique(GRA_Brondata$Jaar)
+temp <- GRA_Brondata
+
+for(j in Jaren){
+  temp2 <- subset(temp, Jaar == j)
+  Locations <- unique(temp2$Location)
+  for(i in Locations){
+    temp3 <- subset(temp2, Location == i )
+    fNaam <- paste(i,"CPUE", j, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep="")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=CPUE)) + 
+      geom_bar(stat="identity", aes(fill="red"))
+    plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
+    plot <- plot + expand_limits(x = 0, y = 0)
+    plot <- plot + scale_x_discrete(expand = c(0, 0), wrap_format(width = 5)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + theme(legend.position="none")
+    plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+    plot <- plot + xlab("Datum")
+    plot <- plot + ylab("CPUE")
+    print(plot)
+    ggsave(filename = fNaam, path = "./Output/", width=10.5, height=5, units = c("in"), dpi = 300)
+  }
+}
 ```
 
