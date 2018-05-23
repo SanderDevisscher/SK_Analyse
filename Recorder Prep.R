@@ -16,16 +16,42 @@ Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
 gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken (Totaal)`==0)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
 
-####Foutieve NA in aantal fuiken corrigeren
+####Foutieve NA in aantal fuiken corrigeren####
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
 Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
 
+summary(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`))
+if(nrow(gnFuiken) >= 1) {
+  ERROR_Aantal_Fuiken <- data_frame()
+}else{
+  remove(gnFuiken)
+}
 
-####Afvangsten voor Recorder####
+Recorder_Ruw$comparekey <- paste(Recorder_Ruw$Location, Recorder_Ruw$Datum)
+
+#Data geïmporteerde data
+#Import 2016
+Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Imported/Recorder_Afvangst_2016-12-12 .csv")
+Recorder_Afvangst_2016$comparekey <- paste(Recorder_Ruw$Location, Recorder_Ruw$Date)
+
+#Import 2017
+#Nog uit te voeren
+
+#=>Recorder_Ruw
+
+####Data per Sample_Type####
 Sample_Types_Recorder <- unique(Recorder_Ruw$Sample_Type)
 for(s in Sample_Types_Recorder){
+  
+}
+
+
+
+
+
 temp2 <- data.frame()
 o <- 0
 temp3A <- subset(Recorder_Ruw, Sample_Type == s )
@@ -223,7 +249,7 @@ Log$X <- NULL
 Log$Date <- as.Date.factor(Log$Date)
 i <- tail(Log$i, n=1)+1
 temp_Log <- data.frame(i)
-temp_Log$Date <- as.Date.factor(Today)
+temp_Log$Date <- as.Date.factor(today)
 temp_Log$FileName <- rec_fname
 temp_Log$rows <- nrow(Recorder_Prep_2)
 Log <- rbind(Log, temp_Log)
@@ -243,7 +269,7 @@ Recorder_Afvangst_2016 <- read.csv2("G://Mijn Drive/INBOPRJ-10217 - Monitoring e
 #Foutje in date fixen
 Recorder_Afvangst_2016$Date <- gsub("-", "/", Recorder_Afvangst_2016$Date)
 Recorder_Afvangst_2016$Date2 <- as.Date(Recorder_Afvangst_2016$Date, "%d/%m/%Y")
-Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d/%m/%Y')
+Recorder_Afvangst_2016$Date3 <- format(Recorder_Afvangst_2016$Date2, '%d-%m-%Y')
 
 #Merge
 ##Just 2016 for now, when more years are imported they will be merged with the previous years following this seperator. 
@@ -283,7 +309,7 @@ Recorder_Afvangst_2$comparekey <- as.character(Recorder_Afvangst_2$comparekey)
 
 Recorder_Afvangst_3 <- anti_join(x = Recorder_Afvangst_2, y= Recorder_Afvangst_vorig, by = "comparekey")
 
-Recorder_Afvangst_3$Date2 <- as.Date(Recorder_Afvangst_3$Date, '%d/%m/%Y')
+Recorder_Afvangst_3$Date2 <- as.Date.character(Recorder_Afvangst_3$Date, '%d-%m-%Y')
 Recorder_Afvangst_3$Jaar <- format(Recorder_Afvangst_3$Date2, '%Y')
 temp <- subset(Recorder_Afvangst_3, Jaar == 2016)
 
