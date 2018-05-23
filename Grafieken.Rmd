@@ -522,3 +522,17 @@ Afvangsten$`Aantal fuiken (Totaal)` <- as.numeric(Afvangsten$`Aantal fuiken (Tot
 table(Afvangsten$`Aantal fuiken (Totaal)`)
 ```
 
+```{r Calculate CPUE}
+#CPUE = Catch per unit of effort.
+#Unit of effort = 1 fyke per 24 hours* 
+#Catch = total of larvea for CPUE calculation
+#*Data is as such that every 24h a number of fykes are used a record is made
+Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Totaal)`
+print(Afvangsten$CPUE)
+```
+
+```{r Selecteer brondata voor grafieken}
+GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
+
+```
+
