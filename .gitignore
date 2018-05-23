@@ -2,7 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
-.httr-oauth
 Locaties.gsheet
 *.httr-oauth
 ANa[Conflict].R
@@ -12,12 +11,5 @@ ANa[Conflict].R
 *.html
 *.gdoc
 *.httr-oauth
-
 *.jpeg
-.httr-oauth
-.httr-oauth
-*.httr-oauth
-.httr-oauth
-.httr-oauth
-*.httr-oauth
 .httr-oauth
