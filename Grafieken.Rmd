@@ -456,3 +456,69 @@ print(Afvangsten$AM)
 print(Afvangsten$AV)
 ```
 
+```{r Calculate Totals}
+#Larvea for CPUE calculation excludes those larvea that are too small (L00)
+#Post - Metamorfs (M1, M2, AM, AV) are excluded by default
+Afvangsten$Totaal <- NA
+Afvangsten$Totaal_Larven.All <- NA
+Afvangsten$Totaal_Larven.CPUE <- NA
+
+Afvangsten$Totaal[!is.na(Afvangsten$L00)
+                  |!is.na(Afvangsten$L0)
+                  |!is.na(Afvangsten$L1)
+                  |!is.na(Afvangsten$L2)
+                  |!is.na(Afvangsten$M1)
+                  |!is.na(Afvangsten$M2)
+                  |!is.na(Afvangsten$AM)
+                  |!is.na(Afvangsten$AV)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$L00)
+                     |!is.na(Afvangsten$L0)
+                     |!is.na(Afvangsten$L1)
+                     |!is.na(Afvangsten$L2)
+                     |!is.na(Afvangsten$M1)
+                     |!is.na(Afvangsten$M2)
+                     |!is.na(Afvangsten$AM)
+                     |!is.na(Afvangsten$AV),
+                     c('L00',
+                       'L0',
+                       'L1',
+                       'L2',
+                       'M1',
+                       'M2',
+                       'AM',
+                       'AV')]
+          ,na.rm=T)
+
+Afvangsten$Totaal_Larven.All[!is.na(Afvangsten$L00)
+                             |!is.na(Afvangsten$L0)
+                             |!is.na(Afvangsten$L1)
+                             |!is.na(Afvangsten$L2)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$L00)
+                     |!is.na(Afvangsten$L0)
+                     |!is.na(Afvangsten$L1)
+                     |!is.na(Afvangsten$L2),
+                     c('L00',
+                       'L0',
+                       'L1',
+                       'L2')]
+          ,na.rm=T)
+
+Afvangsten$Totaal_Larven.CPUE[!is.na(Afvangsten$L0)
+                              |!is.na(Afvangsten$L1)
+                              |!is.na(Afvangsten$L2)] <- 
+  rowSums(Afvangsten[!is.na(Afvangsten$L0)
+                     |!is.na(Afvangsten$L1)
+                     |!is.na(Afvangsten$L2),
+                     c('L0',
+                       'L1',
+                       'L2')]
+          ,na.rm=T)
+
+Afvangsten$Totaal_Larven.CPUE <- ifelse(is.na(Afvangsten$Totaal_Larven.CPUE),0, Afvangsten$Totaal_Larven.CPUE)
+print(Afvangsten$Totaal)
+print(Afvangsten$Totaal_Larven.All)
+print(Afvangsten$Totaal_Larven.CPUE)
+Afvangsten$`Aantal fuiken (Totaal)` <- as.numeric(Afvangsten$`Aantal fuiken (Totaal)`)
+table(Afvangsten$`Aantal fuiken (Totaal)`)
+```
+
