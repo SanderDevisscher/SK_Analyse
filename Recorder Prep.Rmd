@@ -1,0 +1,54 @@
+---
+title: "Recorder Prep"
+author: "Sander"
+date: "20 februari 2018"
+output: html_document
+---
+
+```{r Libraries}
+
+```
+
+```{r Run ANA.R}
+source("ANa.R")
+
+Recorder_Ruw <- Brondata
+```
+
+```{r Read Libs}
+title <- gs_title(x="Locaties", verbose = TRUE)
+Locaties <- gs_read(title)
+
+Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
+Log$X <- NULL
+
+```
+```{r Aantal fuiken juist zetten}
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), Recorder_Ruw$`Aantal fuiken geplaatst`, Recorder_Ruw$`Aantal fuiken (Totaal)`)
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
+Recorder_Ruw$`Aantal fuiken (Totaal)` <- as.numeric(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+summary(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+table(Recorder_Ruw$`Aantal fuiken (Totaal)`)
+Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
+Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
+
+####Foutieve NA in aantal fuiken corrigeren
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
+Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
+gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken (Totaal)`==0)
+
+print(gnFuiken)
+```
+
+```{r Afvangsten vr Recorder}
+Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
+Locations_Recorder <- unique(Recorder_Afvangsten$Location)
+o <- 0
+temp2 <- data.frame()
+
+
+
+```
+

@@ -9,7 +9,6 @@ ANa[Conflict].R
 *.gsheet
 *.csv
 *.docx
-*.rmd
 *.html
 *.gdoc
 *.httr-oauth

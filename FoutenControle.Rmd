@@ -1,0 +1,55 @@
+---
+title: "Ana"
+author: "Sander"
+date: "23 May 2018"
+output: html_document
+---
+```{r Clean enviroment}
+rm(list = ls())
+```
+
+```{r Libraries}
+library(tidyverse)
+library(googlesheets) 
+library(ggplot2)
+library(INBOtheme)
+```
+
+```{r import data}
+title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
+Token <- gs_auth()
+gs_auth(token = Token)
+gdrive <- gs_read(title)
+
+SKData <- gdrive
+```
+
+```{r}
+SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
+                                    ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
+                                           ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
+SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
+
+SKData$Location <- ifelse(!is.na(SKData$`Vijver - Arendonk`),SKData$`Vijver - Arendonk`,
+                        ifelse(!is.na(SKData$`Vijver - Kasterlee`), SKData$`Vijver - Kasterlee`,
+                               ifelse(!is.na(SKData$`Vijver - Hoogstraten`), SKData$`Vijver - Hoogstraten`,
+                                      ifelse(!is.na(SKData$`Vijver - Nijlen`), SKData$`Vijver - Nijlen`,
+                                             ifelse(!is.na(SKData$`Vijver - Scheps`),SKData$`Vijver - Scheps`, NA)))))
+
+table(SKData$Location, useNA = "ifany")
+Records_zndr_Location <- subset(SKData, is.na(Location))
+Records_met_Location <- subset(SKData, !is.na(Location))
+
+if(nrow(Records_zndr_Location)>0){
+  print("Records zonder location gevonden. CONTROLEER ZE !!")
+  table(Records_zndr_Location$Tijdstempel, Records_zndr_Location$Locatie, Records_zndr_Location$Invuller)
+}
+if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
+  print("Datamanipulatie succesvol")
+  if(nrow(Records_zndr_Location)>0){
+    print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
+  }
+}
+
+```
+
