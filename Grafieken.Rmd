@@ -586,38 +586,71 @@ for(j in Jaren){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
-    print(plot)
     if(nrow(temp3)>7){
     ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
     }else{
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 20, height = 5, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 21, height = 5.25, units = c("cm"), dpi = 300)
     }
   }
 }
 ```
 
 ```{r absoluut/dag/jaar}
+
+GRA_Brondata %>% gather(Stage, Aantal, L00:AV) -> tempgather
+
 for(j in Jaren){
-  temp2 <- subset(temp, Jaar == j)
+  temp2 <- subset(tempgather, Jaar == j)
   Locations <- unique(temp2$Location)
   for(i in Locations){
     temp3 <- subset(temp2, Location == i )
     fNaam <- paste(i ,"TOT", j, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal, fill=Stage)) + geom_bar(stat="identity")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- scale_color_brewer()
     plot <- plot + theme(legend.position="none")
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
     if(nrow(temp3)>7){
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300, limitsize = F)
     }else{
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 20, height = 5, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 21, height = 5.25, units = c("cm"), dpi = 300)
     }
+  }
+}
+```
+
+```{r CPUE all years}
+for(i in Locations){
+  temp3 <- subset(temp, Location == i )
+  o <- n_distinct(temp3$Jaar)
+  if(o > 1){
+    jmax <- max(temp3$Jaar)
+    jmin <- min(temp3$Jaar)
+    fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep="")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=CPUE)) + 
+      geom_bar(stat="identity", aes(fill="red"))
+    plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", jmin, "-", jmax))
+    plot <- plot + expand_limits(x = 0, y = 0)
+    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + theme(legend.position="none")
+    plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+    plot <- plot + xlab("Datum")
+    plot <- plot + ylab("CPUE")
+    width <- ifelse(nrow(temp3)<7, 20, (nrow(temp3)*3))
+    height<- ifelse(nrow(temp3)<7, 5, (nrow(temp3)*0.75))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300)
+  }
+  else{
+    print(paste(i, "heeft slechts 1 jaar data"))
   }
 }
 ```
