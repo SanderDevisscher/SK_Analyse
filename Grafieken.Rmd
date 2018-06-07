@@ -12,6 +12,7 @@ rm(list = ls())
 ```{r Libraries}
 library(tidyverse)
 library(scales)
+library(ggplot2)
 ```
 
 ```{r Read data}
@@ -596,6 +597,8 @@ for(j in Jaren){
 
 GRA_Brondata %>% gather(Stage, Aantal, L00:AV) -> tempgather
 
+Jaren <- unique(GRA_Brondata$Jaar)
+
 for(j in Jaren){
   temp2 <- subset(tempgather, Jaar == j)
   Locations <- unique(temp2$Location)
@@ -657,16 +660,12 @@ temp2 <- subset(GRA_Brondata, !is.na(Location))
 for(i in Locations){
   temp3 <- subset(temp2, Location == i )
   o <- n_distinct(temp3$Jaar)
-  temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/")
-  temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
   if(o > 1){
-    temp3$Datum2 <- paste(temp3$Dag, temp3$Maand, sep="/")
-    temp3$Datum3 <- factor(temp3$Datum2, levels = temp3$Datum2[order(temp3$Jaar, temp3$Maand, temp3$Dag)], ordered = TRUE)
     jmax <- max(temp3$Jaar)
     jmin <- min(temp3$Jaar)
     fNaam <- paste(i ,"TOT",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
-    plot <- ggplot(temp3, aes(x=Datum3, y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", jmin, "-", jmax))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -679,7 +678,7 @@ for(i in Locations){
     height<- ifelse(nrow(temp3)<7, 5, (nrow(temp3)*0.75))
     print(paste("w:",width))
     print(paste("h:",height))
-    ggsave(fNaam, path= "./Output/Afbeeldingen/", width=width, height=height, units = c("in"), dpi = 300)
+    ggsave(fNaam, path= "./Output/Afbeeldingen/", width=width, height=height, units = c("in"), dpi = 300, limitsize = F)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
