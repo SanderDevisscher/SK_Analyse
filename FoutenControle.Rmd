@@ -188,6 +188,7 @@ temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", tem
 temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "Kris", "Kris Meeus", temp$Invuller)
 table(temp$Invuller, useNA = "ifany")
 temp$Recorder <- temp$Invuller
 #Voeg naamloze arbeiders toe
