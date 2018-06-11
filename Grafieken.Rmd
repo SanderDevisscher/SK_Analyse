@@ -538,30 +538,8 @@ GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1",
 ```
 
 ```{r Datums juist zetten}
-GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum,'%d-%m-%Y')
-GRA_Brondata$Dag <- format(GRA_Brondata$Datum, format='%d')
-GRA_Brondata$Maand <- format(GRA_Brondata$Datum, format='%m')
-GRA_Brondata$Jaar <- format(GRA_Brondata$Datum, format='%Y')
-GRA_Brondata$Jaar <- as.numeric(GRA_Brondata$Jaar)
-GRA_Brondata$Maand <- as.numeric(GRA_Brondata$Maand)
-GRA_Brondata$Dag <- as.numeric(GRA_Brondata$Dag)
-
-
-
-GRA_Brondata$Maand2 <- ifelse(GRA_Brondata$Maand==1, "jan", 
-                              ifelse(GRA_Brondata$Maand==2, "feb",
-                                     ifelse(GRA_Brondata$Maand==3, "mar",
-                                            ifelse(GRA_Brondata$Maand==4, "apr",
-                                                   ifelse(GRA_Brondata$Maand==5, "mei",
-                                                          ifelse(GRA_Brondata$Maand==6, "jun",
-                                                                 ifelse(GRA_Brondata$Maand==7, "jul",
-                                                                        ifelse(GRA_Brondata$Maand==8, "aug",
-                                                                               ifelse(GRA_Brondata$Maand==9, "sep",
-                                                                                      ifelse(GRA_Brondata$Maand==10, "okt",
-                                                                                             ifelse(GRA_Brondata$Maand==11, "nov",
-                                                                                                    ifelse(GRA_Brondata$Maand==12, "dec",NA))))))))))))
-GRA_Brondata$Datum2 <- paste(GRA_Brondata$Dag, GRA_Brondata$Maand2, sep="/")
-
+GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
+GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
 ```
 
 ```{r CPUE/dag per jaar}
@@ -584,11 +562,12 @@ for(j in Jaren){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
-    if(nrow(temp3)>7){
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300)
-    }else{
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 21, height = 5.25, units = c("cm"), dpi = 300)
-    }
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    print(paste("CPUE", i, j, sep=" "))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300)
   }
 }
 ```
@@ -600,13 +579,13 @@ GRA_Brondata %>% gather(Stage, Aantal, L00:AV) -> tempgather
 Jaren <- unique(GRA_Brondata$Jaar)
 
 for(j in Jaren){
-  temp2 <- subset(tempgather, Jaar == j)
+  temp2 <- subset(GRA_Brondata, Jaar == j)
   Locations <- unique(temp2$Location)
   for(i in Locations){
     temp3 <- subset(temp2, Location == i )
     fNaam <- paste(i ,"TOT", j, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal, fill=Stage)) + geom_bar(stat="identity")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -616,11 +595,13 @@ for(j in Jaren){
     #plot <- plot + xlab("Datum")
     #plot <- plot + ylab("Totaal")
     print(plot)
-    if(nrow(temp3)>7){
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=nrow(temp3)*3, height = nrow(temp3)*0.75, units = c("cm"), dpi = 300, limitsize = F)
-    }else{
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width= 21, height = 5.25, units = c("cm"), dpi = 300)
-    }
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    print(paste("TOT", i, j, sep=" "))
+    print(paste("w:",width))
+    print(paste("h:",height))
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300, limitsize = F)
+
   }
 }
 ```
@@ -643,11 +624,12 @@ for(i in Locations){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
-    width <- ifelse(nrow(temp3)<7, 20, (nrow(temp3)*3))
-    height<- ifelse(nrow(temp3)<7, 5, (nrow(temp3)*0.75))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(paste("w:",width))
     print(paste("h:",height))
-    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300, limitsize = F)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))
@@ -674,11 +656,12 @@ for(i in Locations){
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
-    width <- ifelse(nrow(temp3)<7, 20, (nrow(temp3)*3))
-    height<- ifelse(nrow(temp3)<7, 5, (nrow(temp3)*0.75))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(paste("w:",width))
     print(paste("h:",height))
-    ggsave(fNaam, path= "./Output/Afbeeldingen/", width=width, height=height, units = c("in"), dpi = 300, limitsize = F)
+    ggsave(filename = fNaam, path = "./Output/Afbeeldingen/", width=width, height=height, units = c("cm"), dpi = 300, limitsize = F)
   }
   else{
     print(paste(i, "heeft slechts 1 jaar data"))}
