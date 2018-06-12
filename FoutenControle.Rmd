@@ -11,8 +11,6 @@ rm(list = ls())
 ```{r Libraries}
 library(tidyverse)
 library(googlesheets) 
-library(ggplot2)
-library(INBOtheme)
 ```
 
 ```{r import data}
@@ -169,6 +167,8 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
   print("Datamanipulatie succesvol")
   if(nrow(Records_zndr_Location)>0){
     print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
+  }else{
+    remove(Records_zndr_Location)
   }
 }
 
@@ -204,6 +204,7 @@ table(temp$Recorder2)
 temp$Recorder <- temp$Recorder2
 
 Records_met_recorders <- temp
+remove(temp)
 ```
 
 ```{r Tussentijdse opruim}
@@ -253,6 +254,7 @@ if(nrow(test)==0){
   remove(test)
 }
 Records_met_fuiken <- temp
+remove(temp)
 ```
 
 ```{r Datums corrigeren}
@@ -280,6 +282,8 @@ if(nrow(NA_Datums)>0){
 }
 
 Records_met_datums <- temp2
+remove(temp)
+remove(temp2)
 ```
 
 ```{r Export}
