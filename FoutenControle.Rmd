@@ -247,11 +247,14 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:15:32"
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03", 1, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "23-5-2018 15:50:10", 3.5, temp$`Aantal fuiken (Totaal)`)
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
 if(nrow(test)==0){
   remove(test)
+}else{
+  print("Er ontbreken fuiken, controleer ze !!")
 }
 Records_met_fuiken <- temp
 remove(temp)
