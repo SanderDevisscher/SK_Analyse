@@ -549,6 +549,8 @@ Jaren <- unique(GRA_Brondata$Jaar)
 remove(temp6)
 temp6 <- data.frame()
 GRA_Brondata2 <- subset(GRA_Brondata, !is.na(Location))
+GRA_Brondata2$Dag <- as.numeric(format(GRA_Brondata2$Datum, "%d")) 
+GRA_Brondata2$Maand <- as.numeric(format(GRA_Brondata2$Datum, "%m"))
 
 for (a in Jaren){
   temp6 <- data.frame()
@@ -631,8 +633,7 @@ for (a in Jaren){
   
   
   GSLfNaam <- paste("./Output/Afbeeldingen/Geschat startaantal larven",a, sep="_")
-  GSLfNaama <- paste(imagepath, GSLfNaam, sep="/" )
-  GSLfNaama <- paste(GSLfNaama, ".csv", sep="")
+  GSLfNaama <- paste(GSLfNaam, ".csv", sep="")
   
   #Uitvoeren
   write.csv(GSL, GSLfNaama)
