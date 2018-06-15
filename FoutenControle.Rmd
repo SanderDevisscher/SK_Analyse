@@ -11,8 +11,6 @@ rm(list = ls())
 ```{r Libraries}
 library(tidyverse)
 library(googlesheets) 
-library(ggplot2)
-library(INBOtheme)
 ```
 
 ```{r import data}
@@ -23,6 +21,118 @@ gdrive <- gs_read(title)
 
 SKData <- gdrive
 ```
+
+```{r Juiste datatype instellen}
+#Fuik 1
+SKData$`Fuik 1 - L00` <- as.numeric(SKData$`Fuik 1 - L00`)
+SKData$`Fuik 1 - L0` <- as.numeric(SKData$`Fuik 1 - L0`)
+SKData$`Fuik 1 - L1` <- as.numeric(SKData$`Fuik 1 - L1`)
+SKData$`Fuik 1 - L2` <- as.numeric(SKData$`Fuik 1 - L2`)
+SKData$`Fuik 1 - M1` <- as.numeric(SKData$`Fuik 1 - M1`)
+SKData$`Fuik 1 - M2` <- as.numeric(SKData$`Fuik 1 - M2`)
+SKData$`Fuik 1 - AM` <- as.numeric(SKData$`Fuik 1 - AM`)
+SKData$`Fuik 1 - AV` <- as.numeric(SKData$`Fuik 1 - AV`)
+#Fuik 2
+SKData$`Fuik 2 - L00` <- as.numeric(SKData$`Fuik 2 - L00`)
+SKData$`Fuik 2 - L0` <- as.numeric(SKData$`Fuik 2 - L0`)
+SKData$`Fuik 2 - L1` <- as.numeric(SKData$`Fuik 2 - L1`)
+SKData$`Fuik 2 - L2` <- as.numeric(SKData$`Fuik 2 - L2`)
+SKData$`Fuik 2 - M1` <- as.numeric(SKData$`Fuik 2 - M1`)
+SKData$`Fuik 2 - M2` <- as.numeric(SKData$`Fuik 2 - M2`)
+SKData$`Fuik 2 - AM` <- as.numeric(SKData$`Fuik 2 - AM`)
+SKData$`Fuik 2 - AV` <- as.numeric(SKData$`Fuik 2 - AV`)
+#Fuik 3
+SKData$`Fuik 3 - L00` <- as.numeric(SKData$`Fuik 3 - L00`)
+SKData$`Fuik 3 - L0` <- as.numeric(SKData$`Fuik 3 - L0`)
+SKData$`Fuik 3 - L1` <- as.numeric(SKData$`Fuik 3 - L1`)
+SKData$`Fuik 3 - L2` <- as.numeric(SKData$`Fuik 3 - L2`)
+SKData$`Fuik 3 - M1` <- as.numeric(SKData$`Fuik 3 - M1`)
+SKData$`Fuik 3 - M2` <- as.numeric(SKData$`Fuik 3 - M2`)
+SKData$`Fuik 3 - AM` <- as.numeric(SKData$`Fuik 3 - AM`)
+SKData$`Fuik 3 - AV` <- as.numeric(SKData$`Fuik 3 - AV`)
+#Fuik 4
+SKData$`Fuik 4 - L00` <- as.numeric(SKData$`Fuik 4 - L00`)
+SKData$`Fuik 4 - L0` <- as.numeric(SKData$`Fuik 4 - L0`)
+SKData$`Fuik 4 - L1` <- as.numeric(SKData$`Fuik 4 - L1`)
+SKData$`Fuik 4 - L2` <- as.numeric(SKData$`Fuik 4 - L2`)
+SKData$`Fuik 4 - M1` <- as.numeric(SKData$`Fuik 4 - M1`)
+SKData$`Fuik 4 - M2` <- as.numeric(SKData$`Fuik 4 - M2`)
+SKData$`Fuik 4 - AM` <- as.numeric(SKData$`Fuik 4 - AM`)
+SKData$`Fuik 4 - AV` <- as.numeric(SKData$`Fuik 4 - AV`)
+#Fuik 5
+SKData$`Fuik 5 - L00` <- as.numeric(SKData$`Fuik 5 - L00`)
+SKData$`Fuik 5 - L0` <- as.numeric(SKData$`Fuik 5 - L0`)
+SKData$`Fuik 5 - L1` <- as.numeric(SKData$`Fuik 5 - L1`)
+SKData$`Fuik 5 - L2` <- as.numeric(SKData$`Fuik 5 - L2`)
+SKData$`Fuik 5 - M1` <- as.numeric(SKData$`Fuik 5 - M1`)
+SKData$`Fuik 5 - M2` <- as.numeric(SKData$`Fuik 5 - M2`)
+SKData$`Fuik 5 - AM` <- as.numeric(SKData$`Fuik 5 - AM`)
+SKData$`Fuik 5 - AV` <- as.numeric(SKData$`Fuik 5 - AV`)
+#Fuik 6
+SKData$`Fuik 6 - L00` <- as.numeric(SKData$`Fuik 6 - L00`)
+SKData$`Fuik 6 - L0` <- as.numeric(SKData$`Fuik 6 - L0`)
+SKData$`Fuik 6 - L1` <- as.numeric(SKData$`Fuik 6 - L1`)
+SKData$`Fuik 6 - L2` <- as.numeric(SKData$`Fuik 6 - L2`)
+SKData$`Fuik 6 - M1` <- as.numeric(SKData$`Fuik 6 - M1`)
+SKData$`Fuik 6 - M2` <- as.numeric(SKData$`Fuik 6 - M2`)
+SKData$`Fuik 6 - AM` <- as.numeric(SKData$`Fuik 6 - AM`)
+SKData$`Fuik 6 - AV` <- as.numeric(SKData$`Fuik 6 - AV`)
+#Fuik 7
+SKData$`Fuik 7 - L00` <- as.numeric(SKData$`Fuik 7 - L00`)
+SKData$`Fuik 7 - L0` <- as.numeric(SKData$`Fuik 7 - L0`)
+SKData$`Fuik 7 - L1` <- as.numeric(SKData$`Fuik 7 - L1`)
+SKData$`Fuik 7 - L2` <- as.numeric(SKData$`Fuik 7 - L2`)
+SKData$`Fuik 7 - M1` <- as.numeric(SKData$`Fuik 7 - M1`)
+SKData$`Fuik 7 - M2` <- as.numeric(SKData$`Fuik 7 - M2`)
+SKData$`Fuik 7 - AM` <- as.numeric(SKData$`Fuik 7 - AM`)
+SKData$`Fuik 7 - AV` <- as.numeric(SKData$`Fuik 7 - AV`)
+#Fuik 8
+SKData$`Fuik 8 - L00` <- as.numeric(SKData$`Fuik 8 - L00`)
+SKData$`Fuik 8 - L0` <- as.numeric(SKData$`Fuik 8 - L0`)
+SKData$`Fuik 8 - L1` <- as.numeric(SKData$`Fuik 8 - L1`)
+SKData$`Fuik 8 - L2` <- as.numeric(SKData$`Fuik 8 - L2`)
+SKData$`Fuik 8 - M1` <- as.numeric(SKData$`Fuik 8 - M1`)
+SKData$`Fuik 8 - M2` <- as.numeric(SKData$`Fuik 8 - M2`)
+SKData$`Fuik 8 - AM` <- as.numeric(SKData$`Fuik 8 - AM`)
+SKData$`Fuik 8 - AV` <- as.numeric(SKData$`Fuik 8 - AV`)
+#Fuik 9
+SKData$`Fuik 9 - L00` <- as.numeric(SKData$`Fuik 9 - L00`)
+SKData$`Fuik 9 - L0` <- as.numeric(SKData$`Fuik 9 - L0`)
+SKData$`Fuik 9 - L1` <- as.numeric(SKData$`Fuik 9 - L1`)
+SKData$`Fuik 9 - L2` <- as.numeric(SKData$`Fuik 9 - L2`)
+SKData$`Fuik 9 - M1` <- as.numeric(SKData$`Fuik 9 - M1`)
+SKData$`Fuik 9 - M2` <- as.numeric(SKData$`Fuik 9 - M2`)
+SKData$`Fuik 9 - AM` <- as.numeric(SKData$`Fuik 9 - AM`)
+SKData$`Fuik 9 - AV` <- as.numeric(SKData$`Fuik 9 - AV`)
+#Fuik 10
+SKData$`Fuik 10 - L00` <- as.numeric(SKData$`Fuik 10 - L00`)
+SKData$`Fuik 10 - L0` <- as.numeric(SKData$`Fuik 10 - L0`)
+SKData$`Fuik 10 - L1` <- as.numeric(SKData$`Fuik 10 - L1`)
+SKData$`Fuik 10 - L2` <- as.numeric(SKData$`Fuik 10 - L2`)
+SKData$`Fuik 10 - M1` <- as.numeric(SKData$`Fuik 10 - M1`)
+SKData$`Fuik 10 - M2` <- as.numeric(SKData$`Fuik 10 - M2`)
+SKData$`Fuik 10 - AM` <- as.numeric(SKData$`Fuik 10 - AM`)
+SKData$`Fuik 10 - AV` <- as.numeric(SKData$`Fuik 10 - AV`)
+#Fuik 11
+SKData$`Fuik 11 - L00` <- as.numeric(SKData$`Fuik 11 - L00`)
+SKData$`Fuik 11 - L0` <- as.numeric(SKData$`Fuik 11 - L0`)
+SKData$`Fuik 11 - L1` <- as.numeric(SKData$`Fuik 11 - L1`)
+SKData$`Fuik 11 - L2` <- as.numeric(SKData$`Fuik 11 - L2`)
+SKData$`Fuik 11 - M1` <- as.numeric(SKData$`Fuik 11 - M1`)
+SKData$`Fuik 11 - M2` <- as.numeric(SKData$`Fuik 11 - M2`)
+SKData$`Fuik 11 - AM` <- as.numeric(SKData$`Fuik 11 - AM`)
+SKData$`Fuik 11 - AV` <- as.numeric(SKData$`Fuik 11 - AV`)
+#Fuik 12
+SKData$`Fuik 12 - L00` <- as.numeric(SKData$`Fuik 12 - L00`)
+SKData$`Fuik 12 - L0` <- as.numeric(SKData$`Fuik 12 - L0`)
+SKData$`Fuik 12 - L1` <- as.numeric(SKData$`Fuik 12 - L1`)
+SKData$`Fuik 12 - L2` <- as.numeric(SKData$`Fuik 12 - L2`)
+SKData$`Fuik 12 - M1` <- as.numeric(SKData$`Fuik 12 - M1`)
+SKData$`Fuik 12 - M2` <- as.numeric(SKData$`Fuik 12 - M2`)
+SKData$`Fuik 12 - AM` <- as.numeric(SKData$`Fuik 12 - AM`)
+SKData$`Fuik 12 - AV` <- as.numeric(SKData$`Fuik 12 - AV`)
+```
+
 
 ```{r Controle ontbrekende locaties}
 
@@ -57,6 +167,8 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
   print("Datamanipulatie succesvol")
   if(nrow(Records_zndr_Location)>0){
     print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
+  }else{
+    remove(Records_zndr_Location)
   }
 }
 
@@ -76,6 +188,7 @@ temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", tem
 temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
 temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
+temp$Invuller <- ifelse(temp$Invuller == "Kris", "Kris Meeus", temp$Invuller)
 table(temp$Invuller, useNA = "ifany")
 temp$Recorder <- temp$Invuller
 #Voeg naamloze arbeiders toe
@@ -91,6 +204,7 @@ table(temp$Recorder2)
 temp$Recorder <- temp$Recorder2
 
 Records_met_recorders <- temp
+remove(temp)
 ```
 
 ```{r Tussentijdse opruim}
@@ -133,13 +247,17 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:15:32"
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03", 1, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "23-5-2018 15:50:10", 3.5, temp$`Aantal fuiken (Totaal)`)
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
 if(nrow(test)==0){
   remove(test)
+}else{
+  print("Er ontbreken fuiken, controleer ze !!")
 }
 Records_met_fuiken <- temp
+remove(temp)
 ```
 
 ```{r Datums corrigeren}
@@ -166,7 +284,9 @@ if(nrow(NA_Datums)>0){
   print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
 }
 
-Records_met_datums <- temp
+Records_met_datums <- temp2
+remove(temp)
+remove(temp2)
 ```
 
 ```{r Export}
