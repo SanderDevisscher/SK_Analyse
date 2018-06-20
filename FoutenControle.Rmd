@@ -21,6 +21,15 @@ gdrive <- gs_read(title)
 
 SKData <- gdrive
 ```
+```{r Check for update}
+aantal_online <- nrow(SKData)
+data_offline <- read_csv("./Intermediate/Brondata.csv")
+aantal_offline <- nrow(data_offline)
+
+verschil <- aantal_online - aantal_offline
+
+print(paste(verschil, " nieuwe records", sep=""))
+```
 
 ```{r Juiste datatype instellen}
 #Fuik 1
