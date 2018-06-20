@@ -47,8 +47,15 @@ print(gnFuiken)
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
-o <- 0
-temp2 <- data.frame()
+
+Recorder_Afvangsten %>% 
+                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"),                                      -contains("Meer")) %>%
+                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`), -`Net verhoogd?`, -contains("Opmerkingen")) -> temp
+                    
+
+table(temp$Stadium)
+table(temp$Location)
+
 
 
 
