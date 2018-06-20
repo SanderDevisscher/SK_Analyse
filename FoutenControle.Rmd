@@ -21,6 +21,15 @@ gdrive <- gs_read(title)
 
 SKData <- gdrive
 ```
+```{r Check for update}
+aantal_online <- nrow(SKData)
+data_offline <- read_csv("./Intermediate/Brondata.csv")
+aantal_offline <- nrow(data_offline)
+
+verschil <- aantal_online - aantal_offline
+
+print(paste(verschil, " nieuwe records", sep=""))
+```
 
 ```{r Juiste datatype instellen}
 #Fuik 1
@@ -206,6 +215,73 @@ temp$Recorder <- temp$Recorder2
 Records_met_recorders <- temp
 remove(temp)
 ```
+```{r Controle missing inputs}
+temp <- Records_met_recorders
+temp$Sample_Type <- temp$`Wat wil je melden`
+
+#Create vangstdagen op basis van plaatsen van fuiken
+temp2 <- subset(temp, Sample_Type == "Plaatsen van fuiken")
+temp2 <- subset(temp2, !is.na(`Start vangstperiode`))
+Locations <- unique(temp2$Location)
+temp5 <- data.frame(1)
+temp6 <- data.frame()
+
+for(l in Locations){
+  temp3 <- subset(temp2, Location == l)
+  startdagen <- unique(temp3$`Start vangstperiode`)
+  for(s in startdagen){
+    temp4 <- subset(temp3, `Start vangstperiode` == s)
+    temp4$start <- as.numeric(format(as.Date(temp4$`Start vangstperiode`, "%d-%m-%Y"), "%d"))
+    temp4$StartMaand <- as.numeric(format(as.Date(temp4$`Start vangstperiode`, "%d-%m-%Y"), "%m"))
+    temp4$StartJaar <- as.numeric(format(as.Date(temp4$`Start vangstperiode`, "%d-%m-%Y"), "%Y"))
+    temp4$eind <- as.numeric(format(as.Date(temp4$`Eind vangstperiode`, "%d-%m-%Y"), "%d"))
+    temp4$aantaldagen <- temp4$eind - temp4$start
+    x <- unique(temp4$aantaldagen)
+    if(x > 1){
+     aantaldagen <- seq(1, x, by = 1)
+    }else{
+     aantaldagen <- x
+    }
+    for(y in aantaldagen){
+      temp5$Location <- l
+      Dag <- unique(temp4$start) + y
+      temp5$Datum <- paste(Dag, "-", unique(temp4$StartMaand), "-", unique(temp4$StartJaar), sep="")
+      temp6 <- rbind(temp6, temp5)
+    }
+  }
+}
+
+temp6$link <- paste(temp6$Location, temp6$Datum)
+
+#Create vangstdagen op basis van afvangst
+temp7 <- subset(temp, Sample_Type == "Afvangst")
+temp7$dag <- as.numeric(format(as.Date(temp7$Datum, "%d-%m-%Y"), "%d"))
+temp7$maand <- as.numeric(format(as.Date(temp7$Datum, "%d-%m-%Y"), "%m"))
+temp7$Jaar <- as.numeric(format(as.Date(temp7$Datum, "%d-%m-%Y"), "%Y"))
+temp7$Datum2 <- paste(temp7$dag, "-", temp7$maand, "-", temp7$Jaar, sep="")
+
+temp8 <- temp7[c("Location", "Datum2", "Recorder")]
+temp8$link <- paste(temp8$Location, temp8$Datum2)
+
+#Merge Lists
+temp9 <- merge(x=temp6, y=temp8, by= "link", all.x = T) 
+
+temp10 <- subset(temp9, is.na(Location.y))
+
+Missing_Inputs <- temp10
+
+remove(temp)
+remove(temp2)
+remove(temp3)
+remove(temp4)
+remove(temp5)
+remove(temp6)
+remove(temp7)
+remove(temp8)
+remove(temp9)
+remove(temp10)
+
+```
 
 ```{r Tussentijdse opruim}
 temp <- Records_met_recorders
@@ -289,15 +365,26 @@ remove(temp)
 remove(temp2)
 ```
 
+```{r Check for update}
+aantal_online <- nrow(Records_met_datums)
+data_offline <- read_csv("./Intermediate/Brondata.csv")
+aantal_offline <- nrow(data_offline)
+
+verschil <- aantal_online - aantal_offline
+
+print(paste(verschil, " nieuwe records", sep=""))
+```
+
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T){
+if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil > 0){
   today <- as.Date(Sys.time(), format="%Y%m%d")
   backup <- read_csv("./Intermediate/Brondata.csv")
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
   write_csv(backup, fn)
+  write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
 }
 
 
-write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+
 ```
 
