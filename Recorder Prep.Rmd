@@ -13,7 +13,7 @@ rm(list = ls())
 library(tidyverse)
 ```
 
-```{r Run ANA.R}
+```{r Read Data}
 Recorder_Ruw <- read_csv("./Intermediate/Brondata.csv")
 ```
 
@@ -47,7 +47,7 @@ print(gnFuiken)
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
-
+#Wide -> Long
 Recorder_Afvangsten %>% 
                     select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"),                                      -contains("Meer")) %>%
                     gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`), -`Net verhoogd?`, -contains("Opmerkingen")) -> temp
@@ -55,9 +55,19 @@ Recorder_Afvangsten %>%
 
 table(temp$Stadium)
 table(temp$Location)
+#Calculate total
+temp %>% 
+     group_by_at(vars("Location", "Datum")) %>%
+     mutate(Totaal=sum(as.numeric(Aantal), na.rm = T)) %>%
+     ungroup() -> temp2
+#Subsets
+Afvangsten <- subset(temp2, Totaal > 0)
+Nulvangsten <- subset(temp2, Totaal == 0)
+sum(nrow(Afvangsten), nrow(Nulvangsten)) == nrow(temp2) #Uitkomst moet TRUE zijn
 
+#Afvangsten
+Afvangsten <- subset(Afvangsten, !is.na(Aantal) & Aantal > 0)
 
-
-
+#Nulvangsten
 ```
 
