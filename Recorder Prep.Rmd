@@ -67,7 +67,36 @@ sum(nrow(Afvangsten), nrow(Nulvangsten)) == nrow(temp2) #Uitkomst moet TRUE zijn
 
 #Afvangsten
 Afvangsten <- subset(Afvangsten, !is.na(Aantal) & Aantal > 0)
-
+Afvangsten$LocationName <- strtrim(Afvangsten$Stadium, 7)
+Afvangsten$LocationName <- gsub(x = Afvangsten$LocationName, pattern = " +$", replacement =  "")
+table(Afvangsten$LocationName)
+Afvangsten$Stadium2 <- substr(Afvangsten$Stadium, nchar(Afvangsten$LocationName)+4, nchar(Afvangsten$Stadium))
+table(Afvangsten$Stadium2)
+Afvangsten2 <- data.frame(Afvangsten)
 #Nulvangsten
+Nulvangsten$LocationName <- strtrim(Nulvangsten$Stadium, 7)
+Nulvangsten$LocationName <- gsub(x = Nulvangsten$LocationName, pattern = " +$", replacement =  "")
+table(Nulvangsten$LocationName)
+Nulvangsten$Fuiknr <- substr(Nulvangsten$LocationName, nchar("Fuik "), nchar(Nulvangsten$LocationName))
+table(Nulvangsten$Fuiknr)
+Nulvangsten2 <- subset(Nulvangsten, as.numeric(Fuiknr) <= as.numeric(`Aantal fuiken (Totaal)`))
+Nulvangsten2 %>% 
+  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur, `Aantal fuiken (Totaal)`, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>%
+  summarise() -> temp3
+Nulvangsten2 <- data.frame(temp3)
+Nulvangsten2$Fuiknr <- NULL
+Nulvangsten2$Stadium2 <- "None"
+Nulvangsten2$Stadium <- "None"
+#Bind Afvangsten and Nulvangsten
+Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
+Recorder_Afvangsten_Long$Stadium <- NULL
+Recorder_Afvangsten_Long$Totaal <- NULL
+Recorder_Afvangsten_Long %>% rename(Stadium = Stadium2) -> Recorder_Afvangsten_Long
+
+#Add xy to Afvangsten
+Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x = T)
+table(Recorder_Afvangsten_Long_Loc$GridReference, useNA = "ifany")
+Missing_Locaties <- subset(Recorder_Afvangsten_Long_Loc, is.na(GridReference))
+table(Missing_Locaties$Location)
 ```
 
