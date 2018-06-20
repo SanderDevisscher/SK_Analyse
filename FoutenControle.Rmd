@@ -268,6 +268,8 @@ temp9 <- merge(x=temp6, y=temp8, by= "link", all.x = T)
 
 temp10 <- subset(temp9, is.na(Location.y))
 
+
+
 ```
 
 ```{r Tussentijdse opruim}
@@ -352,15 +354,26 @@ remove(temp)
 remove(temp2)
 ```
 
+```{r Check for update}
+aantal_online <- nrow(Records_met_datums)
+data_offline <- read_csv("./Intermediate/Brondata.csv")
+aantal_offline <- nrow(data_offline)
+
+verschil <- aantal_online - aantal_offline
+
+print(paste(verschil, " nieuwe records", sep=""))
+```
+
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T){
+if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil > 0){
   today <- as.Date(Sys.time(), format="%Y%m%d")
   backup <- read_csv("./Intermediate/Brondata.csv")
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
   write_csv(backup, fn)
+  write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
 }
 
 
-write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+
 ```
 
