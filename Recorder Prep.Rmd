@@ -5,14 +5,16 @@ date: "20 februari 2018"
 output: html_document
 ---
 
-```{r Libraries}
+```{r Clean enviroment}
+rm(list = ls())
+```
 
+```{r Libraries}
+library(tidyverse)
 ```
 
 ```{r Run ANA.R}
-source("ANa.R")
-
-Recorder_Ruw <- Brondata
+Recorder_Ruw <- read_csv("./Intermediate/Brondata.csv")
 ```
 
 ```{r Read Libs}
