@@ -11,6 +11,7 @@ rm(list = ls())
 
 ```{r Libraries}
 library(tidyverse)
+library(googlesheets)
 ```
 
 ```{r Read Data}
@@ -49,7 +50,7 @@ Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
 #Wide -> Long
 Recorder_Afvangsten %>% 
-                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"),                                      -contains("Meer")) %>%
+                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer")) %>%
                     gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`), -`Net verhoogd?`, -contains("Opmerkingen")) -> temp
                     
 
@@ -98,5 +99,7 @@ Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x 
 table(Recorder_Afvangsten_Long_Loc$GridReference, useNA = "ifany")
 Missing_Locaties <- subset(Recorder_Afvangsten_Long_Loc, is.na(GridReference))
 table(Missing_Locaties$Location)
+
+#Add species
 ```
 
