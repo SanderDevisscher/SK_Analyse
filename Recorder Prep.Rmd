@@ -48,10 +48,11 @@ print(gnFuiken)
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
+
 #Wide -> Long
 Recorder_Afvangsten %>% 
                     select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer")) %>%
-                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`), -`Net verhoogd?`, -contains("Opmerkingen")) -> temp
+                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) -> temp
                     
 
 table(temp$Stadium)
@@ -102,5 +103,10 @@ table(Missing_Locaties$Location)
 
 #Add species to afvangsten
 Recorder_Afvangsten_Long_Loc$Species <- "Lithobates catesbeianus"
+
+#Add Sample_Type to Afvangsten
+Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+
+table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 ```
 
