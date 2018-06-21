@@ -22,6 +22,10 @@ Recorder_Ruw <- read_csv("./Intermediate/Brondata.csv")
 title <- gs_title(x="Locaties", verbose = TRUE)
 Locaties <- gs_read(title)
 
+title <- gs_title(x="Bijvangst", verbose = TRUE)
+Bijvangst <- gs_read(title)
+
+
 Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 Log$X <- NULL
 
@@ -93,7 +97,7 @@ Nulvangsten2$Stadium <- "None"
 Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
 Recorder_Afvangsten_Long$Stadium <- NULL
 Recorder_Afvangsten_Long$Totaal <- NULL
-Recorder_Afvangsten_Long %>% rename(Stadium = Stadium2) -> Recorder_Afvangsten_Long
+Recorder_Afvangsten_Long %>% rename(Measurement_Qualifier = Stadium2) -> Recorder_Afvangsten_Long
 
 #Add xy to Afvangsten
 Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x = T)
@@ -104,9 +108,52 @@ table(Missing_Locaties$Location)
 #Add species to afvangsten
 Recorder_Afvangsten_Long_Loc$Species <- "Lithobates catesbeianus"
 
-#Add Sample_Type to Afvangsten
+#Add fixed values to Afvangsten
 Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
 
+Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
+
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
+
+###Create Bijvangsten 
+##Subsets
+Recorder_Afvangsten %>% 
+  unite(col=test, contains("Soort"), remove = F) %>%
+  mutate(preapp = case_when(grepl(test, pattern = ".*\\[.*") ~ 0,
+                            TRUE ~ 1)) -> Recorder_Bijvangsten
+ 
+Recorder_Bijvangsten_gform <- subset(Recorder_Bijvangsten, preapp == 1) 
+Recorder_Bijvangsten_app <- subset(Recorder_Bijvangsten, preapp == 0)
+sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app)) == nrow(Recorder_Bijvangsten) #Moet TRUE zijn
+
+##gfrom
+#Wide -> Long
+Recorder_Bijvangsten_gform %>% 
+  select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
+  gather(key = "Soort_NL", value = "Measurment_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
+  filter(!is.na(Measurment_Qualifier)) -> temp
+  
+temp <- as.data.frame(temp)
+
+#Add fixed values to gfrom
+temp$Aantal <- 1
+temp$Measurement_Accuracy <- "Estimate"
+temp$Sample_Type <- ifelse(grepl(temp$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(temp$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+
+table(temp$Soort_NL, temp$Aantal)
+#Add locationname to gfrom
+temp$LocationName <- strtrim(temp$Soort_NL, 7)
+temp$LocationName <- gsub(x = temp$LocationName, pattern = " +$", replacement =  "")
+table(temp$LocationName)
+
+#Add species to gfrom
+temp$Soort_NL2 <- substr(temp$Soort_NL, nchar("Fuik 1 Bijvangst[ ")+2, nchar(temp$Soort_NL))
+table(temp$Soort_NL2)
+
+temp2 <- merge(temp, Bijvangst, by.x = "Soort_NL2", by.y= "soort", all.x = T)
+
+#Add xy to gform
+temp3 <- merge(temp2, Locaties, all.x=T)
+
 ```
 
