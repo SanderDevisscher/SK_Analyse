@@ -155,5 +155,9 @@ temp2 <- merge(temp, Bijvangst, by.x = "Soort_NL2", by.y= "soort", all.x = T)
 #Add xy to gform
 temp3 <- merge(temp2, Locaties, all.x=T)
 
+#Removed unnecessary columns
+temp3$Soort_NL2 <- NULL
+temp3$Recorder_Status <- NULL
+
 ```
 
