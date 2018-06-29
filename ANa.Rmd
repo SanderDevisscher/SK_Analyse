@@ -547,7 +547,7 @@ GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
 Jaren <- unique(GRA_Brondata$Jaar)
 
 remove(temp6)
-temp6 <- data.frame()
+
 GRA_Brondata2 <- subset(GRA_Brondata, !is.na(Location))
 GRA_Brondata2$Dag <- as.numeric(format(GRA_Brondata2$Datum, "%d")) 
 GRA_Brondata2$Maand <- as.numeric(format(GRA_Brondata2$Datum, "%m"))
@@ -576,9 +576,8 @@ for (a in Jaren){
       temp4 <- temp2
       temp5$MeanCPUE <- mean(temp4$CPUE)
     }
-    temp5$LastCapture <- temp7$Totaal
+    temp5$LastCapture <- ifelse(!is.na(temp7$Totaal), temp7$Totaal, 0)
     temp5$Datum_LastCapture <- Datum_LastCapture2
-    temp5$LastCapture <- ifelse(!is.na(temp5$LastCapture), temp5$LastCapture, 0)
     temp5$L00 <- ifelse(!is.na(temp7$L00), temp7$L00, 0)
     temp7$M1 <- ifelse(is.na(temp7$M1), 0, temp7$M1)
     temp7$M2 <- ifelse(is.na(temp7$M2), 0, temp7$M2)
@@ -638,6 +637,7 @@ for (a in Jaren){
   #Uitvoeren
   write.csv(GSL, GSLfNaama)
   print(GSLfNaama)
-}
+  }
+
 ```
 
