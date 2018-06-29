@@ -367,12 +367,15 @@ print(paste(verschil, " nieuwe records", sep=""))
 ```
 
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil > 0){
+if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   today <- as.Date(Sys.time(), format="%Y%m%d")
   backup <- read_csv("./Intermediate/Brondata.csv")
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
   write_csv(backup, fn)
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+  print("Data backed up and exported")
+}else{
+ print("no new records") 
 }
 
 
