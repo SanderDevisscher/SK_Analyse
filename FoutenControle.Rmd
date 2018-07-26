@@ -177,27 +177,22 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
 ```{r Controle recorders}
 temp <- Records_met_Location
 
+table(temp$`Invuller 2`)
+temp$Recorder <- temp$`Invuller 2`
+
 #Bekende problemen oplossen
-temp$Invuller <- ifelse(temp$Invuller == "kris", "Kris Meeus", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "pieter liekens", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "kris meeus", "Kris Meeus", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "kris meeus (prive)", "Kris Meeus", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "pieter liekebns", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "pieter Liekens", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "pIETER LIEKENS", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "Pieter liekens", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKENS", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "PIETER LIEKES", "Pieter Liekens", temp$Invuller)
-temp$Invuller <- ifelse(temp$Invuller == "Kris", "Kris Meeus", temp$Invuller)
-table(temp$Invuller, useNA = "ifany")
-temp$Recorder <- temp$Invuller
+temp$Recorder <- ifelse(temp$Recorder == "kris meeus", "Kris Meeus", temp$Recorder)
+temp$Recorder <- ifelse(temp$Recorder == "pieter liekens", "Pieter Liekens", temp$Recorder)
+
+table(temp$Recorder, useNA = "ifany")
+
 #Voeg naamloze arbeiders toe
 for (i in nrow(temp)){ 
   n <- temp$`Aantal werknemers`
-  temp$Recorder2 <- ifelse(n==2 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", sep=";" ), 
-                           ifelse(n==3 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", "Arbeider 2", sep=";" ), 
-                                  ifelse(n==4 ,temp$Recorder <- paste(temp$Invuller, "Arbeider 1", "Arbeider 2", "Arbeider 3", sep=";" ), 
-                                         temp$Invuller)))
+  temp$Recorder2 <- ifelse(n==2 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", sep=";" ), 
+                           ifelse(n==3 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", sep=";" ), 
+                                  ifelse(n==4 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", "Arbeider 3", sep=";" ), 
+                                         temp$Recorder)))
 }
 
 table(temp$Recorder2)
