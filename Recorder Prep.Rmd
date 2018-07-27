@@ -131,33 +131,36 @@ sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app)) == nrow(Re
 Recorder_Bijvangsten_gform %>% 
   select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
   gather(key = "Soort_NL", value = "Measurment_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
-  filter(!is.na(Measurment_Qualifier)) -> temp
+  filter(!is.na(Measurment_Qualifier)) -> Recorder_Bijvangsten_gform_Long
   
-temp <- as.data.frame(temp)
-
 #Add fixed values to gfrom
-temp$Aantal <- 1
-temp$Measurement_Accuracy <- "Estimate"
-temp$Sample_Type <- ifelse(grepl(temp$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(temp$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+Recorder_Bijvangsten_gform_Long$Aantal <- 1
+Recorder_Bijvangsten_gform_Long$Measurement_Accuracy <- "Estimate"
+Recorder_Bijvangsten_gform_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
 
-table(temp$Soort_NL, temp$Aantal)
+table(Recorder_Bijvangsten_gform_Long$Soort_NL, Recorder_Bijvangsten_gform_Long$Aantal)
 #Add locationname to gfrom
-temp$LocationName <- strtrim(temp$Soort_NL, 7)
-temp$LocationName <- gsub(x = temp$LocationName, pattern = " +$", replacement =  "")
-table(temp$LocationName)
+Recorder_Bijvangsten_gform_Long$LocationName <- strtrim(Recorder_Bijvangsten_gform_Long$Soort_NL, 7)
+Recorder_Bijvangsten_gform_Long$LocationName <- gsub(x = Recorder_Bijvangsten_gform_Long$LocationName, pattern = " +$", replacement =  "")
+table(Recorder_Bijvangsten_gform_Long$LocationName)
 
 #Add species to gfrom
-temp$Soort_NL2 <- substr(temp$Soort_NL, nchar("Fuik 1 Bijvangst[ ")+2, nchar(temp$Soort_NL))
-table(temp$Soort_NL2)
+Recorder_Bijvangsten_gform_Long$Soort_NL2 <- substr(Recorder_Bijvangsten_gform_Long$Soort_NL, nchar("Fuik 1 Bijvangst[ ")+2, nchar(Recorder_Bijvangsten_gform_Long$Soort_NL))
+table(Recorder_Bijvangsten_gform_Long$Soort_NL2)
 
-temp2 <- merge(temp, Bijvangst, by.x = "Soort_NL2", by.y= "soort", all.x = T)
+Recorder_Bijvangsten_gform_Long_Soort <- merge(Recorder_Bijvangsten_gform_Long, Bijvangst, by.x = "Soort_NL2", by.y= "soort", all.x = T)
+
+Nieuwe_Soorten <- subset(Recorder_Bijvangsten_gform_Long_Soort, is.na(Soort_Nieuw))
+print(unique(Nieuwe_Soorten$Soort_NL2))
 
 #Add xy to gform
-temp3 <- merge(temp2, Locaties, all.x=T)
+Recorder_Bijvangsten_gform_Long_Soort_xy <- merge(Recorder_Bijvangsten_gform_Long_Soort, Locaties, all.x=T)
 
 #Removed unnecessary columns
-temp3$Soort_NL2 <- NULL
-temp3$Recorder_Status <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
+
+
 
 ```
 
