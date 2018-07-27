@@ -284,7 +284,7 @@ temp$`Gemeente/Deelgemeente` <- NULL
 temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
-temp$`Invuller 2`
+temp$`Invuller 2` <- NULL
 ```
 
 ```{r Invullen NA's in aantal fuiken}
