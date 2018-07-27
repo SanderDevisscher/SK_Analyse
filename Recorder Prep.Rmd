@@ -115,8 +115,13 @@ Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 
+
+
+
+
+```
 ###Create Bijvangsten 
-##Subsets
+```{r Subsets}
 Recorder_Afvangsten %>% 
   unite(col=test, contains("Soort"), remove = F) %>%
   mutate(preapp = case_when(grepl(test, pattern = ".*\\[.*") ~ 0,
@@ -126,7 +131,10 @@ Recorder_Bijvangsten_gform <- subset(Recorder_Bijvangsten, preapp == 1)
 Recorder_Bijvangsten_app <- subset(Recorder_Bijvangsten, preapp == 0)
 sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app)) == nrow(Recorder_Bijvangsten) #Moet TRUE zijn
 
-##gfrom
+
+```
+
+```{r gfrom Bijvangsten}
 #Wide -> Long
 Recorder_Bijvangsten_gform %>% 
   select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
@@ -159,8 +167,9 @@ Recorder_Bijvangsten_gform_Long_Soort_xy <- merge(Recorder_Bijvangsten_gform_Lon
 #Removed unnecessary columns
 Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
+```
 
-
-
+```{r app Bijvangsten}
+Recorder_Bijvangsten_app
 ```
 
