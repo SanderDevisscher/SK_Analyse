@@ -201,6 +201,7 @@ temp$Recorder <- temp$Recorder2
 Records_met_recorders <- temp
 remove(temp)
 ```
+
 ```{r Controle missing inputs}
 temp <- Records_met_recorders
 temp$Sample_Type <- temp$`Wat wil je melden`
@@ -283,6 +284,7 @@ temp$`Gemeente/Deelgemeente` <- NULL
 temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
+temp$`Invuller 2`
 ```
 
 ```{r Invullen NA's in aantal fuiken}
