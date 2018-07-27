@@ -170,6 +170,6 @@ Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
 ```
 
 ```{r app Bijvangsten}
-Recorder_Bijvangsten_app
+Recorder_Bijvangsten_app %>% separate(test, sep = ";", into = "test") -> temp
 ```
 
