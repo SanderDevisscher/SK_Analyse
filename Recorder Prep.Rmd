@@ -116,10 +116,15 @@ Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 
 #Rename columns
+Recorder_Afvangsten_Long_Loc %>% rename(`Aantal fuiken (Totaal)` = `Aantal.fuiken..Totaal.` ,  `Net verhoogd?` = `Net.verhoogd.`,`Fuik 1 - Opmerkingen` = `Fuik.1...Opmerkingen`, `Fuik 2 - Opmerkingen` = `Fuik.2...Opmerkingen` , `Fuik 3 - Opmerkingen` = `Fuik.3...Opmerkingen`, `Fuik 4 - Opmerkingen` = `Fuik.4...Opmerkingen`, `Fuik 5 - Opmerkingen` = `Fuik.5...Opmerkingen`, `Fuik 6 - Opmerkingen` = `Fuik.6...Opmerkingen`, `Fuik 7 - Opmerkingen` = `Fuik.7...Opmerkingen`, `Fuik 8 - Opmerkingen` = `Fuik.8...Opmerkingen`, `Fuik 9 - Opmerkingen` = `Fuik.9...Opmerkingen`, `Fuik 10 - Opmerkingen` = `Fuik.10...Opmerkingen`, `Fuik 11 - Opmerkingen` = `Fuik.11...Opmerkingen`, `Fuik 12 - Opmerkingen` = `Fuik.12...Opmerkingen`) -> Recorder_Afvangsten_Long_Loc_Renamed
+
+#Delete unnecessary columns
+Recorder_Afvangsten_Long_Loc_Renamed$Recorder_Status <- NULL
 
 #Cleanup
-Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc
+Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc_Renamed
 
+remove(Recorder_Afvangsten_Long_Loc_Renamed)
 remove(Recorder_Afvangsten_Long_Loc)
 remove(Recorder_Afvangsten_Long)
 ```
