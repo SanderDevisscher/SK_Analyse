@@ -115,11 +115,15 @@ Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 
+#Rename columns
 
+#Cleanup
+Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc
 
-
-
+remove(Recorder_Afvangsten_Long_Loc)
+remove(Recorder_Afvangsten_Long)
 ```
+
 ###Create Bijvangsten 
 ```{r Subsets}
 Recorder_Afvangsten %>% 
@@ -138,8 +142,8 @@ sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app_raw)) == nro
 #Wide -> Long
 Recorder_Bijvangsten_gform %>% 
   select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
-  gather(key = "Soort_NL", value = "Measurment_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
-  filter(!is.na(Measurment_Qualifier)) -> Recorder_Bijvangsten_gform_Long
+  gather(key = "Soort_NL", value = "Measurement_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
+  filter(!is.na(Measurement_Qualifier)) -> Recorder_Bijvangsten_gform_Long
   
 #Add fixed values to gfrom
 Recorder_Bijvangsten_gform_Long$Aantal <- 1
@@ -169,7 +173,7 @@ Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
 
 #Cleanup
-Recorder_Bijvangsten_gform_Finaal <- Recorder_Bijvangsten_gform_Long_Soort_xy
+Recorder_Bijvangsten_gform_Final <- Recorder_Bijvangsten_gform_Long_Soort_xy
 
 remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
 remove(Recorder_Bijvangsten_gform_Long_Soort)
@@ -215,5 +219,15 @@ remove(Recorder_Bijvangsten_app_Long_Soort_xy)
 remove(Recorder_Bijvangsten_app_Long_Soort)
 remove(Recorder_Bijvangsten_app_Long)
 remove(Recorder_Bijvangsten_app)
+```
+#Merge subsets
+```{r Merge subsets}
+setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
+
+names(Recorder_Bijvangsten_app_Final)
+names(Recorder_Bijvangsten_gform_Finaal)
+names(Recorder_Afvangsten_Final)
+
+Recorder_Afvangsten_Merged <- rbind(Recorder_Afvangsten_Final, Recorder_Bijvangsten_app_Final, Recorder_Bijvangsten_gform_Finaal, Nulvangsten2)
 ```
 
