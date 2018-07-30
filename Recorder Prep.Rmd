@@ -128,8 +128,8 @@ Recorder_Afvangsten %>%
                             TRUE ~ 1)) -> Recorder_Bijvangsten
  
 Recorder_Bijvangsten_gform <- subset(Recorder_Bijvangsten, preapp == 1) 
-Recorder_Bijvangsten_app <- subset(Recorder_Bijvangsten, preapp == 0)
-sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app)) == nrow(Recorder_Bijvangsten) #Moet TRUE zijn
+Recorder_Bijvangsten_app_raw <- subset(Recorder_Bijvangsten, preapp == 0)
+sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app_raw)) == nrow(Recorder_Bijvangsten) #Moet TRUE zijn
 
 
 ```
@@ -167,9 +167,53 @@ Recorder_Bijvangsten_gform_Long_Soort_xy <- merge(Recorder_Bijvangsten_gform_Lon
 #Removed unnecessary columns
 Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
+
+#Cleanup
+Recorder_Bijvangsten_gform_Finaal <- Recorder_Bijvangsten_gform_Long_Soort_xy
+
+remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
+remove(Recorder_Bijvangsten_gform_Long_Soort)
+remove(Recorder_Bijvangsten_gform_Long)
+remove(Recorder_Bijvangsten_gform)
 ```
 
 ```{r app Bijvangsten}
-Recorder_Bijvangsten_app %>% separate(test, sep = ";", into = "test") -> temp
+Recorder_Bijvangsten_app <- Recorder_Bijvangsten_app_raw
+
+b <- nrow(Bijvangst)
+
+#Wide -> Long
+Recorder_Bijvangsten_app %>% 
+  separate(test, sep = "_", into = c("Fuik 1", "Fuik 2", "Fuik 3", "Fuik 4", "Fuik 5", "Fuik 6", "Fuik 7", "Fuik 8",      "Fuik 9", "Fuik 10", "Fuik 11", "Fuik 12")) %>% 
+  select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"),           -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"),          -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("preapp"),             -contains("Bijvangst")) %>%
+  gather(key = "LocationName", value = "Soorten", c(-Tijdstempel, -Datum, -Startuur, -Einduur, 
+                                                    -`Aantal fuiken (Totaal)`, -`Net verhoogd?`,                          -contains("Opmerkingen"), -Location, -Recorder)) %>%
+  filter(Soorten != "NA") %>%
+  separate(Soorten, sep = ";", into = c(paste("soort", 1:b)) ) %>%
+  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -`Aantal fuiken (Totaal)`,        -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName)) %>%
+  filter(!is.na(Soort_NL)) %>%
+  select(-test)-> Recorder_Bijvangsten_app_Long
+
+#Add fixed values
+Recorder_Bijvangsten_app_Long$Aantal <- 1
+Recorder_Bijvangsten_app_Long$Measurement_Accuracy <- "Estimate"
+Recorder_Bijvangsten_app_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+
+#Add species to gfrom
+Recorder_Bijvangsten_app_Long_Soort <- merge(Recorder_Bijvangsten_app_Long, Bijvangst, by.x = "Soort_NL", by.y= "soort", all.x = T)
+
+#Add xy to gform
+Recorder_Bijvangsten_app_Long_Soort_xy <- merge(Recorder_Bijvangsten_app_Long, Locaties, all.x=T)
+
+#Remove unnecessary columns
+Recorder_Bijvangsten_app_Long_Soort_xy$Recorder_Status <- NULL
+
+#Cleanup
+Recorder_Bijvangsten_app_Final <- Recorder_Bijvangsten_app_Long_Soort_xy
+
+remove(Recorder_Bijvangsten_app_Long_Soort_xy)
+remove(Recorder_Bijvangsten_app_Long_Soort)
+remove(Recorder_Bijvangsten_app_Long)
+remove(Recorder_Bijvangsten_app)
 ```
 
