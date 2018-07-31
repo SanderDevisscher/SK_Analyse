@@ -267,7 +267,7 @@ write_csv(Recorder_Afvangsten_Nieuw, filename)
 table(Recorder_Ruw$Sample_Type)
 Recorder_Plaatsen <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van Fuiken")
 
-Recorder_Plaatsen %>% select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"), -contains("Opmerkingen")) -> temp
+Recorder_Plaatsen %>% select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"), -contains("Opmerkingen"), -contains("Meer")) -> temp
 
 ```
 
