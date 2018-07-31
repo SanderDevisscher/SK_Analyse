@@ -121,6 +121,9 @@ Recorder_Afvangsten_Long_Loc %>% rename(`Aantal fuiken (Totaal)` = `Aantal.fuike
 #Delete unnecessary columns
 Recorder_Afvangsten_Long_Loc_Renamed$Recorder_Status <- NULL
 
+#Set correct column_types
+Recorder_Afvangsten_Long_Loc_Renamed$Aantal <- as.numeric(Recorder_Afvangsten_Long_Loc_Renamed$Aantal)
+
 #Cleanup
 Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc_Renamed
 
@@ -175,6 +178,8 @@ Recorder_Bijvangsten_gform_Long_Soort_xy <- merge(Recorder_Bijvangsten_gform_Lon
 
 #Removed unnecessary columns
 Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_Nieuw <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
 
 #Cleanup
@@ -183,7 +188,7 @@ Recorder_Bijvangsten_gform_Final <- Recorder_Bijvangsten_gform_Long_Soort_xy
 remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
 remove(Recorder_Bijvangsten_gform_Long_Soort)
 remove(Recorder_Bijvangsten_gform_Long)
-remove(Recorder_Bijvangsten_gform)
+
 ```
 
 ```{r app Bijvangsten}
@@ -228,11 +233,11 @@ remove(Recorder_Bijvangsten_app)
 #Merge subsets
 ```{r Merge subsets}
 setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
+Recorder_Afvangsten_Merged <- rbind(x = Recorder_Afvangsten_Final, Recorder_Bijvangsten_gform_Final)
+nrow(Recorder_Afvangsten_Merged) == nrow(Recorder_Afvangsten_Final) + nrow(Recorder_Bijvangsten_gform_Final)
 
-names(Recorder_Bijvangsten_app_Final)
-names(Recorder_Bijvangsten_gform_Finaal)
-names(Recorder_Afvangsten_Final)
+setdiff(x = Recorder_Afvangsten_Merged, y = Recorder_Bijvangsten_app_Final)
 
-Recorder_Afvangsten_Merged <- rbind(Recorder_Afvangsten_Final, Recorder_Bijvangsten_app_Final, Recorder_Bijvangsten_gform_Finaal, Nulvangsten2)
+
 ```
 
