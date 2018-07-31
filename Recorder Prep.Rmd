@@ -4,7 +4,7 @@ author: "Sander"
 date: "20 februari 2018"
 output: html_document
 ---
-
+#0.General
 ```{r Clean enviroment}
 rm(list = ls())
 ```
@@ -48,7 +48,8 @@ gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken 
 
 print(gnFuiken)
 ```
-
+#1. Afvangsten
+##1.1. Create Afvangsten & Nulvangsten
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
@@ -132,7 +133,7 @@ remove(Recorder_Afvangsten_Long_Loc)
 remove(Recorder_Afvangsten_Long)
 ```
 
-###Create Bijvangsten 
+##1.2. Create Bijvangsten 
 ```{r Subsets}
 Recorder_Afvangsten %>% 
   unite(col=test, contains("Soort"), remove = F) %>%
@@ -233,14 +234,40 @@ remove(Recorder_Bijvangsten_app_Long_Soort)
 remove(Recorder_Bijvangsten_app_Long)
 remove(Recorder_Bijvangsten_app)
 ```
-#Merge subsets
+##1.3. Merge subsets
 ```{r Merge subsets}
 setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
 Recorder_Afvangsten_Merged <- rbind(x = Recorder_Afvangsten_Final, Recorder_Bijvangsten_gform_Final)
 nrow(Recorder_Afvangsten_Merged) == nrow(Recorder_Afvangsten_Final) + nrow(Recorder_Bijvangsten_gform_Final)
 
 setdiff(x = Recorder_Afvangsten_Merged, y = Recorder_Bijvangsten_app_Final)
+Recorder_Afvangsten_Merged2 <- rbind(Recorder_Afvangsten_Merged, Recorder_Bijvangsten_app_Final) 
+nrow(Recorder_Afvangsten_Merged2) == nrow(Recorder_Afvangsten_Merged) + nrow(Recorder_Bijvangsten_app_Final)
+```
+##1.4. Export data
+```{r Export}
+filename <- "./Output/Recorder/Recorder_Afvangst.csv"
 
+if(file.exists(filename)){
+  backup <- read_csv(filename)
+  today <- Sys.Date()
+  filename2 <- paste("./Output/Recorder/Backup/Recorder_Afvangst_", today, ".csv", sep = "")
+  write_csv(backup, filename2)
+}
+
+Recorder_Afvangsten_Nieuw <- subset(Recorder_Afvangsten_Merged2, !(Tijdstempel %in% backup$Tijdstempel))
+
+print(nrow(Recorder_Afvangsten_Nieuw))
+
+write_csv(Recorder_Afvangsten_Nieuw, filename)
+
+```
+#2. Fuiken plaatsen
+```{r Fuiken plaatsen voor recorder}
+table(Recorder_Ruw$Sample_Type)
+Recorder_Plaatsen <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van Fuiken")
+
+Recorder_Plaatsen %>% select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"), -contains("Opmerkingen")) -> temp
 
 ```
 
