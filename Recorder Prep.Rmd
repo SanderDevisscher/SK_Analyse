@@ -222,7 +222,8 @@ Recorder_Bijvangsten_app_Long_Soort_xy <- merge(Recorder_Bijvangsten_app_Long_So
 
 #Remove unnecessary columns
 Recorder_Bijvangsten_app_Long_Soort_xy$Recorder_Status <- NULL
-Recorder_Bijvangsten_app_Long_Soort_xy$Soort_NL
+Recorder_Bijvangsten_app_Long_Soort_xy$Soort_NL <- NULL
+Recorder_Bijvangsten_app_Long_Soort_xy$Soort_Nieuw <- NULL
 
 #Cleanup
 Recorder_Bijvangsten_app_Final <- Recorder_Bijvangsten_app_Long_Soort_xy
