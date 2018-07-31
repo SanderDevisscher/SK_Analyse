@@ -212,15 +212,17 @@ Recorder_Bijvangsten_app %>%
 Recorder_Bijvangsten_app_Long$Aantal <- 1
 Recorder_Bijvangsten_app_Long$Measurement_Accuracy <- "Estimate"
 Recorder_Bijvangsten_app_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+Recorder_Bijvangsten_app_Long$Measurement_Qualifier <- "none"
 
 #Add species to gfrom
 Recorder_Bijvangsten_app_Long_Soort <- merge(Recorder_Bijvangsten_app_Long, Bijvangst, by.x = "Soort_NL", by.y= "soort", all.x = T)
 
 #Add xy to gform
-Recorder_Bijvangsten_app_Long_Soort_xy <- merge(Recorder_Bijvangsten_app_Long, Locaties, all.x=T)
+Recorder_Bijvangsten_app_Long_Soort_xy <- merge(Recorder_Bijvangsten_app_Long_Soort, Locaties, all.x=T)
 
 #Remove unnecessary columns
 Recorder_Bijvangsten_app_Long_Soort_xy$Recorder_Status <- NULL
+Recorder_Bijvangsten_app_Long_Soort_xy$Soort_NL
 
 #Cleanup
 Recorder_Bijvangsten_app_Final <- Recorder_Bijvangsten_app_Long_Soort_xy
