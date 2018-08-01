@@ -255,19 +255,25 @@ if(file.exists(filename)){
   write_csv(backup, filename2)
 }
 
-Recorder_Afvangsten_Nieuw <- subset(Recorder_Afvangsten_Merged2, !(Tijdstempel %in% backup$Tijdstempel))
-
-print(nrow(Recorder_Afvangsten_Nieuw))
-
 write_csv(Recorder_Afvangsten_Nieuw, filename)
-
 ```
 #2. Fuiken plaatsen
 ```{r Fuiken plaatsen voor recorder}
 table(Recorder_Ruw$Sample_Type)
 Recorder_Plaatsen <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van Fuiken")
 
-Recorder_Plaatsen %>% select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"), -contains("Opmerkingen"), -contains("Meer")) -> temp
+Recorder_Plaatsen %>% 
+  select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"),    -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"),             -contains("Opmerkingen"), -contains("Meer")) -> Recorder_Plaatsen_Redux
+
+#Get missing fuiken
+Missing_Fuiken <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` == 0)
+
+if(nrow(Missing_Fuiken)>0){
+  Recorder_Plaatsen_Redux <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` != 0)
+  print(paste(nrow(Missing_Fuiken), " Records verwijderd", sep = ""))
+}
+
+
 
 ```
 
