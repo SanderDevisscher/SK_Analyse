@@ -50,6 +50,7 @@ print(gnFuiken)
 ```
 #1. Afvangsten
 ##1.1. Create Afvangsten & Nulvangsten
+
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
@@ -133,7 +134,8 @@ remove(Recorder_Afvangsten_Long_Loc)
 remove(Recorder_Afvangsten_Long)
 ```
 
-##1.2. Create Bijvangsten 
+##1.2. Create Bijvangsten
+
 ```{r Subsets}
 Recorder_Afvangsten %>% 
   unite(col=test, contains("Soort"), remove = F) %>%
@@ -235,6 +237,7 @@ remove(Recorder_Bijvangsten_app_Long)
 remove(Recorder_Bijvangsten_app)
 ```
 ##1.3. Merge subsets
+
 ```{r Merge subsets}
 setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
 Recorder_Afvangsten_Merged <- rbind(x = Recorder_Afvangsten_Final, Recorder_Bijvangsten_gform_Final)
@@ -244,7 +247,24 @@ setdiff(x = Recorder_Afvangsten_Merged, y = Recorder_Bijvangsten_app_Final)
 Recorder_Afvangsten_Merged2 <- rbind(Recorder_Afvangsten_Merged, Recorder_Bijvangsten_app_Final) 
 nrow(Recorder_Afvangsten_Merged2) == nrow(Recorder_Afvangsten_Merged) + nrow(Recorder_Bijvangsten_app_Final)
 ```
+```{r Write comments}
+LocationNames <- unique(Recorder_Afvangsten_Merged2$LocationName)
+
+Recorder_Afvangsten_Merged_Comment <- data.frame()
+
+for(l in LocationNames){
+  temp <- subset(Recorder_Afvangsten_Merged2, LocationName == l)
+  temp2 <- temp %>% select(contains(l))  
+  names(temp2)[1] <- "Sample_Comment"
+  temp <- temp %>% select(-contains("Opmerkingen"))
+  temp3 <- cbind(temp, temp2)
+}
+```
+
+
+
 ##1.4. Export data
+
 ```{r Export}
 filename <- "./Output/Recorder/Recorder_Afvangst.csv"
 
@@ -255,7 +275,7 @@ if(file.exists(filename)){
   write_csv(backup, filename2)
 }
 
-write_csv(Recorder_Afvangsten_Nieuw, filename)
+write_csv(Recorder_Afvangsten_Merged2, filename)
 ```
 #2. Fuiken plaatsen
 ```{r Fuiken plaatsen voor recorder}
@@ -273,6 +293,7 @@ if(nrow(Missing_Fuiken)>0){
   print(paste(nrow(Missing_Fuiken), " Records verwijderd", sep = ""))
 }
 
+#Write comment
 
 
 ```
