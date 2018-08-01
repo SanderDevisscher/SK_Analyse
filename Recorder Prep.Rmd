@@ -248,17 +248,27 @@ Recorder_Afvangsten_Merged2 <- rbind(Recorder_Afvangsten_Merged, Recorder_Bijvan
 nrow(Recorder_Afvangsten_Merged2) == nrow(Recorder_Afvangsten_Merged) + nrow(Recorder_Bijvangsten_app_Final)
 ```
 ```{r Write comments}
-LocationNames <- unique(Recorder_Afvangsten_Merged2$LocationName)
+LocationNames <- unique(Recorder_Afvangsten_Merged2$LocationName) 
 
-Recorder_Afvangsten_Merged_Comment <- data.frame()
+Recorder_Afvangsten_Merged2$`Fuik 10 - Opmerkingen` <- NULL
+Recorder_Afvangsten_Merged2$`Fuik 11 - Opmerkingen` <- NULL
+Recorder_Afvangsten_Merged2$`Fuik 12 - Opmerkingen` <- NULL
 
+temp4 <- data.frame()
 for(l in LocationNames){
   temp <- subset(Recorder_Afvangsten_Merged2, LocationName == l)
   temp2 <- temp %>% select(contains(l))  
   names(temp2)[1] <- "Sample_Comment"
-  temp <- temp %>% select(-contains("Opmerkingen"))
+  temp <- temp %>% select(-contains("Opmerk"))
   temp3 <- cbind(temp, temp2)
+  temp4 <- rbind(temp3, temp4)
 }
+
+Recorder_Afvangsten_Merged_Comment <- temp4
+remove(temp)
+remove(temp2)
+remove(temp3)
+remove(temp4)
 ```
 
 
@@ -275,7 +285,7 @@ if(file.exists(filename)){
   write_csv(backup, filename2)
 }
 
-write_csv(Recorder_Afvangsten_Merged2, filename)
+write_csv(Recorder_Afvangsten_Merged_Comment, filename)
 ```
 #2. Fuiken plaatsen
 ```{r Fuiken plaatsen voor recorder}
