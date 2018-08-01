@@ -207,7 +207,7 @@ temp <- Records_met_recorders
 temp$Sample_Type <- temp$`Wat wil je melden`
 
 #Create vangstdagen op basis van plaatsen van fuiken
-temp2 <- subset(temp, Sample_Type == "Plaatsen van fuiken")
+temp2 <- subset(temp, Sample_Type == "Plaatsen van Fuiken")
 temp2 <- subset(temp2, !is.na(`Start vangstperiode`))
 Locations <- unique(temp2$Location)
 temp5 <- data.frame(1)
