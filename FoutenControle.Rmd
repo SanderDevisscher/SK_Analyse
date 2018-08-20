@@ -183,7 +183,12 @@ temp$Recorder <- temp$`Invuller 2`
 #Bekende problemen oplossen
 temp$Recorder <- ifelse(temp$Recorder == "kris meeus", "Kris Meeus", temp$Recorder)
 temp$Recorder <- ifelse(temp$Recorder == "pieter liekens", "Pieter Liekens", temp$Recorder)
+temp$Recorder <- ifelse(temp$`E-mailadres` == "dries.jonckers@natuurpunt.be" & is.na(temp$Recorder), "Dries Jonckers", temp$Recorder)
 
+Records_zndr_Recorder <- subset(temp, is.na(Recorder))
+if(nrow(Records_zndr_Recorder)>0){
+  print(paste(nrow(Records_zndr_Recorder), " Records zonder recorder, KIJK ZE NA!!", sep=""))
+}
 table(temp$Recorder, useNA = "ifany")
 
 #Voeg naamloze arbeiders toe
