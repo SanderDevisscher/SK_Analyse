@@ -192,13 +192,11 @@ if(nrow(Records_zndr_Recorder)>0){
 table(temp$Recorder, useNA = "ifany")
 
 #Voeg naamloze arbeiders toe
-for (i in nrow(temp)){ 
-  n <- temp$`Aantal werknemers`
-  temp$Recorder2 <- ifelse(n==2 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", sep=";" ), 
-                           ifelse(n==3 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", sep=";" ), 
-                                  ifelse(n==4 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", "Arbeider 3", sep=";" ), 
-                                         temp$Recorder)))
-}
+temp <- temp %>% mutate(Recorder2 = case_when(`Aantal werknemers` == 1 ~ Recorder,
+                                      `Aantal werknemers` == 2 ~ paste(Recorder, "Arbeider 1", sep =";"),
+                                      `Aantal werknemers` == 3 ~ paste(Recorder, "Arbeider 1; Arbeider 2", sep =";"),
+                                      `Aantal werknemers` == 4 ~ paste(Recorder, "Arbeider 1; Arbeider 2; Arbeider 3", sep =";"),
+                                      `Aantal werknemers` > 5 ~ "NA"))
 
 table(temp$Recorder2)
 temp$Recorder <- temp$Recorder2
@@ -359,9 +357,17 @@ remove(temp2)
 ```
 
 ```{r Check for update}
+if(!dir.exists("./Intermediate/")){
+  dir.create("./Intermediate/")
+  dir.create("./Intermediate/Backup")
+  aantal_offline <- 0
+}else{
+  data_offline <- read_csv("./Intermediate/Brondata.csv")
+  aantal_offline <- nrow(data_offline)
+}
+
 aantal_online <- nrow(Records_met_datums)
-data_offline <- read_csv("./Intermediate/Brondata.csv")
-aantal_offline <- nrow(data_offline)
+
 
 verschil <- aantal_online - aantal_offline
 
@@ -377,7 +383,12 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
   print("Data backed up and exported")
 }else{
- print("no new records") 
+  if(verschil > 0){
+    write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+    print("Data exported")
+  }else{
+ print("no new records")
+  }  
 }
 
 
