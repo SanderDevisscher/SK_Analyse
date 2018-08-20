@@ -543,6 +543,15 @@ GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
 GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
 ```
 
+```{r Add correct dirs}
+if(!dir.exists("./Output/")){
+  dir.create("./Output/")
+  dir.create("./Output/Afbeeldingen")
+  
+}
+
+```
+
 ```{r Calculate GSL}
 Jaren <- unique(GRA_Brondata$Jaar)
 
