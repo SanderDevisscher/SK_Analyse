@@ -149,11 +149,16 @@ SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1"
                                            ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
 SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
 
+
+
 SKData$Location <- ifelse(!is.na(SKData$`Vijver - Arendonk`),SKData$`Vijver - Arendonk`,
                         ifelse(!is.na(SKData$`Vijver - Kasterlee`), SKData$`Vijver - Kasterlee`,
                                ifelse(!is.na(SKData$`Vijver - Hoogstraten`), SKData$`Vijver - Hoogstraten`,
                                       ifelse(!is.na(SKData$`Vijver - Nijlen`), SKData$`Vijver - Nijlen`,
                                              ifelse(!is.na(SKData$`Vijver - Scheps`),SKData$`Vijver - Scheps`, NA)))))
+SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "26-7-2018 9:00:56", "Mol - Tomaathoek", SKData$Location)
+
 
 table(SKData$Location, useNA = "ifany")
 Records_zndr_Location <- subset(SKData, is.na(Location))
@@ -184,6 +189,8 @@ temp$Recorder <- temp$`Invuller 2`
 temp$Recorder <- ifelse(temp$Recorder == "kris meeus", "Kris Meeus", temp$Recorder)
 temp$Recorder <- ifelse(temp$Recorder == "pieter liekens", "Pieter Liekens", temp$Recorder)
 temp$Recorder <- ifelse(temp$`E-mailadres` == "dries.jonckers@natuurpunt.be" & is.na(temp$Recorder), "Dries Jonckers", temp$Recorder)
+
+temp$Recorder <- ifelse(!is.na(temp$Recorder), temp$Recorder, temp$Invuller)
 
 Records_zndr_Recorder <- subset(temp, is.na(Recorder))
 if(nrow(Records_zndr_Recorder)>0){
@@ -343,12 +350,18 @@ temp <- subset(temp, Tijdstempel != "6-6-2017 17:13:07")
 print(paste(nrow(Records_met_fuiken)-nrow(temp), "Records verwijderd"))
 
 #NA datums verwijderen
+temp$Datum <- ifelse(temp$Tijdstempel == "22-6-2017 21:47:39", "20-06-2017", temp$Datum)
+temp$Datum <- ifelse(temp$Tijdstempel == "9-10-2017 22:46:06", "27-09-2017", temp$Datum)
+temp$Datum <- ifelse(temp$Tijdstempel == "24-8-2018 12:32:26", "14-8-2018", temp$Datum)
+
 NA_Datums <- subset(temp, is.na(Datum))
 
 if(nrow(NA_Datums)>0){
   print(paste(nrow(NA_Datums), "NA datums gevonden"))
   temp2 <- subset(temp, !is.na(Datum))
   print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
+}else{
+  temp2 <- temp
 }
 
 Records_met_datums <- temp2
