@@ -22,7 +22,7 @@ gdrive <- gs_read(title)
 SKData <- gdrive
 ```
 
-```{r Juiste datatype instellen}
+```{r Juiste datatypes instellen}
 #Fuik 1
 SKData$`Fuik 1 - L00` <- as.numeric(SKData$`Fuik 1 - L00`)
 SKData$`Fuik 1 - L0` <- as.numeric(SKData$`Fuik 1 - L0`)
@@ -173,6 +173,7 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
   if(nrow(Records_zndr_Location)>0){
     print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
   }else{
+    print("geen records zonder locatie")
     remove(Records_zndr_Location)
   }
 }
@@ -195,6 +196,9 @@ temp$Recorder <- ifelse(!is.na(temp$Recorder), temp$Recorder, temp$Invuller)
 Records_zndr_Recorder <- subset(temp, is.na(Recorder))
 if(nrow(Records_zndr_Recorder)>0){
   print(paste(nrow(Records_zndr_Recorder), " Records zonder recorder, KIJK ZE NA!!", sep=""))
+}else{
+  print("Geen records zonder recorder")
+  remove(Records_zndr_Recorder)
 }
 table(temp$Recorder, useNA = "ifany")
 
@@ -361,6 +365,8 @@ if(nrow(NA_Datums)>0){
   temp2 <- subset(temp, !is.na(Datum))
   print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
 }else{
+  print("Geen NA datums")
+  remove(NA_Datums)
   temp2 <- temp
 }
 
