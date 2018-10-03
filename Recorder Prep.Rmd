@@ -112,7 +112,7 @@ table(Missing_Locaties$Location)
 Recorder_Afvangsten_Long_Loc$Species <- "Lithobates catesbeianus"
 
 #Add fixed values to Afvangsten
-Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
 
 Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 
@@ -274,8 +274,8 @@ temp5 <- temp4 %>%
   mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ Sample_Comment,
                                     `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
                                     TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
-  select(-Startuur2, -Einduur2, -Startuur, -Einduur) %>%
-  spread(key = Measurement_Qualifier, value = Aantal)
+  select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) %>%
+  spread(key = Measurement_Qualifier, value = Aantal, fill = 0)
 
 Recorder_Afvangsten_Merged_Comment <- temp5
 remove(temp)
