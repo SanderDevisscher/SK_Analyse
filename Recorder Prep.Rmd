@@ -94,8 +94,8 @@ Nulvangsten2 %>%
   summarise() -> temp3
 Nulvangsten2 <- data.frame(temp3)
 Nulvangsten2$Fuiknr <- NULL
-Nulvangsten2$Stadium2 <- "None"
-Nulvangsten2$Stadium <- "None"
+Nulvangsten2$Stadium2 <- "none"
+Nulvangsten2$Stadium <- "none"
 #Bind Afvangsten and Nulvangsten
 Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
 Recorder_Afvangsten_Long$Stadium <- NULL
@@ -266,11 +266,23 @@ for(l in LocationNames){
   temp4 <- rbind(temp3, temp4)
 }
 
-Recorder_Afvangsten_Merged_Comment <- temp4
+temp5 <- temp4 %>% 
+  mutate(Startuur2 = substr(Startuur, 0,5)) %>%
+  mutate(Einduur2 = substr(Einduur, 0,5)) %>%
+  mutate(Sample_Comment = case_when(is.na(Sample_Comment) ~ paste(Startuur2, "-", Einduur2, sep = ""),
+                                    TRUE ~ paste(Startuur2, "-", Einduur2, " / ", Sample_Comment, sep = ""))) %>% 
+  mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ Sample_Comment,
+                                    `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
+                                    TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
+  select(-Startuur2, -Einduur2, -Startuur, -Einduur) %>%
+  spread(key = Measurement_Qualifier, value = Aantal)
+
+Recorder_Afvangsten_Merged_Comment <- temp5
 remove(temp)
 remove(temp2)
 remove(temp3)
 remove(temp4)
+remove(temp5)
 ```
 
 
@@ -284,10 +296,10 @@ if(file.exists(filename)){
   backup <- read_csv(filename)
   today <- Sys.Date()
   filename2 <- paste("./Output/Recorder/Backup/Recorder_Afvangst_", today, ".csv", sep = "")
-  write_csv(backup, filename2)
+  write.csv2(backup, filename2)
 }
 
-write_csv(Recorder_Afvangsten_Merged_Comment, filename)
+write.csv2(Recorder_Afvangsten_Merged_Comment, filename)
 ```
 #2. Fuiken plaatsen
 ```{r Fuiken plaatsen voor recorder}
