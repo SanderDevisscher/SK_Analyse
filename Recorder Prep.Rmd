@@ -30,6 +30,7 @@ Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verord
 Log$X <- NULL
 
 ```
+
 ```{r Aantal fuiken juist zetten}
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), Recorder_Ruw$`Aantal fuiken geplaatst`, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
@@ -247,6 +248,7 @@ setdiff(x = Recorder_Afvangsten_Merged, y = Recorder_Bijvangsten_app_Final)
 Recorder_Afvangsten_Merged2 <- rbind(Recorder_Afvangsten_Merged, Recorder_Bijvangsten_app_Final) 
 nrow(Recorder_Afvangsten_Merged2) == nrow(Recorder_Afvangsten_Merged) + nrow(Recorder_Bijvangsten_app_Final)
 ```
+
 ```{r Write comments}
 LocationNames <- unique(Recorder_Afvangsten_Merged2$LocationName) 
 
@@ -258,7 +260,7 @@ temp4 <- data.frame()
 for(l in LocationNames){
   temp <- subset(Recorder_Afvangsten_Merged2, LocationName == l)
   temp2 <- temp %>% select(contains(l))  
-  names(temp2)[1] <- "Sample_Comment"
+  if(length(temp2)>0){names(temp2)[1] <- "Sample_Comment"}else{temp2$Sample_Comment <- NA}
   temp <- temp %>% select(-contains("Opmerk"))
   temp3 <- cbind(temp, temp2)
   temp4 <- rbind(temp3, temp4)
