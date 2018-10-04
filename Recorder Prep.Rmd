@@ -160,7 +160,7 @@ Recorder_Bijvangsten_gform %>%
 #Add fixed values to gfrom
 Recorder_Bijvangsten_gform_Long$Aantal <- 1
 Recorder_Bijvangsten_gform_Long$Measurement_Accuracy <- "Estimate"
-Recorder_Bijvangsten_gform_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+Recorder_Bijvangsten_gform_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
 
 table(Recorder_Bijvangsten_gform_Long$Soort_NL, Recorder_Bijvangsten_gform_Long$Aantal)
 #Add locationname to gfrom
@@ -215,7 +215,7 @@ Recorder_Bijvangsten_app %>%
 #Add fixed values
 Recorder_Bijvangsten_app_Long$Aantal <- 1
 Recorder_Bijvangsten_app_Long$Measurement_Accuracy <- "Estimate"
-Recorder_Bijvangsten_app_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander Fuik Bodem", ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander Fuik Drijvend", "Schietfuik"))
+Recorder_Bijvangsten_app_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
 Recorder_Bijvangsten_app_Long$Measurement_Qualifier <- "none"
 
 #Add species to gfrom
