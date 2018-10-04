@@ -275,7 +275,7 @@ temp5 <- temp4 %>%
                                     `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
                                     TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
   select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) %>%
-  spread(key = Measurement_Qualifier, value = Aantal, fill = 0)
+  spread(key = Measurement_Qualifier, value = Aantal)
 
 Recorder_Afvangsten_Merged_Comment <- temp5
 remove(temp)
@@ -298,7 +298,7 @@ Recorder_Old_Prepped <- Recorder_Old %>%
 
 table(Recorder_Old_Prepped$`Sample type`)
 
-Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Sample_Date"))
+Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Datum"))
 
 table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"))
 ```
@@ -323,8 +323,8 @@ write.csv2(Recorder_Afvangsten_New, filename)
 table(Recorder_Ruw$Sample_Type)
 Recorder_Plaatsen <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van Fuiken")
 
-Recorder_Plaatsen %>% 
-  select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"),    -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"),             -contains("Opmerkingen"), -contains("Meer")) -> Recorder_Plaatsen_Redux
+Recorder_Plaatsen_Redux <- Recorder_Plaatsen %>% 
+  select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"),    -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"),     -contains("Opmerk"), -contains("Meer")) 
 
 #Get missing fuiken
 Missing_Fuiken <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` == 0)
@@ -332,10 +332,28 @@ Missing_Fuiken <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` == 0)
 if(nrow(Missing_Fuiken)>0){
   Recorder_Plaatsen_Redux <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` != 0)
   print(paste(nrow(Missing_Fuiken), " Records verwijderd", sep = ""))
+}else{
+  print("Geen ontbrekende fuiken")
+  remove(Missing_Fuiken)
+}
+
+#Get Incorrect fuiken
+Incorrect_Fuiken <- Recorder_Plaatsen_Redux %>% 
+  filter(`Aantal fuiken (Totaal)` != `Aantal fuiken geplaatst`)
+
+if(nrow(Incorrect_Fuiken)>0){
+  Recorder_Plaatsen_Redux <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` != `Aantal fuiken geplaatst`)
+  print(paste(nrow(Incorrect_Fuiken), " Records verwijderd", sep = ""))
+}else{
+  print("Geen incorrecte fuiken")
+  remove(Missing_Fuiken)
 }
 
 #Write comment
-
+Recorder_Plaatsen_Redux <- Recorder_Plaatsen_Redux %>% 
+  mutate(Startuur2 = substr(Startuur, 0,5)) %>%
+  mutate(Einduur2 = substr(Einduur, 0,5)) %>%
+  mutate(Sample_Comment = paste(Startuur2, "-", Einduur2, sep=""))
 
 ```
 
