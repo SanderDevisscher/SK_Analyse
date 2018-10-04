@@ -285,9 +285,26 @@ remove(temp4)
 remove(temp5)
 ```
 
+## 1.5. Verify Data vs Recorder
+Run het Amerikaanse Brulkikker report in Recorder en plaats de output in de Input map.
+```{r}
+Recorder_Old <- read_delim("Input/Recorder_Data.TXT", ";", escape_double = FALSE, trim_ws = TRUE)
+
+Recorder_Old_Prepped <- Recorder_Old %>% 
+  mutate(Jaar = substr(as.character(`Sample Date`), 7, 11 )) %>%
+  filter(Jaar >= 2016) %>%
+  filter(`Sample type` == "Schietfuik" | `Sample type` == "Salamander_Bodem" | `Sample type` == "Salamander_Drijvend") %>%
+  mutate(Datum = format(as.Date(`Sample Date`, "%d/%m/%Y"), "%d-%m-%Y"))
+
+table(Recorder_Old_Prepped$`Sample type`)
+
+Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Sample_Date"))
+
+table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"))
+```
 
 
-##1.4. Export data
+## 1.4. Export data
 
 ```{r Export}
 filename <- "./Output/Recorder/Recorder_Afvangst.csv"
@@ -299,7 +316,7 @@ if(file.exists(filename)){
   write.csv2(backup, filename2)
 }
 
-write.csv2(Recorder_Afvangsten_Merged_Comment, filename)
+write.csv2(Recorder_Afvangsten_New, filename)
 ```
 #2. Fuiken plaatsen
 ```{r Fuiken plaatsen voor recorder}
