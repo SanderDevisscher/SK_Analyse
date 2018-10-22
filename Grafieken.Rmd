@@ -542,6 +542,7 @@ GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1",
 ```{r Datums juist zetten}
 GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
 GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
+GRA_Brondata$Datum2 <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
 ```
 
 ```{r CPUE/dag per jaar}
@@ -562,7 +563,7 @@ for(j in Jaren){
     #subset locations
     temp3 <- subset(temp2, Location == i )
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=CPUE)) + 
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=CPUE)) + 
       geom_bar(stat="identity", aes(fill="red"))
     plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
@@ -603,7 +604,7 @@ for(j in Jaren){
     #subset locations
     temp3 <- subset(temp2, Location == i )
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=Totaal)) + geom_bar(stat="identity")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -612,8 +613,8 @@ for(j in Jaren){
     plot <- plot + ylab("Totaal")
     print(plot)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
     print(paste("TOT", i, j, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -625,6 +626,7 @@ for(j in Jaren){
 ```
 
 ```{r CPUE all years}
+temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 
 for(i in Locations){
@@ -640,7 +642,7 @@ for(i in Locations){
     fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep="")
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=CPUE)) + 
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=CPUE)) + 
       geom_bar(stat="identity", aes(fill="red"))
     plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", jmin, "-", jmax))
     plot <- plot + expand_limits(x = 0, y = 0)
@@ -649,9 +651,10 @@ for(i in Locations){
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
+    plot <- plot + facet_wrap(~Jaar, scales = "free_x", nrow = o)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
     print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -666,6 +669,7 @@ for(i in Locations){
 ```
 
 ```{r absoluut alle jaren}
+temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 
 for(i in Locations){
@@ -681,17 +685,18 @@ for(i in Locations){
     fNaam <- paste(i ,"TOT",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity", aes(colour="dark grey"))
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=Totaal)) + geom_bar(stat="identity")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", jmin, "-", jmax))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
     plot <- plot + theme(legend.position="none")
-    plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
+    plot <- plot + theme(axis.line = element_line(color="black", size = 1))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
+    plot <- plot + facet_wrap(~Jaar, scales = "free_x", nrow = o)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
     print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -705,4 +710,62 @@ for(i in Locations){
 
 ```
 
+```{r GSL alle jaren}
+temp <- GRA_Brondata
+Locations <- unique(temp$Location)
 
+temp3 <- data.frame()
+
+for(j in Jaren){
+  temp2 <- subset(GRA_Brondata, Jaar == j)
+  Locations <- unique(temp2$Location)
+  for(l in Locations){
+    for(i in 1:nrow(temp2)){
+           if(i == 1){
+        temp2$GSL[i] <- temp2$CPUE*26
+      }else{
+        if(i == 2){
+          temp2$GSL[i] <- ((temp2$CPUE[i-1] + temp2$CPUE[i])/2)*26
+        }else{
+          temp2$GSL[i] <- ((temp2$CPUE[i-1] + temp2$CPUE[i]+temp2$CPUE[i-2])/3)*26
+        }
+      }
+    }
+  }
+  temp3 <- rbind(temp2, temp3)
+}
+for(j in Jaren){
+  temp2 <- subset(temp3, Jaar == j)
+  Locations <- unique(temp2$Location)
+  for(l in Locations){
+    #Create dynamic texts
+    i2 <- gsub(l, pattern = " ", replacement = "")
+    path <- paste("./Output/Afbeeldingen/", i2, sep="")
+    dir.create(path)
+    fNaam <- paste(l ,"GSL", j, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep = "")
+    #subset locations
+    temp3 <- subset(temp2, Location == l)
+    #Create plot
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity")
+    plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
+    plot <- plot + expand_limits(x = 0, y = 0)
+    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + theme(legend.position="none")
+    plot <- plot + xlab("Datum")
+    plot <- plot + ylab("GSL")
+    plot <- plot + geom_hline(yintercept = 100, linetype = "dashed", color = "red")
+    plot <- plot + geom_hline(yintercept = 10, linetype = "dashed", color = "green")
+    print(plot)
+    #Calculate dynamic dimensions
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
+    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
+    print(paste("GSL", l, j, sep=" "))
+    print(path)
+    print(paste("w:",width))
+    print(paste("h:",height))
+    #Export file
+    ggsave(filename = fNaam, path = path, width=width, height=height, units = c("cm"), dpi = 300, limitsize = F)
+  }
+}
+```
