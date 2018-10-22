@@ -730,7 +730,10 @@ for(j in Jaren){
           temp2$GSL[i] <- ((temp2$CPUE[i-1] + temp2$CPUE[i]+temp2$CPUE[i-2])/3)*26
         }
       }
+      temp2$Remainder[i] <- temp2$GSL[i+1] + temp2$Totaal_Larven.CPUE[i+1]
+      temp2$Error[i] <- abs(temp2$GSL[i]-temp2$Remainder[i])
     }
+    
   }
   temp3 <- rbind(temp2, temp3)
 }
@@ -756,6 +759,7 @@ for(j in Jaren){
     plot <- plot + ylab("GSL")
     plot <- plot + geom_hline(yintercept = 100, linetype = "dashed", color = "red")
     plot <- plot + geom_hline(yintercept = 10, linetype = "dashed", color = "green")
+    plot <- plot + geom_errorbar(aes(ymin=GSL-Error, ymax=GSL+Error), width=.1)
     print(plot)
     #Calculate dynamic dimensions
     width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
