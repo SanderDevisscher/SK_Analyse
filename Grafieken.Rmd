@@ -757,7 +757,7 @@ for(j in Jaren){
     #subset locations
     temp5 <- subset(temp4, Location == l)
     #Create plot
-    plot <- ggplot(temp5, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity", fill = "white")
+    plot <- ggplot(temp5, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity", fill = "blue")
     plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -766,7 +766,7 @@ for(j in Jaren){
     plot <- plot + ylab("GSL")
     plot <- plot + geom_hline(yintercept = 100, linetype = "dashed", color = "red")
     plot <- plot + geom_hline(yintercept = 10, linetype = "dashed", color = "green")
-    plot <- plot + geom_errorbar(aes(ymin=GSL-Error, ymax=GSL+Error), width=.1)
+    plot <- plot + geom_errorbar(aes(ymin = GSL - Error, ymax = GSL+Error), width=.1)
     print(plot)
     #Calculate dynamic dimensions
     width <- ifelse(nrow(temp5)<13, 20, (nrow(temp5)*1.5))
