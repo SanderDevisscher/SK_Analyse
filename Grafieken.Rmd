@@ -713,33 +713,40 @@ for(i in Locations){
 ```{r GSL alle jaren}
 temp <- GRA_Brondata
 Locations <- unique(temp$Location)
+Jaren <- unique(temp$Jaar)
 
 temp3 <- data.frame()
 
 for(j in Jaren){
-  temp2 <- subset(GRA_Brondata, Jaar == j)
+  temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
   for(l in Locations){
-    for(i in 1:nrow(temp2)){
+    temp2A <- subset(temp2, Location == l)
+    for(i in 1:nrow(temp2A)){
            if(i == 1){
-        temp2$GSL[i] <- temp2$CPUE*26
+        temp2A$GSL[i] <- temp2A$CPUE*26
       }else{
         if(i == 2){
-          temp2$GSL[i] <- ((temp2$CPUE[i-1] + temp2$CPUE[i])/2)*26
+          temp2A$GSL[i] <- ((temp2A$CPUE[i-1] + temp2A$CPUE[i])/2)*26
         }else{
-          temp2$GSL[i] <- ((temp2$CPUE[i-1] + temp2$CPUE[i]+temp2$CPUE[i-2])/3)*26
+          temp2A$GSL[i] <- ((temp2A$CPUE[i-1] + temp2A$CPUE[i] + temp2A$CPUE[i-2])/3)*26
         }
       }
-      temp2$Remainder[i] <- temp2$GSL[i+1] + temp2$Totaal_Larven.CPUE[i+1]
-      temp2$Error[i] <- abs(temp2$GSL[i]-temp2$Remainder[i])
+      t <- nrow(temp2A)
+      p <- i+1
+      temp2A$Remainder[i] <- temp2A$GSL[t] + sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
+      temp2A$Error[i] <- temp2A$GSL[i]-temp2A$Remainder[i]
     }
-    
+    temp3 <- rbind(temp2A, temp3)
   }
-  temp3 <- rbind(temp2, temp3)
+  
 }
+
+Jaren <- unique(temp3$Jaar)
+
 for(j in Jaren){
-  temp2 <- subset(temp3, Jaar == j)
-  Locations <- unique(temp2$Location)
+  temp4 <- subset(temp3, Jaar == j)
+  Locations <- unique(temp4$Location)
   for(l in Locations){
     #Create dynamic texts
     i2 <- gsub(l, pattern = " ", replacement = "")
@@ -748,9 +755,9 @@ for(j in Jaren){
     fNaam <- paste(l ,"GSL", j, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
     #subset locations
-    temp3 <- subset(temp2, Location == l)
+    temp5 <- subset(temp4, Location == l)
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity")
+    plot <- ggplot(temp5, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity", fill = "white")
     plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
     plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
@@ -762,8 +769,8 @@ for(j in Jaren){
     plot <- plot + geom_errorbar(aes(ymin=GSL-Error, ymax=GSL+Error), width=.1)
     print(plot)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
+    width <- ifelse(nrow(temp5)<13, 20, (nrow(temp5)*1.5))
+    height<- ifelse(nrow(temp5)<13, 5, (nrow(temp5)*1))
     print(paste("GSL", l, j, sep=" "))
     print(path)
     print(paste("w:",width))
