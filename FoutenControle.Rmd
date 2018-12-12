@@ -158,6 +158,8 @@ SKData$Location <- ifelse(!is.na(SKData$`Vijver - Arendonk`),SKData$`Vijver - Ar
                                              ifelse(!is.na(SKData$`Vijver - Scheps`),SKData$`Vijver - Scheps`, NA)))))
 SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
 SKData$Location <- ifelse(SKData$Tijdstempel == "26-7-2018 9:00:56", "Mol - Tomaathoek", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "12-11-2018 12:09:00", "Hoogstraten - Chaamseweg 53", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "12-11-2018 18:13:29", "Hoogstraten - Chaamseweg 53", SKData$Location)
 
 
 table(SKData$Location, useNA = "ifany")
@@ -301,7 +303,7 @@ temp$`Aantal werknemers` <- NULL
 temp$`Invuller 2` <- NULL
 ```
 
-```{r Invullen NA's in aantal fuiken}
+```{r Invullen NAs in aantal fuiken}
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:45:28", 1, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:50:30", 3, temp$`Aantal fuiken (Totaal)`)
@@ -389,12 +391,13 @@ aantal_online <- nrow(Records_met_datums)
 
 
 verschil <- aantal_online - aantal_offline
+verschil2 <- setequal(aantal_online, aantal_offline)
 
 print(paste(verschil, " nieuwe records", sep=""))
 ```
 
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
+if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0 ){
   today <- as.Date(Sys.time(), format="%Y%m%d")
   backup <- read_csv("./Intermediate/Brondata.csv")
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
@@ -402,11 +405,11 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
   print("Data backed up and exported")
 }else{
-  if(verschil > 0){
+  if(verschil > 0 | verschil2 == F){
     write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
     print("Data exported")
   }else{
- print("no new records")
+    print("no new records")
   }  
 }
 
