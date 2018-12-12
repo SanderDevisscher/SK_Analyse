@@ -15,11 +15,12 @@ library(googlesheets)
 
 ```{r import data}
 title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
-Token <- gs_auth()
-gs_auth(token = Token)
+#♠Token <- gs_auth()
+#gs_auth(token = Token)
 gdrive <- gs_read(title)
 
 SKData <- gdrive
+max(gdrive$Tijdstempel)
 ```
 
 ```{r Juiste datatypes instellen}
@@ -391,13 +392,14 @@ aantal_online <- nrow(Records_met_datums)
 
 
 verschil <- aantal_online - aantal_offline
-verschil2 <- setequal(aantal_online, aantal_offline)
+verschil2 <- base::setequal(Records_met_datums, data_offline)
+
 
 print(paste(verschil, " nieuwe records", sep=""))
 ```
 
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0 ){
+if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   today <- as.Date(Sys.time(), format="%Y%m%d")
   backup <- read_csv("./Intermediate/Brondata.csv")
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
@@ -405,9 +407,9 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0 ){
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
   print("Data backed up and exported")
 }else{
-  if(verschil > 0 | verschil2 == F){
+  if(verschil == 0 & verschil2 == F){
     write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
-    print("Data exported")
+    print("Data altered")
   }else{
     print("no new records")
   }  
