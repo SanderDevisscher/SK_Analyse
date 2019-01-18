@@ -329,6 +329,7 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03"
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "23-5-2018 15:50:10", 3.5, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "17-1-2019 21:58:04", 2, temp$`Aantal fuiken (Totaal)`)
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
@@ -393,7 +394,8 @@ remove(temp2)
 ```
 ```{r check for dubbele datums}
 dubbele_datums <- Records_met_datums %>%
-  group_by(Sample_Type, Datum, Location) %>%
+  mutate(Datum2 = as.Date(Datum, format("%d-%m-%Y"))) %>%
+  group_by(Sample_Type, Datum2, Location) %>%
   summarise(n=n()) %>% 
   filter(n>1) %>%
   filter(Sample_Type == "Afvangst")
@@ -402,10 +404,11 @@ dubbele_datums <- Records_met_datums %>%
 temp <- Records_met_datums %>% 
   mutate(Datum = case_when(Tijdstempel == "24-8-2018 12:24:04" ~ "11-08-2018",
                            TRUE ~ Datum)) %>%
-  filter(!Tijdstempel %in% c("17-1-2019 21:07:00", "3-9-2018 12:58:51", "3-9-2018 13:24:29", "17-1-2019 22:02:05"))
+  filter(!Tijdstempel %in% c("17-1-2019 21:07:00", "3-9-2018 12:58:51", "3-9-2018 13:24:29", "17-1-2019 22:02:05", "3-9-2018 12:38:53", "3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:25:49", "10-9-2018 9:44:45", "10-9-2018 9:34:34", "3-9-2018 12:48:53", "3-9-2018 13:01:21", "3-9-2018 13:10:38", "3-9-2018 13:31:10", "3-9-2018 13:08:06", "3-9-2018 13:27:00", "10-9-2018 9:21:24", "10-9-2018 9:28:56"))
 
 dubbele_datums2 <- temp %>%
-  group_by(Sample_Type, Datum, Location) %>%
+  mutate(Datum2 = as.Date(Datum, format("%d-%m-%Y"))) %>%
+  group_by(Sample_Type, Datum2, Location) %>%
   summarise(n=n()) %>% 
   filter(n>1) %>%
   filter(Sample_Type == "Afvangst")
