@@ -341,6 +341,20 @@ Records_met_fuiken <- temp
 remove(temp)
 ```
 
+```{r}
+temp <- Records_met_fuiken %>%
+  mutate(Sample_Type = case_when(Tijdstempel == "9-8-2016 23:49:54" ~ "Afvangst_BSF",
+                                 Tijdstempel == "9-8-2016 23:51:44" ~ "Afvangst_DSF",
+                                 Tijdstempel == "9-8-2016 23:34:23" ~ "Afvangst_BSF",
+                                 Tijdstempel == "9-8-2016 23:35:49" ~ "Afvangst_DSF",
+                                 TRUE ~ Sample_Type))
+
+if(nrow(temp) == nrow(Records_met_fuiken)){
+  Records_met_fuiken <- temp
+}
+```
+
+
 ```{r Datums corrigeren}
 temp <- Records_met_fuiken
 #Bekende problemen oplossen 
@@ -376,6 +390,40 @@ if(nrow(NA_Datums)>0){
 Records_met_datums <- temp2
 remove(temp)
 remove(temp2)
+```
+```{r check for dubbele datums}
+dubbele_datums <- Records_met_datums %>%
+  group_by(Sample_Type, Datum, Location) %>%
+  summarise(n=n()) %>% 
+  filter(n>1) %>%
+  filter(Sample_Type == "Afvangst")
+
+
+temp <- Records_met_datums %>% 
+  mutate(Datum = case_when(Tijdstempel == "24-8-2018 12:24:04" ~ "11-08-2018",
+                           TRUE ~ Datum)) %>%
+  filter(!Tijdstempel %in% c("17-1-2019 21:07:00", "3-9-2018 12:58:51", "3-9-2018 13:24:29", "17-1-2019 22:02:05"))
+
+dubbele_datums2 <- temp %>%
+  group_by(Sample_Type, Datum, Location) %>%
+  summarise(n=n()) %>% 
+  filter(n>1) %>%
+  filter(Sample_Type == "Afvangst")
+
+if(nrow(dubbele_datums)>0){
+  print(paste(nrow(dubbele_datums), "dubbele datums gevonden"))
+  print(paste(nrow(Records_met_datums)-nrow(temp), "Records verwijderd"))
+  if(nrow(dubbele_datums2)>0){
+    print(paste(nrow(dubbele_datums2), "dubbele datums over"))
+  }else{
+    print("alle dubbele datums verwijderd")
+    Records_met_datums <- temp
+    remove(temp)
+    remove(dubbele_datums)
+    remove(dubbele_datums2)
+  }
+}
+
 ```
 
 ```{r Check for update}
