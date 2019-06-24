@@ -11,6 +11,7 @@ rm(list = ls())
 ```{r Libraries}
 library(tidyverse)
 library(googlesheets) 
+library(lubridate)
 ```
 
 ```{r import data}
@@ -20,10 +21,16 @@ title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
 gdrive <- gs_read(title)
 
 SKData <- gdrive
-max(gdrive$Tijdstempel)
+
 ```
 
 ```{r Juiste datatypes instellen}
+#Datums:
+SKData <- SKData %>% 
+  mutate(Datum = dmy(Datum))
+
+max(SKData$Datum, na.rm = TRUE)
+
 #Fuik 1
 SKData$`Fuik 1 - L00` <- as.numeric(SKData$`Fuik 1 - L00`)
 SKData$`Fuik 1 - L0` <- as.numeric(SKData$`Fuik 1 - L0`)
@@ -151,12 +158,17 @@ SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1"
 SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
 
 
+SKData <- SKData %>% 
+  mutate(Location = case_when(!is.na(`Vijver - Arendonk`) ~ `Vijver - Arendonk`,
+                              !is.na(`Vijver - Kasterlee`) ~ `Vijver - Kasterlee`,
+                              !is.na(`Vijver - Hoogstraten`) ~ `Vijver - Hoogstraten`,
+                              !is.na(`Vijver - Nijlen`) ~ `Vijver - Nijlen`,
+                              !is.na(`Vijver - Scheps`) ~ `Vijver - Scheps`,
+                              !is.na(`Vijver - Mol`) ~ `Vijver - Mol`,
+                              !is.na(`Vijver - Andere`) ~ as.character(`Vijver - Andere`),
+                              TRUE ~ as.character(NA)))
 
-SKData$Location <- ifelse(!is.na(SKData$`Vijver - Arendonk`),SKData$`Vijver - Arendonk`,
-                        ifelse(!is.na(SKData$`Vijver - Kasterlee`), SKData$`Vijver - Kasterlee`,
-                               ifelse(!is.na(SKData$`Vijver - Hoogstraten`), SKData$`Vijver - Hoogstraten`,
-                                      ifelse(!is.na(SKData$`Vijver - Nijlen`), SKData$`Vijver - Nijlen`,
-                                             ifelse(!is.na(SKData$`Vijver - Scheps`),SKData$`Vijver - Scheps`, NA)))))
+
 SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
 SKData$Location <- ifelse(SKData$Tijdstempel == "26-7-2018 9:00:56", "Mol - Tomaathoek", SKData$Location)
 SKData$Location <- ifelse(SKData$Tijdstempel == "12-11-2018 12:09:00", "Hoogstraten - Chaamseweg 53", SKData$Location)

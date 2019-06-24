@@ -12,8 +12,9 @@ rm(list = ls())
 ```{r Libraries}
 library(tidyverse)
 library(scales)
-library(ggplot2)
+#library(ggplot2)
 library(INBOtheme)
+theme_set(theme_inbo(base_size = 18))
 ```
 
 ```{r Read data}
@@ -542,7 +543,7 @@ GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1",
 ```{r Datums juist zetten}
 GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
 GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
-GRA_Brondata$Datum2 <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
+GRA_Brondata$Datum <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
 ```
 
 ```{r CPUE/dag per jaar}
