@@ -9,9 +9,9 @@ rm(list = ls())
 ```
 
 ```{r Libraries}
-library(tidyverse)
 library(googlesheets) 
 library(lubridate)
+library(tidyverse)
 ```
 
 ```{r import data}
@@ -418,11 +418,11 @@ dubbele_datums <- Records_met_datums %>%
 
 temp <- Records_met_datums %>% 
   mutate(Datum = case_when(Tijdstempel == "24-8-2018 12:24:04" ~ "11-08-2018",
-                           TRUE ~ Datum)) %>%
+                           TRUE ~ as.character(Datum))) %>%
   filter(!Tijdstempel %in% c("17-1-2019 21:07:00", "3-9-2018 12:58:51", "3-9-2018 13:24:29", "17-1-2019 22:02:05", "3-9-2018 12:38:53", "3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:25:49", "10-9-2018 9:44:45", "10-9-2018 9:34:34", "3-9-2018 12:48:53", "3-9-2018 13:01:21", "3-9-2018 13:10:38", "3-9-2018 13:31:10", "3-9-2018 13:08:06", "3-9-2018 13:27:00", "10-9-2018 9:21:24", "10-9-2018 9:28:56"))
 
 dubbele_datums2 <- temp %>%
-  mutate(Datum2 = as.Date(Datum, format("%d-%m-%Y"))) %>%
+  mutate(Datum2 = as.Date(Datum, format("%Y-%m-%d"))) %>%
   group_by(Sample_Type, Datum2, Location) %>%
   summarise(n=n()) %>% 
   filter(n>1) %>%
