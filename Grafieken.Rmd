@@ -541,14 +541,19 @@ GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1",
 ```
 
 ```{r Datums juist zetten}
-GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
-GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
-GRA_Brondata$Datum <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
+#GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
+GRA_Brondata$Jaar <- lubridate::year(GRA_Brondata$Datum)
+GRA_Brondata$Maand <- lubridate::month(GRA_Brondata$Datum)
+GRA_Brondata$Dag <- lubridate::day(GRA_Brondata$Datum)
+GRA_Brondata$Datum2 <- paste0(GRA_Brondata$Dag, "-",GRA_Brondata$Maand)
+#GRA_Brondata$Datum <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
 ```
 
 ```{r CPUE/dag per jaar}
 Jaren <- unique(GRA_Brondata$Jaar)
-temp <- GRA_Brondata
+temp <- GRA_Brondata %>% 
+  group_by(Location) %>% 
+  arrange(Datum, .by_group = TRUE)
 
 for(j in Jaren){
   #Subset years
@@ -564,18 +569,19 @@ for(j in Jaren){
     #subset locations
     temp3 <- subset(temp2, Location == i )
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=CPUE)) + 
+    labels <- strftime(x = temp3$Datum, "%d-%b")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=CPUE)) + 
       geom_bar(stat="identity", aes(fill="red"))
     plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + scale_x_discrete(expand = c(0, 0), labels = labels) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
     plot <- plot + theme(legend.position="none")
     plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("CPUE")
     #Calculate dynamic dimensions
     width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*0.5))
+    height<- ifelse(nrow(temp3)<13, 8, (nrow(temp3)*1))
     print(paste("CPUE", i, j, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -605,17 +611,18 @@ for(j in Jaren){
     #subset locations
     temp3 <- subset(temp2, Location == i )
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=Totaal)) + geom_bar(stat="identity")
+    labels <- strftime(x = temp3$Datum, "%d-%b")
+    plot <- ggplot(temp3, aes(x=as.character.Date(Datum), y=Totaal)) + geom_bar(stat="identity")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + scale_x_discrete(expand = c(0, 0), labels = labels) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
     plot <- plot + theme(legend.position="none")
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("Totaal")
     print(plot)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
+    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*2))
+    height<- ifelse(nrow(temp3)<13, 8, (nrow(temp3)*1))
     print(paste("TOT", i, j, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -630,6 +637,10 @@ for(j in Jaren){
 temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 
+temp2 <-  temp %>% 
+  group_by(Location, Jaar, Maand) %>% 
+  summarise(meanCPUE = mean(CPUE, na.rm = TRUE), sd = sd(CPUE))
+
 for(i in Locations){
   temp3 <- subset(temp, Location == i )
   o <- n_distinct(temp3$Jaar)
@@ -643,19 +654,25 @@ for(i in Locations){
     fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep="")
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=CPUE)) + 
-      geom_bar(stat="identity", aes(fill="red"))
+    temp3 <- temp3 %>% 
+      group_by(Jaar) %>% 
+      arrange(Maand) %>% 
+      mutate(Maand = factor(Maand, levels = c("4","5","6","7","8","9","10")))
+    
+    plot <- ggplot(temp3, aes(x=Maand, y=CPUE)) + 
+      geom_boxplot()
     plot <- plot + ggtitle(paste("Vangst per eenheid van inspanning:", i, " ", jmin, "-", jmax))
-    plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + expand_limits(x = 4, y = 0)
+    plot <- plot + scale_x_discrete(expand = c(0, 0), labels = c("4" = "Apr", "5" = "Mei","6" = "Jun",  "7" = "Jul", "8" = "Aug", "9" = "Sep","10" = "Okt")) 
+    plot <- plot + scale_y_continuous(expand = expand_scale(add = c(0, 5)))
     plot <- plot + theme(legend.position="none")
-    plot <- plot + theme(axis.line = element_line(color="black", size = 0.5))
-    plot <- plot + xlab("Datum")
+    plot <- plot + theme(axis.line = element_line(color="black", size = 1))
+    plot <- plot + xlab("Maand")
     plot <- plot + ylab("CPUE")
-    plot <- plot + facet_wrap(~Jaar, scales = "free_x", nrow = o)
+    plot <- plot + facet_wrap(~Jaar, scales = "fixed", nrow = o)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
+    width <- 25
+    height<- o*6
     print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -673,6 +690,10 @@ for(i in Locations){
 temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 
+temp2 <-  temp %>% 
+  group_by(Location, Jaar, Maand) %>% 
+  summarise(meanTotaal = mean(Totaal, na.rm = TRUE), sd = sd(Totaal))
+
 for(i in Locations){
   temp3 <- subset(temp, Location == i )
   o <- n_distinct(temp3$Jaar)
@@ -686,18 +707,25 @@ for(i in Locations){
     fNaam <- paste(i ,"TOT",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
     #Create plot
-    plot <- ggplot(temp3, aes(x=as.character.Date(Datum2), y=Totaal)) + geom_bar(stat="identity")
+    temp3 <- temp3 %>% 
+      group_by(Jaar) %>% 
+      arrange(Maand) %>% 
+      mutate(Maand = factor(Maand, levels = c("4","5","6","7","8","9","10")))
+    
+    plot <- ggplot(temp3, aes(x=Maand, y=Totaal)) + 
+      geom_boxplot(stat = "boxplot")
     plot <- plot + ggtitle(paste("Absolute vangsten:", i, " ", jmin, "-", jmax))
     plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + scale_x_discrete(expand = c(0, 0), labels = c("4" = "Apr", "5" = "Mei","6" = "Jun",  "7" = "Jul", "8" = "Aug", "9" = "Sep","10" = "Okt"))  
+    plot <- plot + scale_y_continuous(limits=c(0,NA),expand = expand_scale(add = c(0, 5)))
     plot <- plot + theme(legend.position="none")
     plot <- plot + theme(axis.line = element_line(color="black", size = 1))
     plot <- plot + xlab("Datum")
-    plot <- plot + ylab("Totaal")
-    plot <- plot + facet_wrap(~Jaar, scales = "free_x", nrow = o)
+    plot <- plot + ylab("Absolute vangst")
+    plot <- plot + facet_wrap(~Jaar, scales = "fixed", nrow = o)
     #Calculate dynamic dimensions
-    width <- ifelse(nrow(temp3)<13, 20, (nrow(temp3)*1.5))
-    height<- ifelse(nrow(temp3)<13, 5, (nrow(temp3)*1))
+    width <- 25
+    height<- o*6
     print(paste("CPUE", i, jmin, jmax, sep=" "))
     print(path)
     print(paste("w:",width))
@@ -724,7 +752,7 @@ for(j in Jaren){
   for(l in Locations){
     temp2A <- subset(temp2, Location == l)
     for(i in 1:nrow(temp2A)){
-           if(i == 1){
+      if(i == 1){
         temp2A$GSL[i] <- temp2A$CPUE*26
       }else{
         if(i == 2){
@@ -733,10 +761,13 @@ for(j in Jaren){
           temp2A$GSL[i] <- ((temp2A$CPUE[i-1] + temp2A$CPUE[i] + temp2A$CPUE[i-2])/3)*26
         }
       }
+      temp2A <- temp2A %>% 
+        arrange(Datum)
       t <- nrow(temp2A)
       p <- i+1
-      temp2A$Remainder[i] <- temp2A$GSL[t] + sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
-      temp2A$Error[i] <- temp2A$GSL[i]-temp2A$Remainder[i]
+      
+      temp2A$Remainder[i] <- sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
+      temp2A$Error[i] <- temp2A$Remainder[i]-temp2A$GSL[i]
     }
     temp3 <- rbind(temp2A, temp3)
   }
@@ -756,18 +787,32 @@ for(j in Jaren){
     fNaam <- paste(l ,"GSL", j, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep = "")
     #subset locations
-    temp5 <- subset(temp4, Location == l)
+    temp5 <- temp4 %>% 
+      filter(Location == l) %>% 
+      arrange(Datum)
     #Create plot
-    plot <- ggplot(temp5, aes(x=as.character.Date(Datum2), y=GSL)) + geom_bar(stat="identity", fill = "blue")
+    labels <- strftime(x = temp5$Datum, "%d-%b")
+    temp6 <- temp5 %>% 
+      filter(GSL <= 100)
+    temp7 <- temp5 %>% 
+      filter(GSL <= 10)
+    temp8 <- temp5 %>% 
+      filter(Error > 2 * GSL)
+    plot <- ggplot(temp5, aes(x=as.character.Date(Datum), y=GSL)) + 
+      geom_bar(stat="identity", fill = "blue") + 
+      geom_bar(data = temp6, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "yellow") +
+      geom_bar(data = temp7, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "green") +
+      geom_bar(data = temp8, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "red")
     plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
-    plot <- plot + scale_x_discrete(expand = c(0, 0)) + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+    plot <- plot + scale_x_discrete(expand = c(0, 0), labels = labels) 
+    plot <- plot + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
     plot <- plot + theme(legend.position="none")
     plot <- plot + xlab("Datum")
     plot <- plot + ylab("GSL")
     plot <- plot + geom_hline(yintercept = 100, linetype = "dashed", color = "red")
     plot <- plot + geom_hline(yintercept = 10, linetype = "dashed", color = "green")
-    plot <- plot + geom_errorbar(aes(ymin = GSL - Error, ymax = GSL+Error), width=.1)
+    plot <- plot + geom_errorbar(aes(ymin = GSL, ymax = GSL + Error), width=.1)
     print(plot)
     #Calculate dynamic dimensions
     width <- ifelse(nrow(temp5)<13, 20, (nrow(temp5)*1.5))
