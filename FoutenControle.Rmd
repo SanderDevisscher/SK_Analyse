@@ -18,7 +18,18 @@ library(tidyverse)
 title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
 #♠Token <- gs_auth()
 #gs_auth(token = Token)
-gdrive <- gs_read(title)
+gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
+                                          `Fuik 7 - M1` = col_integer(),
+                                          `Fuik 8 - M1` = col_integer(),
+                                          `Fuik 9 - L00` = col_integer(),
+                                          `Fuik 10 - L00` = col_integer(),
+                                          `Fuik 11 - L00` = col_integer(),
+                                          `Fuik 8 - M2` = col_integer(),
+                                          `Fuik 9 - L2` = col_integer(),
+                                          `Fuik 9 - M2` = col_integer(),
+                                          `Fuik 10 - Bijvangst [Soort]` = col_character(),
+                                          `Fuik 11 - Bijvangst [Soort]` = col_character(),
+                                          `Fuik 12 - Bijvangst [Soort]` = col_character()))
 
 SKData <- gdrive
 
