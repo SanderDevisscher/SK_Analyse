@@ -455,6 +455,25 @@ if(nrow(dubbele_datums)>0){
 
 ```
 
+```{r Check for missing jaren}
+temp <- Records_met_datums %>% 
+  mutate(Jaar = case_when(!is.na(Jaar) ~ Jaar,
+                          TRUE ~ year(Datum)))
+
+table(temp$Jaar, useNA = "ifany")
+
+missing_jaar <- temp %>% 
+  filter(is.na(Jaar) | Jaar < 2016)
+
+if(nrow(missing_jaar) == 0){
+  Records_met_datums <- temp
+}else{
+  print("Er zijn foutieve jaren, CONTROLEER ZE !!!")
+}
+
+```
+
+
 ```{r Delete known errors}
 
 foute_tijdstempels <- c("3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:44:45", "3-9-2018 12:38:53")
