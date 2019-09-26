@@ -560,6 +560,27 @@ remove(temp6)
 
 GRA_Brondata2 <- subset(GRA_Brondata, !is.na(Location))
 
+GRA_Brondata2 <- 
+  GRA_Brondata2 %>% 
+  group_by(Datum, Location, Jaar, Maand, Dag) %>% 
+  summarise(L00 = sum(L00), 
+            L0 = sum(L0), 
+            L1 = sum(L1), 
+            L2 = sum(L2), 
+            M1 = sum(M1), 
+            M2 = sum(M2), 
+            AM = sum(AM), 
+            AV = sum(AV),
+            Totaal = sum(Totaal),
+            Totaal_Larven.All = sum(Totaal_Larven.All),
+            Totaal_Larven.CPUE = sum(Totaal_Larven.CPUE),
+            `Aantal fuiken (Totaal)` = sum(`Aantal fuiken (Totaal)`),
+            CPUE = sum(CPUE),
+            n = n())
+
+dubbels <- GRA_Brondata2 %>% 
+  filter(n > 1)
+
 for (a in Jaren){
   temp6 <- data.frame()
   temp <- subset(GRA_Brondata2, Jaar == a) #=> Opgedeeld per jaar

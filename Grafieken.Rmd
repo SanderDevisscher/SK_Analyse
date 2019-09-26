@@ -538,6 +538,8 @@ print(Afvangsten$CPUE)
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
+
+
 ```
 
 ```{r Datums juist zetten}
@@ -547,6 +549,23 @@ GRA_Brondata$Maand <- lubridate::month(GRA_Brondata$Datum)
 GRA_Brondata$Dag <- lubridate::day(GRA_Brondata$Datum)
 GRA_Brondata$Datum2 <- paste0(GRA_Brondata$Dag, "-",GRA_Brondata$Maand)
 #GRA_Brondata$Datum <- as.factor(format(GRA_Brondata$Datum, format='%m-%d'))
+
+GRA_Brondata <- GRA_Brondata %>% 
+  group_by(Datum, Location, Jaar, Maand, Dag) %>% 
+  summarise(L00 = sum(L00), 
+            L0 = sum(L0), 
+            L1 = sum(L1), 
+            L2 = sum(L2), 
+            M1 = sum(M1), 
+            M2 = sum(M2), 
+            AM = sum(AM), 
+            AV = sum(AV),
+            Totaal = sum(Totaal),
+            Totaal_Larven.All = sum(Totaal_Larven.All),
+            Totaal_Larven.CPUE = sum(Totaal_Larven.CPUE),
+            `Aantal fuiken (Totaal)` = sum(`Aantal fuiken (Totaal)`),
+            CPUE = sum(CPUE),
+            n = n())
 ```
 
 ```{r CPUE/dag per jaar}
@@ -744,7 +763,7 @@ temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 Jaren <- unique(temp$Jaar)
 
-temp3 <- data.frame()
+temp3 <- data.frame(1)
 
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
@@ -764,7 +783,12 @@ for(j in Jaren){
       temp2A <- temp2A %>% 
         arrange(Datum)
       t <- nrow(temp2A)
-      p <- i+1
+      if(p < i){
+        p <- i+1
+      }else{
+        p <- i
+      }
+      
       
       temp2A$Remainder[i] <- sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
       temp2A$Error[i] <- temp2A$Remainder[i]-temp2A$GSL[i]
