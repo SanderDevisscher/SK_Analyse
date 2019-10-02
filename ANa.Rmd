@@ -530,17 +530,27 @@ table(Afvangsten$`Aantal fuiken (Totaal)`, useNA = "always")
 #Catch = total of larvea for CPUE calculation
 #*Data is as such that every 24h a number of fykes are used a record is made
 Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Totaal)`
-print(Afvangsten$CPUE)
+summary(Afvangsten$CPUE)
 
 ```
 
 ```{r Selecteer brondata voor grafieken}
-GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
+GRA_Brondata <- Afvangsten %>% 
+  select("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE", Jaar) %>% 
+  mutate(Maand = month(Datum), Dag = day(Datum))
+ 
+
+
 ```
 
-```{r Datums juist zetten}
-GRA_Brondata$Datum <- as.Date(GRA_Brondata$Datum, format = "%d-%m-%Y")
-GRA_Brondata$Jaar <- as.numeric(format(GRA_Brondata$Datum, format='%Y'))
+
+```{r Add correct dirs}
+if(!dir.exists("./Output/")){
+  dir.create("./Output/")
+  dir.create("./Output/Afbeeldingen")
+  
+}
+
 ```
 
 ```{r Calculate GSL}
@@ -549,8 +559,27 @@ Jaren <- unique(GRA_Brondata$Jaar)
 remove(temp6)
 
 GRA_Brondata2 <- subset(GRA_Brondata, !is.na(Location))
-GRA_Brondata2$Dag <- as.numeric(format(GRA_Brondata2$Datum, "%d")) 
-GRA_Brondata2$Maand <- as.numeric(format(GRA_Brondata2$Datum, "%m"))
+
+GRA_Brondata2 <- 
+  GRA_Brondata2 %>% 
+  group_by(Datum, Location, Jaar, Maand, Dag) %>% 
+  summarise(L00 = sum(L00), 
+            L0 = sum(L0), 
+            L1 = sum(L1), 
+            L2 = sum(L2), 
+            M1 = sum(M1), 
+            M2 = sum(M2), 
+            AM = sum(AM), 
+            AV = sum(AV),
+            Totaal = sum(Totaal),
+            Totaal_Larven.All = sum(Totaal_Larven.All),
+            Totaal_Larven.CPUE = sum(Totaal_Larven.CPUE),
+            `Aantal fuiken (Totaal)` = sum(`Aantal fuiken (Totaal)`),
+            CPUE = sum(CPUE),
+            n = n())
+
+dubbels <- GRA_Brondata2 %>% 
+  filter(n > 1)
 
 for (a in Jaren){
   temp6 <- data.frame()
@@ -626,7 +655,8 @@ for (a in Jaren){
   GSL$MaxDoelBereikt <- ifelse(GSL$HuidigGSL < 10, "Ja", "Nee")
   
   #Juiste kolommen kiezen
-  GSL <- GSL[,c("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")]
+  GSL <- GSL %>% 
+    select("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")
   
   GSL$x <- NULL
   

@@ -9,20 +9,39 @@ rm(list = ls())
 ```
 
 ```{r Libraries}
-library(tidyverse)
 library(googlesheets) 
+library(lubridate)
+library(tidyverse)
 ```
 
 ```{r import data}
 title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
-Token <- gs_auth()
-gs_auth(token = Token)
-gdrive <- gs_read(title)
+#♠Token <- gs_auth()
+#gs_auth(token = Token)
+gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
+                                          `Fuik 7 - M1` = col_integer(),
+                                          `Fuik 8 - M1` = col_integer(),
+                                          `Fuik 9 - L00` = col_integer(),
+                                          `Fuik 10 - L00` = col_integer(),
+                                          `Fuik 11 - L00` = col_integer(),
+                                          `Fuik 8 - M2` = col_integer(),
+                                          `Fuik 9 - L2` = col_integer(),
+                                          `Fuik 9 - M2` = col_integer(),
+                                          `Fuik 10 - Bijvangst [Soort]` = col_character(),
+                                          `Fuik 11 - Bijvangst [Soort]` = col_character(),
+                                          `Fuik 12 - Bijvangst [Soort]` = col_character()))
 
 SKData <- gdrive
+
 ```
 
-```{r Juiste datatype instellen}
+```{r Juiste datatypes instellen}
+#Datums:
+SKData <- SKData %>% 
+  mutate(Datum = dmy(Datum))
+
+max(SKData$Datum, na.rm = TRUE)
+
 #Fuik 1
 SKData$`Fuik 1 - L00` <- as.numeric(SKData$`Fuik 1 - L00`)
 SKData$`Fuik 1 - L0` <- as.numeric(SKData$`Fuik 1 - L0`)
@@ -149,11 +168,23 @@ SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1"
                                            ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
 SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
 
-SKData$Location <- ifelse(!is.na(SKData$`Vijver - Arendonk`),SKData$`Vijver - Arendonk`,
-                        ifelse(!is.na(SKData$`Vijver - Kasterlee`), SKData$`Vijver - Kasterlee`,
-                               ifelse(!is.na(SKData$`Vijver - Hoogstraten`), SKData$`Vijver - Hoogstraten`,
-                                      ifelse(!is.na(SKData$`Vijver - Nijlen`), SKData$`Vijver - Nijlen`,
-                                             ifelse(!is.na(SKData$`Vijver - Scheps`),SKData$`Vijver - Scheps`, NA)))))
+
+SKData <- SKData %>% 
+  mutate(Location = case_when(!is.na(`Vijver - Arendonk`) ~ `Vijver - Arendonk`,
+                              !is.na(`Vijver - Kasterlee`) ~ `Vijver - Kasterlee`,
+                              !is.na(`Vijver - Hoogstraten`) ~ `Vijver - Hoogstraten`,
+                              !is.na(`Vijver - Nijlen`) ~ `Vijver - Nijlen`,
+                              !is.na(`Vijver - Scheps`) ~ `Vijver - Scheps`,
+                              !is.na(`Vijver - Mol`) ~ `Vijver - Mol`,
+                              !is.na(`Vijver - Andere`) ~ as.character(`Vijver - Andere`),
+                              TRUE ~ as.character(NA)))
+
+
+SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "26-7-2018 9:00:56", "Mol - Tomaathoek", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "12-11-2018 12:09:00", "Hoogstraten - Chaamseweg 53", SKData$Location)
+SKData$Location <- ifelse(SKData$Tijdstempel == "12-11-2018 18:13:29", "Hoogstraten - Chaamseweg 53", SKData$Location)
+
 
 table(SKData$Location, useNA = "ifany")
 Records_zndr_Location <- subset(SKData, is.na(Location))
@@ -168,6 +199,7 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
   if(nrow(Records_zndr_Location)>0){
     print(paste(nrow(Records_zndr_Location), "records zonder location verwijderd"))
   }else{
+    print("geen records zonder locatie")
     remove(Records_zndr_Location)
   }
 }
@@ -183,17 +215,25 @@ temp$Recorder <- temp$`Invuller 2`
 #Bekende problemen oplossen
 temp$Recorder <- ifelse(temp$Recorder == "kris meeus", "Kris Meeus", temp$Recorder)
 temp$Recorder <- ifelse(temp$Recorder == "pieter liekens", "Pieter Liekens", temp$Recorder)
+temp$Recorder <- ifelse(temp$`E-mailadres` == "dries.jonckers@natuurpunt.be" & is.na(temp$Recorder), "Dries Jonckers", temp$Recorder)
 
+temp$Recorder <- ifelse(!is.na(temp$Recorder), temp$Recorder, temp$Invuller)
+
+Records_zndr_Recorder <- subset(temp, is.na(Recorder))
+if(nrow(Records_zndr_Recorder)>0){
+  print(paste(nrow(Records_zndr_Recorder), " Records zonder recorder, KIJK ZE NA!!", sep=""))
+}else{
+  print("Geen records zonder recorder")
+  remove(Records_zndr_Recorder)
+}
 table(temp$Recorder, useNA = "ifany")
 
 #Voeg naamloze arbeiders toe
-for (i in nrow(temp)){ 
-  n <- temp$`Aantal werknemers`
-  temp$Recorder2 <- ifelse(n==2 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", sep=";" ), 
-                           ifelse(n==3 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", sep=";" ), 
-                                  ifelse(n==4 ,temp$Recorder <- paste(temp$Recorder, "Arbeider 1", "Arbeider 2", "Arbeider 3", sep=";" ), 
-                                         temp$Recorder)))
-}
+temp <- temp %>% mutate(Recorder2 = case_when(`Aantal werknemers` == 1 ~ Recorder,
+                                      `Aantal werknemers` == 2 ~ paste(Recorder, "Arbeider 1", sep =";"),
+                                      `Aantal werknemers` == 3 ~ paste(Recorder, "Arbeider 1; Arbeider 2", sep =";"),
+                                      `Aantal werknemers` == 4 ~ paste(Recorder, "Arbeider 1; Arbeider 2; Arbeider 3", sep =";"),
+                                      `Aantal werknemers` > 5 ~ "NA"))
 
 table(temp$Recorder2)
 temp$Recorder <- temp$Recorder2
@@ -201,12 +241,13 @@ temp$Recorder <- temp$Recorder2
 Records_met_recorders <- temp
 remove(temp)
 ```
+
 ```{r Controle missing inputs}
 temp <- Records_met_recorders
 temp$Sample_Type <- temp$`Wat wil je melden`
 
 #Create vangstdagen op basis van plaatsen van fuiken
-temp2 <- subset(temp, Sample_Type == "Plaatsen van fuiken")
+temp2 <- subset(temp, Sample_Type == "Plaatsen van Fuiken")
 temp2 <- subset(temp2, !is.na(`Start vangstperiode`))
 Locations <- unique(temp2$Location)
 temp5 <- data.frame(1)
@@ -283,9 +324,10 @@ temp$`Gemeente/Deelgemeente` <- NULL
 temp$Invuller <- NULL
 temp$Recorder2 <- NULL
 temp$`Aantal werknemers` <- NULL
+temp$`Invuller 2` <- NULL
 ```
 
-```{r Invullen NA's in aantal fuiken}
+```{r Invullen NAs in aantal fuiken}
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "10-5-2016 20:50:24", 2, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:45:28", 1, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "11-5-2016 22:50:30", 3, temp$`Aantal fuiken (Totaal)`)
@@ -310,6 +352,7 @@ temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:17:03"
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:19:12", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "13-6-2016 23:21:17", 3, temp$`Aantal fuiken (Totaal)`)
 temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "23-5-2018 15:50:10", 3.5, temp$`Aantal fuiken (Totaal)`)
+temp$`Aantal fuiken (Totaal)` <- ifelse(temp$Tijdstempel == "17-1-2019 21:58:04", 2, temp$`Aantal fuiken (Totaal)`)
 
 test <- subset(temp, Sample_Type == "Afvangst")
 test <- subset(test, is.na(`Aantal fuiken (Totaal)`))
@@ -321,6 +364,20 @@ if(nrow(test)==0){
 Records_met_fuiken <- temp
 remove(temp)
 ```
+
+```{r}
+temp <- Records_met_fuiken %>%
+  mutate(Sample_Type = case_when(Tijdstempel == "9-8-2016 23:49:54" ~ "Afvangst_BSF",
+                                 Tijdstempel == "9-8-2016 23:51:44" ~ "Afvangst_DSF",
+                                 Tijdstempel == "9-8-2016 23:34:23" ~ "Afvangst_BSF",
+                                 Tijdstempel == "9-8-2016 23:35:49" ~ "Afvangst_DSF",
+                                 TRUE ~ Sample_Type))
+
+if(nrow(temp) == nrow(Records_met_fuiken)){
+  Records_met_fuiken <- temp
+}
+```
+
 
 ```{r Datums corrigeren}
 temp <- Records_met_fuiken
@@ -338,12 +395,23 @@ temp <- subset(temp, Tijdstempel != "6-6-2017 17:13:07")
 print(paste(nrow(Records_met_fuiken)-nrow(temp), "Records verwijderd"))
 
 #NA datums verwijderen
+
+temp <- temp %>% 
+  mutate(Datum = case_when(Tijdstempel == "22-6-2017 21:47:39" ~ dmy("20-6-2017"),
+                           Tijdstempel == "9-10-2017 22:46:06" ~ dmy("27-9-2017"),
+                           Tijdstempel == "24-8-2018 12:32:26" ~ dmy("14-8-2018"),
+                           TRUE ~ Datum ))
+
 NA_Datums <- subset(temp, is.na(Datum))
 
 if(nrow(NA_Datums)>0){
   print(paste(nrow(NA_Datums), "NA datums gevonden"))
   temp2 <- subset(temp, !is.na(Datum))
   print(paste(nrow(temp)-nrow(temp2), "Records verwijderd"))
+}else{
+  print("Geen NA datums")
+  remove(NA_Datums)
+  temp2 <- temp
 }
 
 Records_met_datums <- temp2
@@ -351,12 +419,86 @@ remove(temp)
 remove(temp2)
 ```
 
+```{r check for dubbele datums}
+dubbele_datums <- Records_met_datums %>%
+  group_by(Sample_Type, Datum, Location) %>%
+  summarise(n=n()) %>% 
+  filter(n>1) %>%
+  filter(Sample_Type == "Afvangst")
+
+
+temp <- Records_met_datums %>% 
+  mutate(Datum = case_when(Tijdstempel == "24-8-2018 12:24:04" ~ "11-08-2018",
+                           TRUE ~ as.character(Datum))) %>%
+  filter(!Tijdstempel %in% c("17-1-2019 21:07:00", "3-9-2018 12:58:51", "3-9-2018 13:24:29", "17-1-2019 22:02:05", "3-9-2018 12:38:53", "3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:25:49", "10-9-2018 9:44:45", "10-9-2018 9:34:34", "3-9-2018 12:48:53", "3-9-2018 13:01:21", "3-9-2018 13:10:38", "3-9-2018 13:31:10", "3-9-2018 13:08:06", "3-9-2018 13:27:00", "10-9-2018 9:21:24", "10-9-2018 9:28:56"))
+
+dubbele_datums2 <- temp %>%
+  mutate(Datum2 = as.Date(Datum, format("%Y-%m-%d"))) %>%
+  group_by(Sample_Type, Datum2, Location) %>%
+  summarise(n=n()) %>% 
+  filter(n>1) %>%
+  filter(Sample_Type == "Afvangst")
+
+if(nrow(dubbele_datums)>0){
+  print(paste(nrow(dubbele_datums), "dubbele datums gevonden"))
+  print(paste(nrow(Records_met_datums)-nrow(temp), "Records verwijderd"))
+  if(nrow(dubbele_datums2)>0){
+    print(paste(nrow(dubbele_datums2), "dubbele datums over"))
+  }else{
+    print("alle dubbele datums verwijderd")
+    Records_met_datums <- temp
+    remove(temp)
+    remove(dubbele_datums)
+    remove(dubbele_datums2)
+  }
+}
+
+```
+
+```{r Check for missing jaren}
+temp <- Records_met_datums %>% 
+  mutate(Jaar = case_when(!is.na(Jaar) ~ Jaar,
+                          TRUE ~ year(Datum)))
+
+table(temp$Jaar, useNA = "ifany")
+
+missing_jaar <- temp %>% 
+  filter(is.na(Jaar) | Jaar < 2016)
+
+if(nrow(missing_jaar) == 0){
+  Records_met_datums <- temp
+}else{
+  print("Er zijn foutieve jaren, CONTROLEER ZE !!!")
+}
+
+```
+
+
+```{r Delete known errors}
+
+foute_tijdstempels <- c("3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:44:45", "3-9-2018 12:38:53")
+
+Records_met_datums <- Records_met_datums %>% 
+  filter(!Tijdstempel %in% foute_tijdstempels)
+
+```
+
 ```{r Check for update}
+if(!dir.exists("./Intermediate/")){
+  dir.create("./Intermediate/")
+  dir.create("./Intermediate/Backup")
+  aantal_offline <- 0
+}else{
+  data_offline <- read_csv("./Intermediate/Brondata.csv")
+  aantal_offline <- nrow(data_offline)
+}
+
 aantal_online <- nrow(Records_met_datums)
-data_offline <- read_csv("./Intermediate/Brondata.csv")
-aantal_offline <- nrow(data_offline)
+
 
 verschil <- aantal_online - aantal_offline
+verschil2 <- base::setequal(Records_met_datums, data_offline)
+
 
 print(paste(verschil, " nieuwe records", sep=""))
 ```
@@ -368,9 +510,14 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
   write_csv(backup, fn)
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
-  print("Data backed up and exported")
+  print(paste0("Data backed up and exported(", verschil,")"))
 }else{
- print("no new records") 
+  if(verschil == 0 & verschil2 == F){
+    write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+    print("Data altered")
+  }else{
+    print("no new records")
+  }  
 }
 
 

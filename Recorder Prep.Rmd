@@ -4,25 +4,33 @@ author: "Sander"
 date: "20 februari 2018"
 output: html_document
 ---
-
-```{r Libraries}
-
+#0.General
+```{r Clean enviroment}
+rm(list = ls())
 ```
 
-```{r Run ANA.R}
-source("ANa.R")
+```{r Libraries}
+library(tidyverse)
+library(googlesheets)
+```
 
-Recorder_Ruw <- Brondata
+```{r Read Data}
+Recorder_Ruw <- read_csv("./Intermediate/Brondata.csv")
 ```
 
 ```{r Read Libs}
 title <- gs_title(x="Locaties", verbose = TRUE)
 Locaties <- gs_read(title)
 
+title <- gs_title(x="Bijvangst", verbose = TRUE)
+Bijvangst <- gs_read(title)
+
+
 Log <- read.csv("G://Mijn Drive/INBOPRJ-10217 - Monitoring exoten ikv EU- verordening IAS  Coördinatie, voorbereiding, implementatie en opvolging/Stierkikker/Opvolging beheer/Stierkikker data-analyse/Log.csv")
 Log$X <- NULL
 
 ```
+
 ```{r Aantal fuiken juist zetten}
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), Recorder_Ruw$`Aantal fuiken geplaatst`, Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw$`Aantal fuiken (Totaal)` <- ifelse(is.na(Recorder_Ruw$`Aantal fuiken (Totaal)`), 0, Recorder_Ruw$`Aantal fuiken (Totaal)`)
@@ -41,14 +49,311 @@ gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken 
 
 print(gnFuiken)
 ```
+#1. Afvangsten
+##1.1. Create Afvangsten & Nulvangsten
 
 ```{r Afvangsten vr Recorder}
 Recorder_Afvangsten <- subset(Recorder_Ruw, Sample_Type == "Afvangst")
 Locations_Recorder <- unique(Recorder_Afvangsten$Location)
-o <- 0
-temp2 <- data.frame()
+
+#Wide -> Long
+Recorder_Afvangsten %>% 
+                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer")) %>%
+                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) -> temp
+                    
+
+table(temp$Stadium)
+table(temp$Location)
+#Calculate total
+temp %>% 
+     group_by_at(vars("Location", "Datum")) %>%
+     mutate(Totaal=sum(as.numeric(Aantal), na.rm = T)) %>%
+     ungroup() -> temp2
+#Subsets
+Afvangsten <- subset(temp2, Totaal > 0)
+Nulvangsten <- subset(temp2, Totaal == 0)
+sum(nrow(Afvangsten), nrow(Nulvangsten)) == nrow(temp2) #Uitkomst moet TRUE zijn
+
+#Afvangsten
+Afvangsten <- subset(Afvangsten, !is.na(Aantal) & Aantal > 0)
+Afvangsten$LocationName <- strtrim(Afvangsten$Stadium, 7)
+Afvangsten$LocationName <- gsub(x = Afvangsten$LocationName, pattern = " +$", replacement =  "")
+table(Afvangsten$LocationName)
+Afvangsten$Stadium2 <- substr(Afvangsten$Stadium, nchar(Afvangsten$LocationName)+4, nchar(Afvangsten$Stadium))
+table(Afvangsten$Stadium2)
+Afvangsten2 <- data.frame(Afvangsten)
+#Nulvangsten
+Nulvangsten$LocationName <- strtrim(Nulvangsten$Stadium, 7)
+Nulvangsten$LocationName <- gsub(x = Nulvangsten$LocationName, pattern = " +$", replacement =  "")
+table(Nulvangsten$LocationName)
+Nulvangsten$Fuiknr <- substr(Nulvangsten$LocationName, nchar("Fuik "), nchar(Nulvangsten$LocationName))
+table(Nulvangsten$Fuiknr)
+Nulvangsten2 <- subset(Nulvangsten, as.numeric(Fuiknr) <= as.numeric(`Aantal fuiken (Totaal)`))
+Nulvangsten2 %>% 
+  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur, `Aantal fuiken (Totaal)`, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>%
+  summarise() -> temp3
+Nulvangsten2 <- data.frame(temp3)
+Nulvangsten2$Fuiknr <- NULL
+Nulvangsten2$Stadium2 <- "none"
+Nulvangsten2$Stadium <- "none"
+#Bind Afvangsten and Nulvangsten
+Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
+Recorder_Afvangsten_Long$Stadium <- NULL
+Recorder_Afvangsten_Long$Totaal <- NULL
+Recorder_Afvangsten_Long %>% rename(Measurement_Qualifier = Stadium2) -> Recorder_Afvangsten_Long
+
+#Add xy to Afvangsten
+Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x = T)
+table(Recorder_Afvangsten_Long_Loc$GridReference, useNA = "ifany")
+Missing_Locaties <- subset(Recorder_Afvangsten_Long_Loc, is.na(GridReference))
+table(Missing_Locaties$Location)
+
+#Add species to afvangsten
+Recorder_Afvangsten_Long_Loc$Species <- "Lithobates catesbeianus"
+
+#Add fixed values to Afvangsten
+Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
+
+Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
+
+table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
+
+#Rename columns
+Recorder_Afvangsten_Long_Loc %>% rename(`Aantal fuiken (Totaal)` = `Aantal.fuiken..Totaal.` ,  `Net verhoogd?` = `Net.verhoogd.`,`Fuik 1 - Opmerkingen` = `Fuik.1...Opmerkingen`, `Fuik 2 - Opmerkingen` = `Fuik.2...Opmerkingen` , `Fuik 3 - Opmerkingen` = `Fuik.3...Opmerkingen`, `Fuik 4 - Opmerkingen` = `Fuik.4...Opmerkingen`, `Fuik 5 - Opmerkingen` = `Fuik.5...Opmerkingen`, `Fuik 6 - Opmerkingen` = `Fuik.6...Opmerkingen`, `Fuik 7 - Opmerkingen` = `Fuik.7...Opmerkingen`, `Fuik 8 - Opmerkingen` = `Fuik.8...Opmerkingen`, `Fuik 9 - Opmerkingen` = `Fuik.9...Opmerkingen`, `Fuik 10 - Opmerkingen` = `Fuik.10...Opmerkingen`, `Fuik 11 - Opmerkingen` = `Fuik.11...Opmerkingen`, `Fuik 12 - Opmerkingen` = `Fuik.12...Opmerkingen`) -> Recorder_Afvangsten_Long_Loc_Renamed
+
+#Delete unnecessary columns
+Recorder_Afvangsten_Long_Loc_Renamed$Recorder_Status <- NULL
+
+#Set correct column_types
+Recorder_Afvangsten_Long_Loc_Renamed$Aantal <- as.numeric(Recorder_Afvangsten_Long_Loc_Renamed$Aantal)
+
+#Cleanup
+Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc_Renamed
+
+remove(Recorder_Afvangsten_Long_Loc_Renamed)
+remove(Recorder_Afvangsten_Long_Loc)
+remove(Recorder_Afvangsten_Long)
+```
+
+##1.2. Create Bijvangsten
+
+```{r Subsets}
+Recorder_Afvangsten %>% 
+  unite(col=test, contains("Soort"), remove = F) %>%
+  mutate(preapp = case_when(grepl(test, pattern = ".*\\[.*") ~ 0,
+                            TRUE ~ 1)) -> Recorder_Bijvangsten
+ 
+Recorder_Bijvangsten_gform <- subset(Recorder_Bijvangsten, preapp == 1) 
+Recorder_Bijvangsten_app_raw <- subset(Recorder_Bijvangsten, preapp == 0)
+sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app_raw)) == nrow(Recorder_Bijvangsten) #Moet TRUE zijn
 
 
+```
+
+```{r gfrom Bijvangsten}
+#Wide -> Long
+Recorder_Bijvangsten_gform %>% 
+  select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
+  gather(key = "Soort_NL", value = "Measurement_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
+  filter(!is.na(Measurement_Qualifier)) -> Recorder_Bijvangsten_gform_Long
+  
+#Add fixed values to gfrom
+Recorder_Bijvangsten_gform_Long$Aantal <- 1
+Recorder_Bijvangsten_gform_Long$Measurement_Accuracy <- "Estimate"
+Recorder_Bijvangsten_gform_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Bijvangsten_gform_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
+
+table(Recorder_Bijvangsten_gform_Long$Soort_NL, Recorder_Bijvangsten_gform_Long$Aantal)
+#Add locationname to gfrom
+Recorder_Bijvangsten_gform_Long$LocationName <- strtrim(Recorder_Bijvangsten_gform_Long$Soort_NL, 7)
+Recorder_Bijvangsten_gform_Long$LocationName <- gsub(x = Recorder_Bijvangsten_gform_Long$LocationName, pattern = " +$", replacement =  "")
+table(Recorder_Bijvangsten_gform_Long$LocationName)
+
+#Add species to gfrom
+Recorder_Bijvangsten_gform_Long$Soort_NL2 <- substr(Recorder_Bijvangsten_gform_Long$Soort_NL, nchar("Fuik 1 Bijvangst[ ")+2, nchar(Recorder_Bijvangsten_gform_Long$Soort_NL))
+table(Recorder_Bijvangsten_gform_Long$Soort_NL2)
+
+Recorder_Bijvangsten_gform_Long_Soort <- merge(Recorder_Bijvangsten_gform_Long, Bijvangst, by.x = "Soort_NL2", by.y= "soort", all.x = T)
+
+Nieuwe_Soorten <- subset(Recorder_Bijvangsten_gform_Long_Soort, is.na(Soort_Nieuw))
+print(unique(Nieuwe_Soorten$Soort_NL2))
+
+#Add xy to gform
+Recorder_Bijvangsten_gform_Long_Soort_xy <- merge(Recorder_Bijvangsten_gform_Long_Soort, Locaties, all.x=T)
+
+#Removed unnecessary columns
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL2 <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_NL <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Soort_Nieuw <- NULL
+Recorder_Bijvangsten_gform_Long_Soort_xy$Recorder_Status <- NULL
+
+#Cleanup
+Recorder_Bijvangsten_gform_Final <- Recorder_Bijvangsten_gform_Long_Soort_xy
+
+remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
+remove(Recorder_Bijvangsten_gform_Long_Soort)
+remove(Recorder_Bijvangsten_gform_Long)
+
+```
+
+```{r app Bijvangsten}
+Recorder_Bijvangsten_app <- Recorder_Bijvangsten_app_raw
+
+b <- nrow(Bijvangst)
+
+#Wide -> Long
+Recorder_Bijvangsten_app %>% 
+  separate(test, sep = "_", into = c("Fuik 1", "Fuik 2", "Fuik 3", "Fuik 4", "Fuik 5", "Fuik 6", "Fuik 7", "Fuik 8",      "Fuik 9", "Fuik 10", "Fuik 11", "Fuik 12")) %>% 
+  select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"),           -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"),          -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("preapp"),             -contains("Bijvangst")) %>%
+  gather(key = "LocationName", value = "Soorten", c(-Tijdstempel, -Datum, -Startuur, -Einduur, 
+                                                    -`Aantal fuiken (Totaal)`, -`Net verhoogd?`,                          -contains("Opmerkingen"), -Location, -Recorder)) %>%
+  filter(Soorten != "NA") %>%
+  separate(Soorten, sep = ";", into = c(paste("soort", 1:b)) ) %>%
+  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -`Aantal fuiken (Totaal)`,        -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName)) %>%
+  filter(!is.na(Soort_NL)) %>%
+  select(-test)-> Recorder_Bijvangsten_app_Long
+
+#Add fixed values
+Recorder_Bijvangsten_app_Long$Aantal <- 1
+Recorder_Bijvangsten_app_Long$Measurement_Accuracy <- "Estimate"
+Recorder_Bijvangsten_app_Long$Sample_Type <- ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Bijvangsten_app_Long$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
+Recorder_Bijvangsten_app_Long$Measurement_Qualifier <- "none"
+
+#Add species to gfrom
+Recorder_Bijvangsten_app_Long_Soort <- merge(Recorder_Bijvangsten_app_Long, Bijvangst, by.x = "Soort_NL", by.y= "soort", all.x = T)
+
+#Add xy to gform
+Recorder_Bijvangsten_app_Long_Soort_xy <- merge(Recorder_Bijvangsten_app_Long_Soort, Locaties, all.x=T)
+
+#Remove unnecessary columns
+Recorder_Bijvangsten_app_Long_Soort_xy$Recorder_Status <- NULL
+Recorder_Bijvangsten_app_Long_Soort_xy$Soort_NL <- NULL
+Recorder_Bijvangsten_app_Long_Soort_xy$Soort_Nieuw <- NULL
+
+#Cleanup
+Recorder_Bijvangsten_app_Final <- Recorder_Bijvangsten_app_Long_Soort_xy
+
+remove(Recorder_Bijvangsten_app_Long_Soort_xy)
+remove(Recorder_Bijvangsten_app_Long_Soort)
+remove(Recorder_Bijvangsten_app_Long)
+remove(Recorder_Bijvangsten_app)
+```
+##1.3. Merge subsets
+
+```{r Merge subsets}
+setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
+Recorder_Afvangsten_Merged <- rbind(x = Recorder_Afvangsten_Final, Recorder_Bijvangsten_gform_Final)
+nrow(Recorder_Afvangsten_Merged) == nrow(Recorder_Afvangsten_Final) + nrow(Recorder_Bijvangsten_gform_Final)
+
+setdiff(x = Recorder_Afvangsten_Merged, y = Recorder_Bijvangsten_app_Final)
+Recorder_Afvangsten_Merged2 <- rbind(Recorder_Afvangsten_Merged, Recorder_Bijvangsten_app_Final) 
+nrow(Recorder_Afvangsten_Merged2) == nrow(Recorder_Afvangsten_Merged) + nrow(Recorder_Bijvangsten_app_Final)
+```
+
+```{r Write comments}
+LocationNames <- unique(Recorder_Afvangsten_Merged2$LocationName) 
+
+Recorder_Afvangsten_Merged2$`Fuik 10 - Opmerkingen` <- NULL
+Recorder_Afvangsten_Merged2$`Fuik 11 - Opmerkingen` <- NULL
+Recorder_Afvangsten_Merged2$`Fuik 12 - Opmerkingen` <- NULL
+
+temp4 <- data.frame()
+for(l in LocationNames){
+  temp <- subset(Recorder_Afvangsten_Merged2, LocationName == l)
+  temp2 <- temp %>% select(contains(l))  
+  if(length(temp2)>0){names(temp2)[1] <- "Sample_Comment"}else{temp2$Sample_Comment <- NA}
+  temp <- temp %>% select(-contains("Opmerk"))
+  temp3 <- cbind(temp, temp2)
+  temp4 <- rbind(temp3, temp4)
+}
+
+temp5 <- temp4 %>% 
+  mutate(Startuur2 = substr(Startuur, 0,5)) %>%
+  mutate(Einduur2 = substr(Einduur, 0,5)) %>%
+  mutate(Sample_Comment = case_when(is.na(Sample_Comment) ~ paste(Startuur2, "-", Einduur2, sep = ""),
+                                    TRUE ~ paste(Startuur2, "-", Einduur2, " / ", Sample_Comment, sep = ""))) %>% 
+  mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ Sample_Comment,
+                                    `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
+                                    TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
+  select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) %>%
+  spread(key = Measurement_Qualifier, value = Aantal)
+
+Recorder_Afvangsten_Merged_Comment <- temp5
+remove(temp)
+remove(temp2)
+remove(temp3)
+remove(temp4)
+remove(temp5)
+```
+
+## 1.5. Verify Data vs Recorder
+Run het Amerikaanse Brulkikker report in Recorder en plaats de output in de Input map.
+```{r}
+Recorder_Old <- read_delim("Input/Recorder_Data.TXT", ";", escape_double = FALSE, trim_ws = TRUE)
+
+Recorder_Old_Prepped <- Recorder_Old %>% 
+  mutate(Jaar = substr(as.character(`Sample Date`), 7, 11 )) %>%
+  filter(Jaar >= 2016) %>%
+  filter(`Sample type` == "Schietfuik" | `Sample type` == "Salamander_Bodem" | `Sample type` == "Salamander_Drijvend") %>%
+  mutate(Datum = format(as.Date(`Sample Date`, "%d/%m/%Y"), "%d-%m-%Y"))
+
+table(Recorder_Old_Prepped$`Sample type`)
+
+Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Datum"))
+
+table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"))
+```
+
+
+## 1.4. Export data
+
+```{r Export}
+filename <- "./Output/Recorder/Recorder_Afvangst.csv"
+
+if(file.exists(filename)){
+  backup <- read_csv(filename)
+  today <- Sys.Date()
+  filename2 <- paste("./Output/Recorder/Backup/Recorder_Afvangst_", today, ".csv", sep = "")
+  write.csv2(backup, filename2)
+}
+
+write.csv2(Recorder_Afvangsten_New, filename)
+```
+#2. Fuiken plaatsen
+```{r Fuiken plaatsen voor recorder}
+table(Recorder_Ruw$Sample_Type)
+Recorder_Plaatsen <- subset(Recorder_Ruw, Sample_Type == "Plaatsen van Fuiken")
+
+Recorder_Plaatsen_Redux <- Recorder_Plaatsen %>% 
+  select(-X, -Y, -`Net verhoogd?`, -contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"),    -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("Bijvangst"),     -contains("Opmerk"), -contains("Meer")) 
+
+#Get missing fuiken
+Missing_Fuiken <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` == 0)
+
+if(nrow(Missing_Fuiken)>0){
+  Recorder_Plaatsen_Redux <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` != 0)
+  print(paste(nrow(Missing_Fuiken), " Records verwijderd", sep = ""))
+}else{
+  print("Geen ontbrekende fuiken")
+  remove(Missing_Fuiken)
+}
+
+#Get Incorrect fuiken
+Incorrect_Fuiken <- Recorder_Plaatsen_Redux %>% 
+  filter(`Aantal fuiken (Totaal)` != `Aantal fuiken geplaatst`)
+
+if(nrow(Incorrect_Fuiken)>0){
+  Recorder_Plaatsen_Redux <- subset(Recorder_Plaatsen_Redux, `Aantal fuiken (Totaal)` != `Aantal fuiken geplaatst`)
+  print(paste(nrow(Incorrect_Fuiken), " Records verwijderd", sep = ""))
+}else{
+  print("Geen incorrecte fuiken")
+  remove(Missing_Fuiken)
+}
+
+#Write comment
+Recorder_Plaatsen_Redux <- Recorder_Plaatsen_Redux %>% 
+  mutate(Startuur2 = substr(Startuur, 0,5)) %>%
+  mutate(Einduur2 = substr(Einduur, 0,5)) %>%
+  mutate(Sample_Comment = paste(Startuur2, "-", Einduur2, sep=""))
 
 ```
 
