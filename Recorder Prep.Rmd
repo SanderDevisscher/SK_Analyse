@@ -51,13 +51,15 @@ summary(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 table(Recorder_Ruw$`Aantal fuiken (Totaal)`)
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(Datum))
 Recorder_Ruw <- subset(Recorder_Ruw, !is.na(`Aantal fuiken (Totaal)`))
+Recorder_Ruw <- Recorder_Ruw %>% 
+  rename(aantal_fuiken = `Aantal fuiken (Totaal)`)
 
 ####Foutieve NA in aantal fuiken corrigeren
-Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
-Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
-Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
-Recorder_Ruw$`Aantal fuiken (Totaal)`[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
-gnFuiken <- subset(Recorder_Ruw, is.na(`Aantal fuiken (Totaal)`)|`Aantal fuiken (Totaal)`==0)
+Recorder_Ruw$aantal_fuiken[Recorder_Ruw$Tijdstempel == "8-8-2016 23:34:27"] <- 1
+Recorder_Ruw$aantal_fuiken[Recorder_Ruw$Tijdstempel == "8-8-2016 23:36:05"] <- 1
+Recorder_Ruw$aantal_fuiken[Recorder_Ruw$Tijdstempel == "8-8-2016 23:38:47"] <- 1
+Recorder_Ruw$aantal_fuiken[Recorder_Ruw$Tijdstempel == "8-8-2016 23:40:20"] <- 1
+gnFuiken <- subset(Recorder_Ruw, is.na(aantal_fuiken)|aantal_fuiken==0 & !Sample_Type %in% c("Kijken", "Leegmaken emmers"))
 
 print(gnFuiken)
 ```
@@ -70,8 +72,8 @@ Locations_Recorder <- unique(Recorder_Afvangsten$Location)
 
 #Wide -> Long
 Recorder_Afvangsten %>% 
-                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer")) %>%
-                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) -> temp
+                    select(-contains("Bijvangst"), -contains("e-mail"), -contains("Locatie"), -contains("x"),                              -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("Vijver"), -contains("Jaar")) %>%
+                    gather(key="Stadium", value="Aantal", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder, -aantal_fuiken, -`Net verhoogd?`, -contains("Opmerkingen"))) -> temp
                     
 
 table(temp$Stadium)
@@ -100,9 +102,8 @@ Nulvangsten$LocationName <- gsub(x = Nulvangsten$LocationName, pattern = " +$", 
 table(Nulvangsten$LocationName)
 Nulvangsten$Fuiknr <- substr(Nulvangsten$LocationName, nchar("Fuik "), nchar(Nulvangsten$LocationName))
 table(Nulvangsten$Fuiknr)
-Nulvangsten2 <- subset(Nulvangsten, as.numeric(Fuiknr) <= as.numeric(`Aantal fuiken (Totaal)`))
-Nulvangsten2 %>% 
-  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur, `Aantal fuiken (Totaal)`, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>%
+Nulvangsten %>% 
+  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur,aantal_fuiken, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>%
   summarise() -> temp3
 Nulvangsten2 <- data.frame(temp3)
 Nulvangsten2$Fuiknr <- NULL
@@ -116,8 +117,8 @@ Recorder_Afvangsten_Long %>% rename(Measurement_Qualifier = Stadium2) -> Recorde
 
 #Add xy to Afvangsten
 Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x = T)
-table(Recorder_Afvangsten_Long_Loc$GridReference, useNA = "ifany")
-Missing_Locaties <- subset(Recorder_Afvangsten_Long_Loc, is.na(GridReference))
+table(Recorder_Afvangsten_Long_Loc$`GridReference (pkp)`, useNA = "ifany")
+Missing_Locaties <- subset(Recorder_Afvangsten_Long_Loc, is.na(`GridReference (pkp)`))
 table(Missing_Locaties$Location)
 
 #Add species to afvangsten
@@ -131,7 +132,7 @@ Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 
 #Rename columns
-Recorder_Afvangsten_Long_Loc %>% rename(`Aantal fuiken (Totaal)` = `Aantal.fuiken..Totaal.` ,  `Net verhoogd?` = `Net.verhoogd.`,`Fuik 1 - Opmerkingen` = `Fuik.1...Opmerkingen`, `Fuik 2 - Opmerkingen` = `Fuik.2...Opmerkingen` , `Fuik 3 - Opmerkingen` = `Fuik.3...Opmerkingen`, `Fuik 4 - Opmerkingen` = `Fuik.4...Opmerkingen`, `Fuik 5 - Opmerkingen` = `Fuik.5...Opmerkingen`, `Fuik 6 - Opmerkingen` = `Fuik.6...Opmerkingen`, `Fuik 7 - Opmerkingen` = `Fuik.7...Opmerkingen`, `Fuik 8 - Opmerkingen` = `Fuik.8...Opmerkingen`, `Fuik 9 - Opmerkingen` = `Fuik.9...Opmerkingen`, `Fuik 10 - Opmerkingen` = `Fuik.10...Opmerkingen`, `Fuik 11 - Opmerkingen` = `Fuik.11...Opmerkingen`, `Fuik 12 - Opmerkingen` = `Fuik.12...Opmerkingen`) -> Recorder_Afvangsten_Long_Loc_Renamed
+Recorder_Afvangsten_Long_Loc %>% rename(`Net verhoogd?` = `Net.verhoogd.`,`Fuik 1 - Opmerkingen` = `Fuik.1...Opmerkingen`, `Fuik 2 - Opmerkingen` = `Fuik.2...Opmerkingen` , `Fuik 3 - Opmerkingen` = `Fuik.3...Opmerkingen`, `Fuik 4 - Opmerkingen` = `Fuik.4...Opmerkingen`, `Fuik 5 - Opmerkingen` = `Fuik.5...Opmerkingen`, `Fuik 6 - Opmerkingen` = `Fuik.6...Opmerkingen`, `Fuik 7 - Opmerkingen` = `Fuik.7...Opmerkingen`, `Fuik 8 - Opmerkingen` = `Fuik.8...Opmerkingen`, `Fuik 9 - Opmerkingen` = `Fuik.9...Opmerkingen`, `Fuik 10 - Opmerkingen` = `Fuik.10...Opmerkingen`, `Fuik 11 - Opmerkingen` = `Fuik.11...Opmerkingen`, `Fuik 12 - Opmerkingen` = `Fuik.12...Opmerkingen`) -> Recorder_Afvangsten_Long_Loc_Renamed
 
 #Delete unnecessary columns
 Recorder_Afvangsten_Long_Loc_Renamed$Recorder_Status <- NULL
@@ -166,7 +167,7 @@ sum(nrow(Recorder_Bijvangsten_gform), nrow(Recorder_Bijvangsten_app_raw)) == nro
 #Wide -> Long
 Recorder_Bijvangsten_gform %>% 
   select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"), -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"), -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("test"), -contains("preapp")) %>%
-  gather(key = "Soort_NL", value = "Measurement_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,                          -Recorder,-`Aantal fuiken (Totaal)`, -`Net verhoogd?`, -contains("Opmerkingen"))) %>%
+  gather(key = "Soort_NL", value = "Measurement_Qualifier", c(-Tijdstempel, -Location, -Datum, -Startuur, -Einduur,  -Recorder,-aantal_fuiken, -`Net verhoogd?`, -contains("Opmerkingen"), -Jaar)) %>%
   filter(!is.na(Measurement_Qualifier)) -> Recorder_Bijvangsten_gform_Long
   
 #Add fixed values to gfrom
@@ -217,10 +218,10 @@ Recorder_Bijvangsten_app %>%
   separate(test, sep = "_", into = c("Fuik 1", "Fuik 2", "Fuik 3", "Fuik 4", "Fuik 5", "Fuik 6", "Fuik 7", "Fuik 8",      "Fuik 9", "Fuik 10", "Fuik 11", "Fuik 12")) %>% 
   select(-contains("L00"), -contains("L0"), -contains("L1"), -contains("L2"), -contains("M1"), -contains("M2"),           -contains("AM"), -contains("AV"), -contains("e-mail"), -contains("Locatie"), -contains("x"), -contains("y"),          -contains("Aantal fuiken geplaatst"), -contains("vangstperiode"), -contains("Meer"), -contains("preapp"),             -contains("Bijvangst")) %>%
   gather(key = "LocationName", value = "Soorten", c(-Tijdstempel, -Datum, -Startuur, -Einduur, 
-                                                    -`Aantal fuiken (Totaal)`, -`Net verhoogd?`,                          -contains("Opmerkingen"), -Location, -Recorder)) %>%
+                                                    -aantal_fuiken, -`Net verhoogd?`,                          -contains("Opmerkingen"), -Location, -Recorder, -Jaar)) %>%
   filter(Soorten != "NA") %>%
   separate(Soorten, sep = ";", into = c(paste("soort", 1:b)) ) %>%
-  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -`Aantal fuiken (Totaal)`,        -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName)) %>%
+  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -aantal_fuiken,        -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName, -Jaar)) %>%
   filter(!is.na(Soort_NL)) %>%
   select(-test)-> Recorder_Bijvangsten_app_Long
 
