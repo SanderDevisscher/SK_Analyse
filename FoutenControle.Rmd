@@ -9,7 +9,8 @@ rm(list = ls())
 ```
 
 ```{r Libraries}
-library(googlesheets) 
+library(googlesheets)
+library(arsenal)
 library(lubridate)
 library(tidyverse)
 ```
@@ -507,7 +508,7 @@ aantal_online <- nrow(Records_met_datums)
 
 
 verschil <- aantal_online - aantal_offline
-verschil2 <- base::setequal(Records_met_datums, data_offline)
+verschil2 <- diffs(comparedf(Records_met_datums, data_offline))
 
 
 print(paste(verschil, " nieuwe records", sep=""))
