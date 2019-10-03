@@ -500,7 +500,9 @@ if(!dir.exists("./Intermediate/")){
                                           "Fuik 11 - L00" = col_integer(),
                                           "Fuik 8 - M2" = col_integer(),
                                           "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer()))
+                                          "Fuik 9 - M2" = col_integer(),
+                                          "Fuik 7 - M1" = col_integer(),
+                                          "Fuik 8 - M1" = col_integer()))
   aantal_offline <- nrow(data_offline)
 }
 
@@ -527,7 +529,9 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
                                           "Fuik 11 - L00" = col_integer(),
                                           "Fuik 8 - M2" = col_integer(),
                                           "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer()))
+                                          "Fuik 9 - M2" = col_integer(),
+                                          "Fuik 7 - M1" = col_integer(),
+                                          "Fuik 8 - M1" = col_integer()))
   fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
   write_csv(backup, fn)
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")

@@ -25,7 +25,9 @@ Recorder_Ruw <- read_csv("./Intermediate/Brondata.csv",
                                           "Fuik 11 - L00" = col_integer(),
                                           "Fuik 8 - M2" = col_integer(),
                                           "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer()))
+                                          "Fuik 9 - M2" = col_integer(),
+                                          "Fuik 7 - M1" = col_integer(),
+                                          "Fuik 8 - M1" = col_integer()))
 ```
 
 ```{r Read Libs}
