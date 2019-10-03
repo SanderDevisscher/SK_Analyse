@@ -489,7 +489,17 @@ if(!dir.exists("./Intermediate/")){
   dir.create("./Intermediate/Backup")
   aantal_offline <- 0
 }else{
-  data_offline <- read_csv("./Intermediate/Brondata.csv")
+  data_offline <- read_csv("./Intermediate/Brondata.csv", 
+                         col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
+                                          "Fuik 11 - Bijvangst [Soort]" = col_character(),
+                                          "Fuik 12 - Bijvangst [Soort]" = col_character(),
+                                          "Vijver - Andere" = col_character(),
+                                          "Fuik 9 - L00" = col_integer(),
+                                          "Fuik 10 - L00" = col_integer(),
+                                          "Fuik 11 - L00" = col_integer(),
+                                          "Fuik 8 - M2" = col_integer(),
+                                          "Fuik 9 - L2" = col_integer(),
+                                          "Fuik 9 - M2" = col_integer()))
   aantal_offline <- nrow(data_offline)
 }
 
@@ -512,7 +522,7 @@ if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
   write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
   print(paste0("Data backed up and exported(", verschil,")"))
 }else{
-  if(verschil == 0 & verschil2 == F){
+  if(verschil == 0 & nrow(verschil2) > 0){
     write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
     print("Data altered")
   }else{
