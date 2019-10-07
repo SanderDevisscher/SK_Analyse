@@ -10,6 +10,9 @@ rm(list = ls())
 ```
 
 ```{r Libraries}
+library(DBI)
+library(tidyverse)
+library(odbc)
 library(tidyverse)
 library(googlesheets)
 ```
@@ -99,16 +102,16 @@ Afvangsten2 <- data.frame(Afvangsten)
 #Nulvangsten
 Nulvangsten$LocationName <- strtrim(Nulvangsten$Stadium, 7)
 Nulvangsten$LocationName <- gsub(x = Nulvangsten$LocationName, pattern = " +$", replacement =  "")
-table(Nulvangsten$LocationName)
-Nulvangsten$Fuiknr <- substr(Nulvangsten$LocationName, nchar("Fuik "), nchar(Nulvangsten$LocationName))
-table(Nulvangsten$Fuiknr)
-Nulvangsten %>% 
-  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur,aantal_fuiken, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>%
-  summarise() -> temp3
-Nulvangsten2 <- data.frame(temp3)
-Nulvangsten2$Fuiknr <- NULL
-Nulvangsten2$Stadium2 <- "none"
-Nulvangsten2$Stadium <- "none"
+Nulvangsten2 <- 
+  Nulvangsten %>% 
+  mutate(Fuiknr = as.integer(substr(LocationName, 6, nchar(LocationName)))) %>% 
+  filter(Fuiknr <= aantal_fuiken) %>% 
+  group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur,aantal_fuiken, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>% 
+  summarise() %>% 
+  mutate(Stadium2 = "none", Stadium = "none") %>% 
+  dplyr::select(-Fuiknr)
+
+table(Nulvangsten2$LocationName)
 #Bind Afvangsten and Nulvangsten
 Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
 Recorder_Afvangsten_Long$Stadium <- NULL
@@ -312,8 +315,12 @@ temp5 <- temp4 %>%
   mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ Sample_Comment,
                                     `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
                                     TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
-  select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) %>%
-  spread(key = Measurement_Qualifier, value = Aantal)
+  select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) 
+
+
+%>%
+ spread(key = Measurement_Qualifier, value = Aantal) %>% 
+  mutate(n = s)
 
 Recorder_Afvangsten_Merged_Comment <- temp5
 remove(temp)
@@ -326,19 +333,32 @@ remove(temp5)
 ## 1.5. Verify Data vs Recorder
 Run het Amerikaanse Brulkikker report in Recorder en plaats de output in de Input map.
 ```{r}
-Recorder_Old <- read_delim("Input/Recorder_Data.TXT", ";", escape_double = FALSE, trim_ws = TRUE)
+con <- dbConnect(odbc::odbc(),
+                 Driver = "SQL Server Native Client 11.0",
+                 Server = "inbo-sql07-prd.inbo.be",
+                 Database = "D0017_00_NBNData",
+                 Trusted_Connection="yes") 
+
+
+Recorder_Old <- dbGetQuery(con, "SELECT * FROM [inbo].[vw_brulkikker];")
+
+table(Recorder_Old$Survey)
+table(Recorder_Old$`Species Name`)
+
+
+#Recorder_Old <- read_delim("Input/Recorder_Data.TXT", ";", escape_double = FALSE, trim_ws = TRUE)
 
 Recorder_Old_Prepped <- Recorder_Old %>% 
   mutate(Jaar = substr(as.character(`Sample Date`), 7, 11 )) %>%
   filter(Jaar >= 2016) %>%
   filter(`Sample type` == "Schietfuik" | `Sample type` == "Salamander_Bodem" | `Sample type` == "Salamander_Drijvend") %>%
-  mutate(Datum = format(as.Date(`Sample Date`, "%d/%m/%Y"), "%d-%m-%Y"))
+  mutate(Datum = as.Date(`Sample Date`, "%d/%m/%Y"))
 
 table(Recorder_Old_Prepped$`Sample type`)
 
-Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Datum"))
+Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Datum", "Location" = "Sample Location", "Sample_Type" = "Sample type"))
 
-table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"))
+table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"), Recorder_Afvangsten_New$Location)
 ```
 
 
