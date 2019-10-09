@@ -13,6 +13,7 @@ rm(list = ls())
 library(DBI)
 library(tidyverse)
 library(odbc)
+library(lubridate)
 library(tidyverse)
 library(googlesheets)
 ```
@@ -206,6 +207,7 @@ Recorder_Bijvangsten_gform_Long_Soort_xy$Image <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Jaar <- NULL
 
 #Cleanup
+Recorder_Bijvangsten_gform_Final <- Recorder_Bijvangsten_gform_Long_Soort_xy
 
 remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
 remove(Recorder_Bijvangsten_gform_Long_Soort)
@@ -344,6 +346,7 @@ Recorder_Old <- dbGetQuery(con, "SELECT * FROM [inbo].[vw_brulkikker];")
 
 table(Recorder_Old$Survey)
 table(Recorder_Old$`Species Name`)
+table(Recorder_Old$`Sample Location`)
 
 
 #Recorder_Old <- read_delim("Input/Recorder_Data.TXT", ";", escape_double = FALSE, trim_ws = TRUE)
@@ -352,13 +355,49 @@ Recorder_Old_Prepped <- Recorder_Old %>%
   mutate(Jaar = substr(as.character(`Sample Date`), 7, 11 )) %>%
   filter(Jaar >= 2016) %>%
   filter(`Sample type` == "Schietfuik" | `Sample type` == "Salamander_Bodem" | `Sample type` == "Salamander_Drijvend") %>%
-  mutate(Datum = as.Date(`Sample Date`, "%d/%m/%Y"))
+  mutate(Datum = as.Date(`Sample Date`, "%d/%m/%Y")) 
 
 table(Recorder_Old_Prepped$`Sample type`)
 
 Recorder_Afvangsten_New <- anti_join(Recorder_Afvangsten_Merged_Comment, Recorder_Old_Prepped, by=c("Datum" = "Datum", "Location" = "Sample Location", "Sample_Type" = "Sample type"))
 
+min(Recorder_Afvangsten_New$Datum)
+datums_tocheck <- 
+  Recorder_Afvangsten_New %>% 
+  mutate(jaar = year(Datum)) %>% 
+  filter(jaar < year(Sys.Date())) %>% 
+  sample_frac(0.1) %>% 
+  distinct(Datum, Location)
+
+sample_n(Recorder_Afvangsten_New, 10)
+
 table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"), Recorder_Afvangsten_New$Location)
+
+Recorder_Afvangsten_New2 <- Recorder_Afvangsten_New %>% 
+  spread(key = Measurement_Qualifier, value = Aantal, fill = "") %>% 
+  mutate(Abundance_Data = "") %>% 
+  mutate(Groeiklasse1 = case_when(`<5cm` != "" ~ paste(`<5cm`,"Groeiklasse 1"),
+                                  TRUE ~ ""),
+         Groeiklasse2 = case_when(`5-10cm` != "" ~ paste(`5-10cm`,"Groeiklasse 2"),
+                                  TRUE ~ ""),
+         Groeiklasse3 = case_when(`10-15cm` != "" ~ paste(`10-15cm`,"Groeiklasse 3"),
+                                  TRUE ~ ""),
+         Groeiklasse4 = case_when(`15-20cm` != "" ~ paste(`15-20cm`,"Groeiklasse 4"),
+                                  TRUE ~ ""),
+         Groeiklasse5 = case_when(`20-30cm` != "" ~ paste(`20-30cm`,"Groeiklasse 5"),
+                                  TRUE ~ ""),
+         AdultM = case_when(AM != "" ~ paste(AM,"AM"),
+                                  TRUE ~ ""),
+         AdultV = case_when(AV != "" ~ paste(AV,"AV"),
+                                  TRUE ~ ""),
+         Larve0 = case_when(L0 != "" ~ paste(L0,"L0"),
+                                  TRUE ~ "")) %>% 
+  mutate(Abundance_Data = paste(Groeiklasse1,Groeiklasse2,Groeiklasse3,Groeiklasse4,Groeiklasse5,AdultM,AdultV,Larve0, sep=";")) %>% 
+  mutate(Abundance_Data = gsub("^;", "", Abundance_Data)) %>% 
+  mutate(Abundance_Data = gsub(";;", "", Abundance_Data)) %>% 
+  mutate(Abundance_Data = gsub(";$", "", Abundance_Data))
+  
+  
 ```
 
 
@@ -368,10 +407,10 @@ table(format(as.Date(Recorder_Afvangsten_New$Datum, "%d-%m-%Y"), "%Y"), Recorder
 filename <- "./Output/Recorder/Recorder_Afvangst.csv"
 
 if(file.exists(filename)){
-  backup <- read_csv(filename)
+  backup <- read_delim(filename, delim = ";")
   today <- Sys.Date()
   filename2 <- paste("./Output/Recorder/Backup/Recorder_Afvangst_", today, ".csv", sep = "")
-  write.csv2(backup, filename2)
+  write_delim(backup, filename2, delim = ";")
 }
 
 write.csv2(Recorder_Afvangsten_New, filename)
