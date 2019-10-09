@@ -98,7 +98,6 @@ Afvangsten$LocationName <- gsub(x = Afvangsten$LocationName, pattern = " +$", re
 table(Afvangsten$LocationName)
 Afvangsten$Stadium2 <- substr(Afvangsten$Stadium, nchar(Afvangsten$LocationName)+4, nchar(Afvangsten$Stadium))
 table(Afvangsten$Stadium2)
-Afvangsten2 <- data.frame(Afvangsten)
 #Nulvangsten
 Nulvangsten$LocationName <- strtrim(Nulvangsten$Stadium, 7)
 Nulvangsten$LocationName <- gsub(x = Nulvangsten$LocationName, pattern = " +$", replacement =  "")
@@ -109,14 +108,19 @@ Nulvangsten2 <-
   group_by_at(vars(Tijdstempel, Location, Datum, Startuur, Einduur,aantal_fuiken, `Net verhoogd?`, contains("Fuik"), Recorder, Aantal, LocationName, Totaal )) %>% 
   summarise() %>% 
   mutate(Stadium2 = "none", Stadium = "none") %>% 
+  ungroup() %>% 
   dplyr::select(-Fuiknr)
 
 table(Nulvangsten2$LocationName)
 #Bind Afvangsten and Nulvangsten
-Recorder_Afvangsten_Long <- rbind(Afvangsten2, Nulvangsten2)
+dplyr::setdiff(Afvangsten, Nulvangsten2)
+Recorder_Afvangsten_Long <- rbind(Afvangsten, Nulvangsten2)
 Recorder_Afvangsten_Long$Stadium <- NULL
 Recorder_Afvangsten_Long$Totaal <- NULL
-Recorder_Afvangsten_Long %>% rename(Measurement_Qualifier = Stadium2) -> Recorder_Afvangsten_Long
+
+Recorder_Afvangsten_Long <- 
+  Recorder_Afvangsten_Long %>% 
+  rename(Measurement_Qualifier = Stadium2)
 
 #Add xy to Afvangsten
 Recorder_Afvangsten_Long_Loc <- merge(Recorder_Afvangsten_Long, Locaties, all.x = T)
@@ -128,23 +132,20 @@ table(Missing_Locaties$Location)
 Recorder_Afvangsten_Long_Loc$Species <- "Lithobates catesbeianus"
 
 #Add fixed values to Afvangsten
-Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$Fuik.1...Opmerkingen, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
+Recorder_Afvangsten_Long_Loc$Sample_Type <- ifelse(grepl(Recorder_Afvangsten_Long_Loc$`Fuik 1 - Opmerkingen`, pattern = "bodemsalamander"), "Salamander_Bodem", ifelse(grepl(Recorder_Afvangsten_Long_Loc$`Fuik 1 - Opmerkingen`, pattern = "drijvend"), "Salamander_Drijvend", "Schietfuik"))
 
 Recorder_Afvangsten_Long_Loc$Measurement_Accuracy <- "Exact"
 
 table(Recorder_Afvangsten_Long_Loc$Sample_Type, useNA = "ifany")
 
-#Rename columns
-Recorder_Afvangsten_Long_Loc %>% rename(`Net verhoogd?` = `Net.verhoogd.`,`Fuik 1 - Opmerkingen` = `Fuik.1...Opmerkingen`, `Fuik 2 - Opmerkingen` = `Fuik.2...Opmerkingen` , `Fuik 3 - Opmerkingen` = `Fuik.3...Opmerkingen`, `Fuik 4 - Opmerkingen` = `Fuik.4...Opmerkingen`, `Fuik 5 - Opmerkingen` = `Fuik.5...Opmerkingen`, `Fuik 6 - Opmerkingen` = `Fuik.6...Opmerkingen`, `Fuik 7 - Opmerkingen` = `Fuik.7...Opmerkingen`, `Fuik 8 - Opmerkingen` = `Fuik.8...Opmerkingen`, `Fuik 9 - Opmerkingen` = `Fuik.9...Opmerkingen`, `Fuik 10 - Opmerkingen` = `Fuik.10...Opmerkingen`, `Fuik 11 - Opmerkingen` = `Fuik.11...Opmerkingen`, `Fuik 12 - Opmerkingen` = `Fuik.12...Opmerkingen`) -> Recorder_Afvangsten_Long_Loc_Renamed
-
 #Delete unnecessary columns
-Recorder_Afvangsten_Long_Loc_Renamed$Recorder_Status <- NULL
+Recorder_Afvangsten_Long_Loc$Recorder_Status <- NULL
 
 #Set correct column_types
-Recorder_Afvangsten_Long_Loc_Renamed$Aantal <- as.numeric(Recorder_Afvangsten_Long_Loc_Renamed$Aantal)
+Recorder_Afvangsten_Long_Loc$Aantal <- as.numeric(Recorder_Afvangsten_Long_Loc$Aantal)
 
 #Cleanup
-Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc_Renamed
+Recorder_Afvangsten_Final <- Recorder_Afvangsten_Long_Loc
 
 remove(Recorder_Afvangsten_Long_Loc_Renamed)
 remove(Recorder_Afvangsten_Long_Loc)
@@ -205,7 +206,6 @@ Recorder_Bijvangsten_gform_Long_Soort_xy$Image <- NULL
 Recorder_Bijvangsten_gform_Long_Soort_xy$Jaar <- NULL
 
 #Cleanup
-Recorder_Bijvangsten_gform_Final <- Recorder_Bijvangsten_gform_Long_Soort_xy
 
 remove(Recorder_Bijvangsten_gform_Long_Soort_xy)
 remove(Recorder_Bijvangsten_gform_Long_Soort)
@@ -233,7 +233,7 @@ Recorder_Bijvangsten_app_Long <-
   Recorder_Bijvangsten_app_Long_int %>%
   separate(Soorten, sep = ";", into = c(paste("soort", 1:b))) %>% 
   dplyr::select(-NrSoorten) %>%
-  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -aantal_fuiken,        -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName, -Jaar)) %>%
+  gather(key = "test", value = "Soort_NL", c(-Tijdstempel, -Datum, -Startuur, -Einduur, -aantal_fuiken, -`Net verhoogd?`, -contains("Opmerkingen"), -Location, -Recorder, -LocationName, -Jaar)) %>%
   filter(!is.na(Soort_NL)) %>%
   select(-test) %>% 
   mutate(Soort_NL = trimws(Soort_NL, which = "b"))
@@ -277,7 +277,7 @@ table(Recorder_Bijvangsten_app_Final$Species, useNA = "ifany")
 ##1.3. Merge subsets
 
 ```{r Merge subsets}
-setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
+dplyr::setdiff(x = Recorder_Afvangsten_Final, y = Recorder_Bijvangsten_gform_Final)
 Recorder_Afvangsten_Merged <- rbind(x = Recorder_Afvangsten_Final, Recorder_Bijvangsten_gform_Final)
 nrow(Recorder_Afvangsten_Merged) == nrow(Recorder_Afvangsten_Final) + nrow(Recorder_Bijvangsten_gform_Final)
 
@@ -310,17 +310,17 @@ for(l in LocationNames){
 temp5 <- temp4 %>% 
   mutate(Startuur2 = substr(Startuur, 0,5)) %>%
   mutate(Einduur2 = substr(Einduur, 0,5)) %>%
-  mutate(Sample_Comment = case_when(is.na(Sample_Comment) ~ paste(Startuur2, "-", Einduur2, sep = ""),
-                                    TRUE ~ paste(Startuur2, "-", Einduur2, " / ", Sample_Comment, sep = ""))) %>% 
-  mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ Sample_Comment,
-                                    `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, " / Net verhoogd", sep="" ), 
-                                    TRUE ~ paste(Sample_Comment, " / Net niet verhoogd", sep="" ))) %>%
+  mutate(Sample_Comment = case_when(is.na(Sample_Comment) ~ paste(Startuur2, "-", Einduur2, "/", sep = ""),
+                                    TRUE ~ paste(Startuur2, "-", Einduur2, "/", Sample_Comment, sep = ""))) %>% 
+  mutate(Sample_Comment = case_when(is.na(`Net verhoogd?`) ~ paste0(Sample_Comment,"/NA"),
+                                    `Net verhoogd?` == "TRUE" ~ paste(Sample_Comment, "/TRUE", sep="" ), 
+                                    TRUE ~ paste(Sample_Comment, "/FALSE", sep="" ))) %>%
   select(-Startuur2, -Einduur2, -Startuur, -Einduur, -`Net verhoogd?`) 
 
 
-%>%
- spread(key = Measurement_Qualifier, value = Aantal) %>% 
-  mutate(n = s)
+#%>%
+#spread(key = Measurement_Qualifier, value = Aantal) %>% 
+#mutate(n = s)
 
 Recorder_Afvangsten_Merged_Comment <- temp5
 remove(temp)
