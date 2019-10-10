@@ -390,14 +390,24 @@ Recorder_Afvangsten_New2 <- Recorder_Afvangsten_New %>%
                                   TRUE ~ ""),
          AdultV = case_when(AV != "" ~ paste(AV,"AV"),
                                   TRUE ~ ""),
+         Larve00 = case_when(L00 != "" ~ paste(L00,"L00"),
+                                  TRUE ~ ""),
          Larve0 = case_when(L0 != "" ~ paste(L0,"L0"),
+                                  TRUE ~ ""),
+         Larve1 = case_when(L1 != "" ~ paste(L1,"L1"),
+                                  TRUE ~ ""),
+         Larve2 = case_when(L2 != "" ~ paste(L2,"L2"),
+                                  TRUE ~ ""),
+         Metamorf1 = case_when(M1 != "" ~ paste(M1,"M1"),
+                                  TRUE ~ ""),
+         Metamorf2 = case_when(M2 != "" ~ paste(M2,"M2"),
+                                  TRUE ~ ""),
+         None = case_when(none != "" ~ paste(none,"none"),
                                   TRUE ~ "")) %>% 
-  mutate(Abundance_Data = paste(Groeiklasse1,Groeiklasse2,Groeiklasse3,Groeiklasse4,Groeiklasse5,AdultM,AdultV,Larve0, sep=";")) %>% 
-  mutate(Abundance_Data = gsub("^;", "", Abundance_Data)) %>% 
+  mutate(Abundance_Data = paste(Groeiklasse1,Groeiklasse2,Groeiklasse3,Groeiklasse4,Groeiklasse5,AdultM,AdultV,Larve00,Larve0,Larve1,Larve2,Metamorf1,Metamorf2, None,sep=";")) %>% 
   mutate(Abundance_Data = gsub(";;", "", Abundance_Data)) %>% 
+  mutate(Abundance_Data = gsub("^;", "", Abundance_Data)) %>% 
   mutate(Abundance_Data = gsub(";$", "", Abundance_Data))
-  
-  
 ```
 
 
