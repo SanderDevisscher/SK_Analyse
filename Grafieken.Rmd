@@ -772,16 +772,18 @@ temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 Jaren <- unique(temp$Jaar)
 
-temp3 <- data.frame(1)
+temp3 <- data.frame()
 
+p <- 1
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
   for(l in Locations){
     temp2A <- subset(temp2, Location == l)
+    t <- nrow(temp2A)
     for(i in 1:nrow(temp2A)){
       if(i == 1){
-        temp2A$GSL[i] <- temp2A$CPUE*26
+        temp2A$GSL[i] <- temp2A$CPUE[i]*26
       }else{
         if(i == 2){
           temp2A$GSL[i] <- ((temp2A$CPUE[i-1] + temp2A$CPUE[i])/2)*26
@@ -790,14 +792,14 @@ for(j in Jaren){
         }
       }
       temp2A <- temp2A %>% 
-        arrange(Datum)
+        arrange(Datum) %>% 
+        ungroup()
       t <- nrow(temp2A)
       if(p < i){
         p <- i+1
       }else{
         p <- i
       }
-      
       temp2A$Remainder[i] <- sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
       temp2A$Error[i] <- temp2A$Remainder[i]-temp2A$GSL[i]
     }
