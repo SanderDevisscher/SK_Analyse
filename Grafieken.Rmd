@@ -550,8 +550,6 @@ print(Afvangsten$CPUE)
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
-
-
 ```
 
 ```{r Datums juist zetten}
@@ -872,3 +870,21 @@ for(j in Jaren){
   }
 }
 ```
+
+```{r Arendonk Overview}
+Arendonk_Overview_Data <- Afvangsten %>% 
+  filter(Locatie == "Arendonk" & !grepl("visput", Location) & !grepl("b", Location)) %>% 
+  group_by(Jaar, Location) %>% 
+  summarise(Totale_vangst = sum(Totaal, na.rm = TRUE)) %>% 
+  arrange(Jaar, Totale_vangst)
+
+plot <- ggplot(Arendonk_Overview_Data, aes(x = Jaar, y= Totale_vangst, fill = Location)) 
+plot <- plot + geom_col(position = "dodge")
+plot <- plot + ylab("Aantal gevangen stierkikkers")
+plot <- plot + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
+plot <- plot + theme(legend.position = "top", legend.title = element_blank())
+
+
+print(plot)
+```
+
