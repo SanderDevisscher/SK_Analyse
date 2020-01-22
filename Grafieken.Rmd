@@ -873,16 +873,23 @@ for(j in Jaren){
 
 ```{r Arendonk Overview}
 Arendonk_Overview_Data <- Afvangsten %>% 
+  dplyr::select(Locatie, Location, Jaar, Totaal_Larven.All, Totaal_Larven.CPUE, Totaal) %>% 
   filter(Locatie == "Arendonk" & !grepl("visput", Location) & !grepl("b", Location)) %>% 
-  group_by(Jaar, Location) %>% 
-  summarise(Totale_vangst = sum(Totaal, na.rm = TRUE)) %>% 
+  mutate(`Post Metamorfen` = Totaal - Totaal_Larven.All,
+         Larven = Totaal_Larven.CPUE,
+         `Kleinste Larven` = Totaal_Larven.All - Totaal_Larven.CPUE) %>% 
+  dplyr::select(-Totaal, -Totaal_Larven.All, -Totaal_Larven.CPUE) %>% 
+  gather(key = type, value = aantal, -Locatie, -Location, -Jaar) %>% 
+  group_by(Jaar, Location, type) %>% 
+  summarise(Totale_vangst = sum(aantal, na.rm = TRUE)) %>% 
   arrange(Jaar, Totale_vangst)
 
-plot <- ggplot(Arendonk_Overview_Data, aes(x = Jaar, y= Totale_vangst, fill = Location)) 
-plot <- plot + geom_col(position = "dodge")
+plot <- ggplot(Arendonk_Overview_Data, aes(x = Jaar, y= Totale_vangst, fill = type)) 
+plot <- plot + geom_col(position = "stack")
+plot <- plot + facet_grid(.~Location)
 plot <- plot + ylab("Aantal gevangen stierkikkers")
 plot <- plot + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
-plot <- plot + theme(legend.position = "top", legend.title = element_blank())
+plot <- plot + theme(legend.position = "bottom", legend.title = element_blank())
 
 
 print(plot)
