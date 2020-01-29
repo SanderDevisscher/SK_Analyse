@@ -880,11 +880,13 @@ for(j in Jaren){
 }
 ```
 
-```{r Arendonk Overview}
+```{r Arendonk Overview, fig.width=10}
+file_extensions <- c(".jpeg")
+
 Arendonk_Overview_Data <- Afvangsten %>% 
   dplyr::select(Locatie, Location, Jaar, Totaal_Larven.All, Totaal_Larven.CPUE, Totaal) %>% 
   filter(Locatie == "Arendonk" & !grepl("visput", Location) & !grepl("b", Location)) %>% 
-  mutate(`Post Metamorfen` = Totaal - Totaal_Larven.All,
+  mutate(`(Jong)volwassen` = Totaal - Totaal_Larven.All,
          Larven = Totaal_Larven.CPUE,
          `Kleinste Larven` = Totaal_Larven.All - Totaal_Larven.CPUE) %>% 
   dplyr::select(-Totaal, -Totaal_Larven.All, -Totaal_Larven.CPUE) %>% 
