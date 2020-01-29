@@ -547,6 +547,15 @@ Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Tota
 print(Afvangsten$CPUE)
 
 ```
+```{r set up directories}
+if(!dir.exists("./Output/Afbeeldingen/")){
+  dir.create("./Output/Afbeeldingen/")
+}
+
+if(!dir.exists("./Output/Overviews/")){
+  dir.create("./Output/Overviews/")
+}
+```
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
@@ -891,6 +900,10 @@ plot <- plot + ylab("Aantal gevangen stierkikkers")
 plot <- plot + scale_y_continuous(limits=c(0,NA),expand = c(0, 0))
 plot <- plot + theme(legend.position = "bottom", legend.title = element_blank())
 
+for(e in file_extensions){
+  fn <- paste0("./Output/Overviews/Arendonk_Overview", e)
+  ggsave(fn, plot, width = 10)
+}
 
 print(plot)
 ```
