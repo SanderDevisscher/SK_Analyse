@@ -165,8 +165,8 @@ SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:50:04")
 SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:56:51")
 
 SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
-                                    ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
-                                           ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
+                                      ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
+                                             ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
 SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
 
 
@@ -231,10 +231,10 @@ table(temp$Recorder, useNA = "ifany")
 
 #Voeg naamloze arbeiders toe
 temp <- temp %>% mutate(Recorder2 = case_when(`Aantal werknemers` == 1 ~ Recorder,
-                                      `Aantal werknemers` == 2 ~ paste(Recorder, "Arbeider 1", sep =";"),
-                                      `Aantal werknemers` == 3 ~ paste(Recorder, "Arbeider 1; Arbeider 2", sep =";"),
-                                      `Aantal werknemers` == 4 ~ paste(Recorder, "Arbeider 1; Arbeider 2; Arbeider 3", sep =";"),
-                                      `Aantal werknemers` > 5 ~ "NA"))
+                                              `Aantal werknemers` == 2 ~ paste(Recorder, "Arbeider 1", sep =";"),
+                                              `Aantal werknemers` == 3 ~ paste(Recorder, "Arbeider 1; Arbeider 2", sep =";"),
+                                              `Aantal werknemers` == 4 ~ paste(Recorder, "Arbeider 1; Arbeider 2; Arbeider 3", sep =";"),
+                                              `Aantal werknemers` > 5 ~ "NA"))
 
 table(temp$Recorder2)
 temp$Recorder <- temp$Recorder2
@@ -266,9 +266,9 @@ for(l in Locations){
     temp4$aantaldagen <- temp4$eind - temp4$start
     x <- unique(temp4$aantaldagen)
     if(x > 1){
-     aantaldagen <- seq(1, x, by = 1)
+      aantaldagen <- seq(1, x, by = 1)
     }else{
-     aantaldagen <- x
+      aantaldagen <- x
     }
     for(y in aantaldagen){
       temp5$Location <- l
@@ -490,19 +490,23 @@ if(!dir.exists("./Intermediate/")){
   dir.create("./Intermediate/Backup")
   aantal_offline <- 0
 }else{
-  data_offline <- read_csv("./Intermediate/Brondata.csv", 
-                         col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 11 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 12 - Bijvangst [Soort]" = col_character(),
-                                          "Vijver - Andere" = col_character(),
-                                          "Fuik 9 - L00" = col_integer(),
-                                          "Fuik 10 - L00" = col_integer(),
-                                          "Fuik 11 - L00" = col_integer(),
-                                          "Fuik 8 - M2" = col_integer(),
-                                          "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer(),
-                                          "Fuik 7 - M1" = col_integer(),
-                                          "Fuik 8 - M1" = col_integer()))
+  if(file.exists("./Intermediate/Brondata.csv")){
+    data_offline <- read_csv("./Intermediate/Brondata.csv", 
+                             col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
+                                              "Fuik 11 - Bijvangst [Soort]" = col_character(),
+                                              "Fuik 12 - Bijvangst [Soort]" = col_character(),
+                                              "Vijver - Andere" = col_character(),
+                                              "Fuik 9 - L00" = col_integer(),
+                                              "Fuik 10 - L00" = col_integer(),
+                                              "Fuik 11 - L00" = col_integer(),
+                                              "Fuik 8 - M2" = col_integer(),
+                                              "Fuik 9 - L2" = col_integer(),
+                                              "Fuik 9 - M2" = col_integer(),
+                                              "Fuik 7 - M1" = col_integer(),
+                                              "Fuik 8 - M1" = col_integer()))
+  }else{
+    data_offline <- data.frame()
+  }
   aantal_offline <- nrow(data_offline)
 }
 
@@ -517,25 +521,30 @@ print(paste(verschil, " nieuwe records", sep=""))
 ```
 
 ```{r Export}
-if (file.exists(file = "./Intermediate/Brondata.csv")==T & verschil != 0){
-  today <- as.Date(Sys.time(), format="%Y%m%d")
-  backup <- read_csv("./Intermediate/Brondata.csv", 
-                         col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 11 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 12 - Bijvangst [Soort]" = col_character(),
-                                          "Vijver - Andere" = col_character(),
-                                          "Fuik 9 - L00" = col_integer(),
-                                          "Fuik 10 - L00" = col_integer(),
-                                          "Fuik 11 - L00" = col_integer(),
-                                          "Fuik 8 - M2" = col_integer(),
-                                          "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer(),
-                                          "Fuik 7 - M1" = col_integer(),
-                                          "Fuik 8 - M1" = col_integer()))
-  fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
-  write_csv(backup, fn)
-  write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
-  print(paste0("Data backed up and exported(", verschil,")"))
+if (verschil != 0){
+  if(file.exists("./Intermediate/Brondata.csv")){
+    today <- as.Date(Sys.time(), format="%Y%m%d")
+    backup <- read_csv("./Intermediate/Brondata.csv", 
+                       col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
+                                        "Fuik 11 - Bijvangst [Soort]" = col_character(),
+                                        "Fuik 12 - Bijvangst [Soort]" = col_character(),
+                                        "Vijver - Andere" = col_character(),
+                                        "Fuik 9 - L00" = col_integer(),
+                                        "Fuik 10 - L00" = col_integer(),
+                                        "Fuik 11 - L00" = col_integer(),
+                                        "Fuik 8 - M2" = col_integer(),
+                                        "Fuik 9 - L2" = col_integer(),
+                                        "Fuik 9 - M2" = col_integer(),
+                                        "Fuik 7 - M1" = col_integer(),
+                                        "Fuik 8 - M1" = col_integer()))
+    fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
+    write_csv(backup, fn)
+    write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+    print(paste0("Data backed up and exported(", verschil,")"))
+  }else{
+    write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
+    print(paste0("Data exported (", verschil,")"))
+  }
 }else{
   if(verschil == 0 & nrow(verschil2) > 0){
     write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
