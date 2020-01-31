@@ -207,8 +207,15 @@ if(nrow(Records_zndr_Location)+nrow(Records_met_Location)==nrow(SKData)){
 
 ```
 
+```{r Gekende fouten locaties oplossen}
+Records_met_Location2 <- Records_met_Location %>% 
+  mutate(Location = case_when(Tijdstempel == "12-6-2019 23:35:26" ~ "Nijlen B10",
+                              Tijdstempel == "17-6-2019 21:00:44" ~ "Nijlen B4",
+                              TRUE ~ Location))
+```
+
 ```{r Controle recorders}
-temp <- Records_met_Location
+temp <- Records_met_Location2
 
 table(temp$`Invuller 2`)
 temp$Recorder <- temp$`Invuller 2`
