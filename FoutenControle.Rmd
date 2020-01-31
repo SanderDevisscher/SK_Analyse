@@ -408,6 +408,7 @@ temp <- temp %>%
   mutate(Datum = case_when(Tijdstempel == "22-6-2017 21:47:39" ~ dmy("20-6-2017"),
                            Tijdstempel == "9-10-2017 22:46:06" ~ dmy("27-9-2017"),
                            Tijdstempel == "24-8-2018 12:32:26" ~ dmy("14-8-2018"),
+                           Tijdstempel == "2-12-2019 21:20:07" ~ dmy("28-10-2019"),
                            TRUE ~ Datum ))
 
 NA_Datums <- subset(temp, is.na(Datum))
