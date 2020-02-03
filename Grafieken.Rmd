@@ -882,9 +882,10 @@ for(j in Jaren){
 ```
 
 ```{r Arendonk Overview, fig.width=10}
-#font_import()
+font.add("Kievit", "./Fonts/KievitOT-Light2.otf")
+showtext.auto()
 
-file_extensions <- c(".jpeg")
+file_extensions <- c(".jpeg", ".eps")
 
 color1 <- rgb(red = 194, green = 14, blue = 26, maxColorValue = 255)
 color2 <- rgb(red = 234, green = 184, blue = 24, maxColorValue = 255)
@@ -910,6 +911,7 @@ plot <- ggplot(Arendonk_Overview_Data, aes(x = Jaar, y= Totale_vangst, fill = ty
   facet_grid(.~Location) +
   ylab("Aantal gevangen stierkikkers") +
   scale_y_continuous(limits=c(0,NA),expand = c(0, 0)) +
+  theme(text=element_text(family = "Kievit", size = 50)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   theme(strip.background = element_rect(fill = color4),
         panel.background = element_rect(fill = color5)) +
