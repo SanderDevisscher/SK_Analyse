@@ -30,7 +30,19 @@ gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
                                           `Fuik 9 - M2` = col_integer(),
                                           `Fuik 10 - Bijvangst [Soort]` = col_character(),
                                           `Fuik 11 - Bijvangst [Soort]` = col_character(),
-                                          `Fuik 12 - Bijvangst [Soort]` = col_character()))
+                                          `Fuik 12 - Bijvangst [Soort]` = col_character(),
+                                          `Fuik 1 - Hoek` = col_character(),
+                                          `Fuik 2 - Hoek` = col_character(),
+                                          `Fuik 3 - Hoek` = col_character(),
+                                          `Fuik 4 - Hoek` = col_character(),
+                                          `Fuik 5 - Hoek` = col_character(),
+                                          `Fuik 6 - Hoek` = col_character(),
+                                          `Fuik 7 - Hoek` = col_character(),
+                                          `Fuik 8 - Hoek` = col_character(),
+                                          `Fuik 9 - Hoek` = col_character(),
+                                          `Fuik 10 - Hoek` = col_character(),
+                                          `Fuik 11 - Hoek` = col_character(),
+                                          `Fuik 12 - Hoek` = col_character()))
 
 SKData <- gdrive
 

@@ -140,8 +140,16 @@ Brondata$`Fuik 12 - M2` <- as.numeric(Brondata$`Fuik 12 - M2`)
 Brondata$`Fuik 12 - AM` <- as.numeric(Brondata$`Fuik 12 - AM`)
 Brondata$`Fuik 12 - AV` <- as.numeric(Brondata$`Fuik 12 - AV`)
 ```
+
 ```{r Subset data}
-Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
+Afvangsten <- Brondata %>% 
+  filter(grepl(pattern = "afvangst", Sample_Type, ignore.case = TRUE),
+         !grepl(pattern = "BSF", Sample_Type),
+         !grepl(pattern = "DSF", Sample_Type)) %>% 
+  mutate(Sample_Type = "Afvangst")
+
+table(Afvangsten$Sample_Type)
+  
 ```
 
 ```{r prep dataframe}
@@ -560,7 +568,6 @@ GRA_Brondata <- Afvangsten %>%
 if(!dir.exists("./Output/")){
   dir.create("./Output/")
   dir.create("./Output/Afbeeldingen")
-  
 }
 
 ```
