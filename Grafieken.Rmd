@@ -144,7 +144,13 @@ Brondata$`Fuik 12 - AV` <- as.numeric(Brondata$`Fuik 12 - AV`)
 ```
 
 ```{r Subset data}
-Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
+Afvangsten <- Brondata %>% 
+  filter(grepl(pattern = "afvangst", Sample_Type, ignore.case = TRUE),
+         !grepl(pattern = "BSF", Sample_Type),
+         !grepl(pattern = "DSF", Sample_Type)) %>% 
+  mutate(Sample_Type = "Afvangst")
+
+table(Afvangsten$Sample_Type)
 ```
 
 ```{r prep dataframe}
@@ -881,7 +887,7 @@ for(j in Jaren){
 }
 ```
 
-```{r Arendonk Overview, fig.width=10}
+```{r Arendonk Overview, fig.width=10, eval=FALSE}
 font.add("Kievit", "./Fonts/KievitOT-Light2.otf")
 showtext.auto()
 
