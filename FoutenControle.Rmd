@@ -179,8 +179,10 @@ SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:56:51")
 SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
                                       ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
                                              ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
-SKData$`Vijver - Arendonk` <- ifelse(SKData$`Vijver - Arendonk`== "arendonk 2 b", "Arendonk 2b", SKData$`Vijver - Arendonk`)
-
+SKData <- SKData %>% 
+  mutate(`Vijver - Arendonk` = case_when(`Vijver - Arendonk` == "arendonk 2 b" ~ "Arendonk 2b",
+                                         `Vijver - Arendonk` == "arendonk sportcomplex" ~ "Arendonk-visput",
+                                         TRUE ~ `Vijver - Arendonk`))
 
 SKData <- SKData %>% 
   mutate(Location = case_when(!is.na(`Vijver - Arendonk`) ~ `Vijver - Arendonk`,
