@@ -684,7 +684,7 @@ for (a in Jaren){
   GSLfNaama <- paste(GSLfNaam, ".csv", sep="")
   
   #Uitvoeren
-  write.csv(GSL, GSLfNaama)
+  write_delim(GSL, GSLfNaama, ";")
   print(GSLfNaama)
   }
 
