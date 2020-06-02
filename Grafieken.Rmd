@@ -857,11 +857,15 @@ for(j in Jaren){
     temp7 <- temp5 %>% 
       filter(GSL <= 10)
     temp8 <- temp5 %>% 
-      filter(Error > 1 * GSL)
+      filter(Error > 0.5 * GSL)
+    temp9 <- temp5 %>% 
+      filter(Error < -0.5 * GSL)
+    
     plot <- ggplot(temp5, aes(x=as.character.Date(Datum), y=GSL)) + 
       geom_bar(stat="identity", fill = "blue") + 
       geom_bar(data = temp6, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "yellow") +
       geom_bar(data = temp7, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "green") +
+      geom_bar(data = temp9, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "orange") +
       geom_bar(data = temp8, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "red")
     plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
