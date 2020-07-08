@@ -13,6 +13,7 @@ rm(list = ls())
 library(tidyverse)
 library(scales)
 library(ggplot2)
+library(lubridate)
 library(INBOtheme)
 ```
 
@@ -593,7 +594,7 @@ GRA_Brondata2 <-
             Totaal = sum(Totaal),
             Totaal_Larven.All = sum(Totaal_Larven.All),
             Totaal_Larven.CPUE = sum(Totaal_Larven.CPUE),
-            `Aantal fuiken (Totaal)` = sum(`Aantal fuiken (Totaal)`),
+            Totaal_Fuiken = sum(`Aantal fuiken (Totaal)`),
             CPUE = sum(CPUE),
             n = n())
 
@@ -612,17 +613,19 @@ for (a in Jaren){
     print(i)
     print(number)
     temp3 <- head(temp2, n=1)             #=> Eerste record
-    Datum_LastCapture <- as.character(paste(temp2$Dag, temp2$Maand, temp2$Jaar, sep="/"))
+    Datum_LastCapture <- as.character(paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/"))
     Datum_LastCapture2 <- as.Date(Datum_LastCapture, format("%d/%m/%Y"))
     Datum_LastCapture2 <- max(Datum_LastCapture2)
     temp7 <- subset(temp2, Datum == Datum_LastCapture2)
     temp5 <- data.frame(x=1)
+    
+    
     if(number>=3){
       temp4 <- tail(temp2, n=3)
-      temp5$MeanCPUE <- mean(temp4$CPUE)
+      temp5$MeanCPUE <- round(mean(temp4$CPUE),0)
     }else{
       temp4 <- temp2
-      temp5$MeanCPUE <- mean(temp4$CPUE)
+      temp5$MeanCPUE <- round(mean(temp4$CPUE),0)
     }
     temp5$LastCapture <- ifelse(!is.na(temp7$Totaal), temp7$Totaal, 0)
     temp5$Datum_LastCapture <- Datum_LastCapture2
@@ -633,8 +636,9 @@ for (a in Jaren){
     temp7$AV <- ifelse(is.na(temp7$AV), 0, temp7$AV)
     temp5$PostMetamorf2 <- temp7$M1 + temp7$M2 + temp7$AM + temp7$AV
     temp5$Location <- i
-    temp5$StartCPUE <- temp3$CPUE
+    temp5$StartCPUE <- round(temp3$CPUE, 0)
     temp5$Uitgevoerd <- number
+    temp5$Totaal_FuikDagen <- sum(temp2$Totaal_Fuiken, na.rm = TRUE)
     temp5$Totale_Vangst <- sum(temp2$Totaal, na.rm = T)
     temp5$GevangenLarven <- sum(temp2$Totaal_Larven.All, na.rm = T)
     temp5$GevangenPostMetamorf <- temp5$Totale_Vangst - temp5$GevangenLarven 
@@ -657,8 +661,8 @@ for (a in Jaren){
                                 ifelse(GSL$StartGSL >=500 & GSL$StartGSL < 1000 , 13, 
                                        ifelse(GSL$StartGSL >= 1000 & GSL$StartGSL < 5000, 15, 
                                               ifelse(GSL$StartGSL >= 5000, (20/5000)*GSL$StartGSL, NA))))
-  GSL$Resterend_Min <- GSL$MinVangst_Start - GSL$Uitgevoerd
-  GSL$Resterend_Max <- GSL$MaxVangst_Start - GSL$Uitgevoerd
+  GSL$Resterend_Min <- GSL$MinVangst_Start*4 - GSL$Totaal_FuikDagen
+  GSL$Resterend_Max <- GSL$MaxVangst_Start*4 - GSL$Totaal_FuikDagen
   
   GSL$HuidigGSL <- GSL$MeanCPUE*26
   GSL$MinVangst_Huidig <- ifelse(GSL$HuidigGSL<500, 4, 
@@ -675,7 +679,7 @@ for (a in Jaren){
   
   #Juiste kolommen kiezen
   GSL <- GSL %>% 
-    select("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")
+    select("Location","StartCPUE", "StartGSL", "MinVangst_Start", "MaxVangst_Start", "Uitgevoerd", "Totaal_FuikDagen", "Totale_Vangst", "GevangenLarven", "GevangenPostMetamorf", "Resterend_Min", "Resterend_Max", "LastCapture","Datum_LastCapture", "L00", "PostMetamorf2","MeanCPUE", "HuidigGSL", "MinDoelBereikt", "MaxDoelBereikt", "MinVangst_Huidig", "MaxVangst_Huidig")
   
   GSL$x <- NULL
   
