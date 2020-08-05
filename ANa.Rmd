@@ -601,6 +601,8 @@ GRA_Brondata2 <-
 dubbels <- GRA_Brondata2 %>% 
   filter(n > 1)
 
+write_delim(GRA_Brondata2, "./Intermediate/GRA_brondata.csv", ";")
+
 for (a in Jaren){
   temp6 <- data.frame()
   temp <- subset(GRA_Brondata2, Jaar == a) #=> Opgedeeld per jaar
@@ -615,7 +617,7 @@ for (a in Jaren){
     temp3 <- head(temp2, n=1)             #=> Eerste record
     Datum_LastCapture <- as.character(paste(temp3$Dag, temp3$Maand, temp3$Jaar, sep="/"))
     Datum_LastCapture2 <- as.Date(Datum_LastCapture, format("%d/%m/%Y"))
-    Datum_LastCapture2 <- max(Datum_LastCapture2)
+    Datum_LastCapture2 <- max(temp2$Datum)
     temp7 <- subset(temp2, Datum == Datum_LastCapture2)
     temp5 <- data.frame(x=1)
     
