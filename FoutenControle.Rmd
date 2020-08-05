@@ -45,7 +45,7 @@ gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
                                           `Fuik 12 - Hoek` = col_character()))
 
 SKData <- gdrive
-
+andere_vijvers <- gs_read(title, ws = "Andere Vijvers")
 ```
 
 ```{r Juiste datatypes instellen}
@@ -192,7 +192,16 @@ SKData <- SKData %>%
                               !is.na(`Vijver - Scheps`) ~ `Vijver - Scheps`,
                               !is.na(`Vijver - Mol`) ~ `Vijver - Mol`,
                               !is.na(`Vijver - Andere`) ~ as.character(`Vijver - Andere`),
-                              TRUE ~ as.character(NA)))
+                              TRUE ~ as.character(NA))) %>% 
+  left_join(andere_vijvers, by = c("Location"="Locatie")) %>% 
+  mutate(Locatie = case_when(Locatie == "Nijlen/Lier" ~ "Nijlen",
+                             Locatie == "Andere" ~ case_when(!is.na(`Vijver - Scheps`) ~ "Scheps",
+                                                             !is.na(`Vijver - Mol`) ~ "Mol",
+                                                             TRUE ~ Gebied),
+                             TRUE ~ Locatie)) %>% 
+  select(-Gebied, -Nummer)
+
+table(SKData$Locatie)
 
 
 SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
