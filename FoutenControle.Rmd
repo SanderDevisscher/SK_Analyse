@@ -567,7 +567,20 @@ if (verschil != 0){
                                         "Fuik 9 - L2" = col_integer(),
                                         "Fuik 9 - M2" = col_integer(),
                                         "Fuik 7 - M1" = col_integer(),
-                                        "Fuik 8 - M1" = col_integer()))
+                                        "Fuik 8 - M1" = col_integer(),
+                                        "Fuik 1 - Hoek" = col_character(),
+                                        "Fuik 2 - Hoek" = col_character(),
+                                        "Fuik 3 - Hoek" = col_character(),
+                                        "Fuik 4 - Hoek" = col_character(),
+                                        "Fuik 5 - Hoek" = col_character(),
+                                        "Fuik 6 - Hoek" = col_character(),
+                                        "Fuik 7 - Hoek" = col_character(),
+                                        "Fuik 8 - Hoek" = col_character(),
+                                        "Fuik 9 - Hoek" = col_character(),
+                                        "Fuik 10 - Hoek" = col_character(),
+                                        "Fuik 11 - Hoek" = col_character(),
+                                        "Fuik 12 - Hoek" = col_character(),
+                                        "latlong" = col_number()))
     fn <- paste("./Intermediate/Backup/Brondata_", today, ".csv", sep="")
     write_csv(backup, fn)
     write_csv(Records_met_datums, "./Intermediate/Brondata.csv")
