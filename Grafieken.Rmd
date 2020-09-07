@@ -566,6 +566,20 @@ if(!dir.exists("./Output/Overviews/")){
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
+
+GRA_Brondata_Long <- GRA_Brondata %>% 
+  select(-Totaal, -Totaal_Larven.All, -Totaal_Larven.CPUE, -`Aantal fuiken (Totaal)`, -CPUE) %>% 
+  gather(Stadium,n, -Datum, -Location) %>% 
+  mutate(n = case_when(is.na(n) ~ 0,
+                       TRUE ~ n),
+         Jaar = lubridate::year(Datum),
+         Maand = lubridate::month(Datum)) %>% 
+  group_by(Location, Jaar, Maand, Stadium) %>% 
+  summarise(n = sum(n))
+
+
+table(GRA_Brondata_Long$Stadium, useNA = "ifany")
+table(GRA_Brondata_Long$Jaar, useNA = "ifany")
 ```
 
 ```{r Datums juist zetten}
@@ -936,5 +950,32 @@ for(e in file_extensions){
 }
 
 print(plot)
+```
+
+```{r graph per stadium}
+Locations <- unique(GRA_Brondata_Long$Location)
+
+for(l in Locations){
+  temp <- GRA_Brondata_Long %>% 
+    filter(Location == l)
+  jaren <- unique(temp$Jaar)
+  for(j in jaren){
+    temp2 <- temp %>% 
+      filter(Jaar == j)
+    i2 <- gsub(l, pattern = " ", replacement = "")
+    path <- paste("./Output/Afbeeldingen/", i2, sep="")
+    dir.create(path)
+    fNaam <- paste(l ,"Vangst_per_Stadium", j, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep = "")
+    p <- ggplot(temp2, aes(x = as.factor(Maand), y = n, fill = Stadium)) +
+      geom_bar(position = "stack", stat = "identity") +
+      xlab("Maand") + 
+      ylab("Absolute vangsten") +
+      ggtitle(label = "Vangst per stadium",
+              subtitle = paste(l, "-", j))
+    ggsave(filename = fNaam, path = path, width=10, height=10, units = c("cm"), dpi = 300, limitsize = F)
+  }
+}
+
 ```
 
