@@ -42,7 +42,11 @@ gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
                                           `Fuik 9 - Hoek` = col_character(),
                                           `Fuik 10 - Hoek` = col_character(),
                                           `Fuik 11 - Hoek` = col_character(),
-                                          `Fuik 12 - Hoek` = col_character()))
+                                          `Fuik 12 - Hoek` = col_character(),
+                                          `Fuik 10 - Opmerkingen` = col_character(),
+                                          `Fuik 11 - Opmerkingen` = col_character(),
+                                          `Fuik 12 - Opmerkingen` = col_character(),
+                                          `Fuik 9 - Opmerkingen` = col_character()))
 
 SKData <- gdrive
 andere_vijvers <- gs_read(title, ws = "Andere Vijvers")
