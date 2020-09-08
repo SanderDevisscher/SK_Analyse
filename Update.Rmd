@@ -1,0 +1,17 @@
+---
+title: "Update_SK_Analyses"
+author: "Sander Devisscher"
+date: "3-6-2020"
+output: html_document
+---
+
+```{r}
+library(rmarkdown)
+```
+
+```{r}
+render("FoutenControle.Rmd")
+render("ANa.Rmd")
+render("Grafieken.Rmd")
+```
+

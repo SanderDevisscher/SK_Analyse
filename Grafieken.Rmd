@@ -14,6 +14,7 @@ library(tidyverse)
 library(scales)
 #library(ggplot2)
 library(INBOtheme)
+library(extrafont) #Voor Ravon artikel
 theme_set(theme_inbo(base_size = 18))
 ```
 
@@ -143,7 +144,13 @@ Brondata$`Fuik 12 - AV` <- as.numeric(Brondata$`Fuik 12 - AV`)
 ```
 
 ```{r Subset data}
-Afvangsten <- subset(Brondata, Sample_Type == "Afvangst")
+Afvangsten <- Brondata %>% 
+  filter(grepl(pattern = "afvangst", Sample_Type, ignore.case = TRUE),
+         !grepl(pattern = "BSF", Sample_Type),
+         !grepl(pattern = "DSF", Sample_Type)) %>% 
+  mutate(Sample_Type = "Afvangst")
+
+table(Afvangsten$Sample_Type)
 ```
 
 ```{r prep dataframe}
@@ -547,11 +554,33 @@ Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Tota
 print(Afvangsten$CPUE)
 
 ```
+```{r set up directories}
+if(!dir.exists("./Output/Afbeeldingen/")){
+  dir.create("./Output/Afbeeldingen/")
+}
+
+if(!dir.exists("./Output/Overviews/")){
+  dir.create("./Output/Overviews/")
+}
+```
 
 ```{r Selecteer brondata voor grafieken}
 GRA_Brondata <- Afvangsten[c("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE")]
 
+GRA_Brondata_Long <- GRA_Brondata %>% 
+  select(-Totaal, -Totaal_Larven.All, -Totaal_Larven.CPUE, -CPUE) %>% 
+  gather(Stadium,n, -Datum, -Location, -`Aantal fuiken (Totaal)`) %>% 
+  mutate(n = case_when(is.na(n) ~ 0,
+                       TRUE ~ n),
+         Jaar = lubridate::year(Datum),
+         Maand = lubridate::month(Datum)) %>% 
+  group_by(Location, Jaar, Maand, Stadium) %>% 
+  summarise(n = sum(n),
+            aantal_fuiken = sum(`Aantal fuiken (Totaal)`))
 
+
+table(GRA_Brondata_Long$Stadium, useNA = "ifany")
+table(GRA_Brondata_Long$Jaar, useNA = "ifany")
 ```
 
 ```{r Datums juist zetten}
@@ -684,11 +713,20 @@ for(i in Locations){
     jmin <- min(temp3$Jaar)
     fNaam <- paste(i,"CPUE",jmin, jmax, sep="_")
     fNaam <- paste(fNaam, ".jpeg", sep="")
-    #Create plot
+    #Create plot data
     temp3 <- temp3 %>% 
       group_by(Jaar) %>% 
       arrange(Maand) %>% 
       mutate(Maand = factor(Maand, levels = c("4","5","6","7","8","9","10")))
+    #Calculate units of effort
+    temp3_UE <- temp3 %>% 
+      group_by(Jaar) %>% 
+      summarise(UE = sum(`Aantal fuiken (Totaal)`), avg = round(mean(CPUE), 2), sd = round(sd(CPUE), 2))
+    
+    #Merge datasets
+    temp3 <- temp3 %>% 
+      left_join(temp3_UE) %>% 
+      mutate(Jaar_UE = paste0(Jaar, " (UE= ", UE, " fuikdagen, Gem. CPUE= ", avg, " +-", sd, ")"))
     
     plot <- ggplot(temp3, aes(x=Maand, y=CPUE)) + 
       geom_boxplot()
@@ -700,7 +738,7 @@ for(i in Locations){
     plot <- plot + theme(axis.line = element_line(color="black", size = 1))
     plot <- plot + xlab("Maand")
     plot <- plot + ylab("CPUE")
-    plot <- plot + facet_wrap(~Jaar, scales = "fixed", nrow = o)
+    plot <- plot + facet_wrap(~Jaar_UE, scales = "fixed", nrow = o)
     #Calculate dynamic dimensions
     width <- 25
     height<- o*6
@@ -775,16 +813,18 @@ temp <- GRA_Brondata
 Locations <- unique(temp$Location)
 Jaren <- unique(temp$Jaar)
 
-temp3 <- data.frame(1)
+temp3 <- data.frame()
 
+p <- 1
 for(j in Jaren){
   temp2 <- subset(temp, Jaar == j)
   Locations <- unique(temp2$Location)
   for(l in Locations){
     temp2A <- subset(temp2, Location == l)
+    t <- nrow(temp2A)
     for(i in 1:nrow(temp2A)){
       if(i == 1){
-        temp2A$GSL[i] <- temp2A$CPUE*26
+        temp2A$GSL[i] <- temp2A$CPUE[i]*26
       }else{
         if(i == 2){
           temp2A$GSL[i] <- ((temp2A$CPUE[i-1] + temp2A$CPUE[i])/2)*26
@@ -793,15 +833,14 @@ for(j in Jaren){
         }
       }
       temp2A <- temp2A %>% 
-        arrange(Datum)
+        arrange(Datum) %>% 
+        ungroup()
       t <- nrow(temp2A)
       if(p < i){
         p <- i+1
       }else{
         p <- i
       }
-      
-      
       temp2A$Remainder[i] <- sum(temp2A$Totaal_Larven.CPUE[p:t],na.rm =F)
       temp2A$Error[i] <- temp2A$Remainder[i]-temp2A$GSL[i]
     }
@@ -833,11 +872,15 @@ for(j in Jaren){
     temp7 <- temp5 %>% 
       filter(GSL <= 10)
     temp8 <- temp5 %>% 
-      filter(Error > 2 * GSL)
+      filter(Error > 0.5 * GSL)
+    temp9 <- temp5 %>% 
+      filter(Error < -0.5 * GSL)
+    
     plot <- ggplot(temp5, aes(x=as.character.Date(Datum), y=GSL)) + 
       geom_bar(stat="identity", fill = "blue") + 
       geom_bar(data = temp6, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "yellow") +
       geom_bar(data = temp7, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "green") +
+      geom_bar(data = temp9, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "orange") +
       geom_bar(data = temp8, mapping = aes(x=as.character.Date(Datum), y=GSL), stat = "identity", fill = "red")
     plot <- plot + ggtitle(paste("Geschat startaantal larven:", l, " ", j))
     plot <- plot + expand_limits(x = 0, y = 0)
@@ -862,3 +905,104 @@ for(j in Jaren){
   }
 }
 ```
+
+```{r Arendonk Overview, fig.width=10, eval=FALSE}
+font.add("Kievit", "./Fonts/KievitOT-Light2.otf")
+showtext.auto()
+
+file_extensions <- c(".jpeg", ".eps")
+
+color1 <- rgb(red = 194, green = 14, blue = 26, maxColorValue = 255)
+color2 <- rgb(red = 234, green = 184, blue = 24, maxColorValue = 255)
+color3 <- rgb(red = 0, green = 158, blue = 224, maxColorValue = 255)
+color4 <- rgb(116,125,132,maxColorValue = 255)
+color5 <- rgb(213,215,212, maxColorValue = 255, alpha = 75)
+
+Arendonk_Overview_Data <- Afvangsten %>% 
+  dplyr::select(Locatie, Location, Jaar, Totaal_Larven.All, Totaal_Larven.CPUE, Totaal) %>% 
+  filter(Locatie == "Arendonk" & !grepl("visput", Location) & !grepl("b", Location)) %>% 
+  mutate(`(Jong)Volwassen` = Totaal - Totaal_Larven.All,
+         Larven = Totaal_Larven.CPUE,
+         `Kleinste Larven` = Totaal_Larven.All - Totaal_Larven.CPUE) %>% 
+  dplyr::select(-Totaal, -Totaal_Larven.All, -Totaal_Larven.CPUE) %>% 
+  gather(key = type, value = aantal, -Locatie, -Location, -Jaar) %>% 
+  group_by(Jaar, Location, type) %>% 
+  summarise(Totale_vangst = sum(aantal, na.rm = TRUE)) %>% 
+  arrange(Jaar, Totale_vangst)
+
+plot <- ggplot(Arendonk_Overview_Data, aes(x = Jaar, y= Totale_vangst, fill = type)) +
+  geom_col(position = "stack") +
+  scale_fill_manual(values = c(color1, color2, color3)) +
+  facet_grid(.~Location) +
+  ylab("Aantal gevangen stierkikkers") +
+  scale_y_continuous(limits=c(0,NA),expand = c(0, 0)) +
+  theme(text=element_text(family = "Kievit", size = 50)) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  theme(strip.background = element_rect(fill = color4),
+        panel.background = element_rect(fill = color5)) +
+  theme(axis.text = element_text(color = color4),
+        legend.text = element_text(color = color4)) +
+  theme(axis.line.x.bottom = element_line(color = "black"),
+        axis.line.y.left = element_line(color = "black"))
+
+for(e in file_extensions){
+  fn <- paste0("./Output/Overviews/Arendonk_Overview", e)
+  ggsave(fn, plot, width = 10)
+}
+
+print(plot)
+```
+
+```{r graph vangst per stadium}
+Locations <- unique(GRA_Brondata_Long$Location)
+
+for(l in Locations){
+  temp <- GRA_Brondata_Long %>% 
+    filter(Location == l)
+  jaren <- unique(temp$Jaar)
+  for(j in jaren){
+    temp2 <- temp %>% 
+      filter(Jaar == j)
+    i2 <- gsub(l, pattern = " ", replacement = "")
+    path <- paste("./Output/Afbeeldingen/", i2, sep="")
+    dir.create(path)
+    fNaam <- paste(l ,"Vangst_per_Stadium", j, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep = "")
+    p <- ggplot(temp2, aes(x = as.factor(Maand), y = n, fill = Stadium)) +
+      geom_bar(position = "stack", stat = "identity") +
+      xlab("Maand") + 
+      ylab("Absolute vangsten") +
+      ggtitle(label = "Vangst per stadium",
+              subtitle = paste(l, "-", j))
+    ggsave(filename = fNaam, path = path, width=10, height=10, units = c("cm"), dpi = 300, limitsize = F)
+  }
+}
+
+```
+
+```{r graph CPUE per stadium}
+Locations <- unique(GRA_Brondata_Long$Location)
+
+for(l in Locations){
+  temp <- GRA_Brondata_Long %>% 
+    filter(Location == l)
+  jaren <- unique(temp$Jaar)
+  for(j in jaren){
+    temp2 <- temp %>% 
+      filter(Jaar == j)
+    i2 <- gsub(l, pattern = " ", replacement = "")
+    path <- paste("./Output/Afbeeldingen/", i2, sep="")
+    dir.create(path)
+    fNaam <- paste(l ,"CPUE_per_Stadium", j, sep="_")
+    fNaam <- paste(fNaam, ".jpeg", sep = "")
+    p <- ggplot(temp2, aes(x = as.factor(Maand), y = n/aantal_fuiken, fill = Stadium)) +
+      geom_bar(position = "stack", stat = "identity") +
+      xlab("Maand") + 
+      ylab("Vangst per unit of effort") +
+      ggtitle(label = "CPUE per stadium",
+              subtitle = paste(l, "-", j))
+    ggsave(filename = fNaam, path = path, width=10, height=10, units = c("cm"), dpi = 300, limitsize = F)
+  }
+}
+```
+
