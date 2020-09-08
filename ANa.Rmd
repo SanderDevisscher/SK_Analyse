@@ -19,18 +19,34 @@ library(INBOtheme)
 
 ```{r Read data}
 Brondata <- read_csv("./Intermediate/Brondata.csv", 
-                         col_types = cols("Fuik 10 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 11 - Bijvangst [Soort]" = col_character(),
-                                          "Fuik 12 - Bijvangst [Soort]" = col_character(),
-                                          "Vijver - Andere" = col_character(),
-                                          "Fuik 9 - L00" = col_integer(),
-                                          "Fuik 10 - L00" = col_integer(),
-                                          "Fuik 11 - L00" = col_integer(),
-                                          "Fuik 8 - M2" = col_integer(),
-                                          "Fuik 9 - L2" = col_integer(),
-                                          "Fuik 9 - M2" = col_integer(),
-                                          "Fuik 7 - M1" = col_integer(),
-                                          "Fuik 8 - M1" = col_integer()))
+                     col_types = cols(`Vijver - Andere` = col_character(),
+                                      `Fuik 7 - M1` = col_integer(),
+                                      `Fuik 8 - M1` = col_integer(),
+                                      `Fuik 9 - L00` = col_integer(),
+                                      `Fuik 10 - L00` = col_integer(),
+                                      `Fuik 11 - L00` = col_integer(),
+                                      `Fuik 8 - M2` = col_integer(),
+                                      `Fuik 9 - L2` = col_integer(),
+                                      `Fuik 9 - M2` = col_integer(),
+                                      `Fuik 10 - Bijvangst [Soort]` = col_character(),
+                                      `Fuik 11 - Bijvangst [Soort]` = col_character(),
+                                      `Fuik 12 - Bijvangst [Soort]` = col_character(),
+                                      `Fuik 1 - Hoek` = col_character(),
+                                      `Fuik 2 - Hoek` = col_character(),
+                                      `Fuik 3 - Hoek` = col_character(),
+                                      `Fuik 4 - Hoek` = col_character(),
+                                      `Fuik 5 - Hoek` = col_character(),
+                                      `Fuik 6 - Hoek` = col_character(),
+                                      `Fuik 7 - Hoek` = col_character(),
+                                      `Fuik 8 - Hoek` = col_character(),
+                                      `Fuik 9 - Hoek` = col_character(),
+                                      `Fuik 10 - Hoek` = col_character(),
+                                      `Fuik 11 - Hoek` = col_character(),
+                                      `Fuik 12 - Hoek` = col_character(),
+                                      `Fuik 10 - Opmerkingen` = col_character(),
+                                      `Fuik 11 - Opmerkingen` = col_character(),
+                                      `Fuik 12 - Opmerkingen` = col_character(),
+                                      `Fuik 9 - Opmerkingen` = col_character()))
 
 #Fuik 1
 Brondata$`Fuik 1 - L00` <- as.numeric(Brondata$`Fuik 1 - L00`)
@@ -150,7 +166,7 @@ Afvangsten <- Brondata %>%
   mutate(Sample_Type = "Afvangst")
 
 table(Afvangsten$Sample_Type)
-  
+
 ```
 
 ```{r prep dataframe}
@@ -559,7 +575,7 @@ summary(Afvangsten$CPUE)
 GRA_Brondata <- Afvangsten %>% 
   select("Datum", "Location", "L00", "L0", "L1", "L2", "M1", "M2", "AM", "AV", "Totaal", "Totaal_Larven.All", "Totaal_Larven.CPUE","Aantal fuiken (Totaal)","CPUE", Jaar) %>% 
   mutate(Maand = month(Datum), Dag = day(Datum))
- 
+
 
 
 ```
@@ -650,7 +666,7 @@ for (a in Jaren){
       break}
     temp6 <- rbind(temp6, temp5)
   }
-
+  
   temp6$x <- NULL
   GSL <- temp6
   
@@ -692,7 +708,206 @@ for (a in Jaren){
   #Uitvoeren
   write_delim(GSL, GSLfNaama, ";")
   print(GSLfNaama)
-  }
+}
 
 ```
 
+```{r Hoek data prep}
+Afvangsten2 <- janitor::clean_names(Afvangsten)
+names(Afvangsten2)
+
+Afvangsten_met_Hoek <- Afvangsten2 %>% 
+  filter(!is.na(fuik_1_hoek)) 
+
+temp2 <- data.frame()
+column_list <- ""
+
+for(i in 1:max(Afvangsten_met_Hoek$aantal_fuiken_totaal)){
+  fuik_larven <- paste0("fuik_", i, "_larven")
+  fuik_hoek <- paste0("fuik_", i, "_hoek")
+  fuik_metamorf <- paste0("fuik_", i, "_metamorf")
+  fuik_adult <- paste0("fuik_", i, "_adult")
+  if(nchar(column_list) == 0){
+    column_list <- c(fuik_larven, fuik_hoek, fuik_metamorf, fuik_adult)
+  }else{
+    column_list <- c(column_list, fuik_larven, fuik_hoek, fuik_metamorf, fuik_adult)
+  }
+}
+
+ column_list <- c(column_list, "net_verhoogd") 
+
+for(n in 1:nrow(Afvangsten_met_Hoek)){
+  temp <- Afvangsten_met_Hoek[n,] %>% 
+    mutate(fuik_1_larven = NA,
+           fuik_2_larven = NA,
+           fuik_3_larven = NA,
+           fuik_4_larven = NA,
+           fuik_5_larven = NA,
+           fuik_6_larven = NA,
+           fuik_7_larven = NA,
+           fuik_8_larven = NA,
+           fuik_9_larven = NA,
+           fuik_10_larven = NA,
+           fuik_11_larven = NA,
+           fuik_12_larven = NA,
+           fuik_1_metamorf = NA,
+           fuik_2_metamorf = NA,
+           fuik_3_metamorf = NA,
+           fuik_4_metamorf = NA,
+           fuik_5_metamorf = NA,
+           fuik_6_metamorf = NA,
+           fuik_7_metamorf = NA,
+           fuik_8_metamorf = NA,
+           fuik_9_metamorf = NA,
+           fuik_10_metamorf = NA,
+           fuik_11_metamorf = NA,
+           fuik_12_metamorf = NA,
+           fuik_1_adult = NA,
+           fuik_2_adult = NA,
+           fuik_3_adult = NA,
+           fuik_4_adult = NA,
+           fuik_5_adult = NA,
+           fuik_6_adult = NA,
+           fuik_7_adult = NA,
+           fuik_8_adult = NA,
+           fuik_9_adult = NA,
+           fuik_10_adult = NA,
+           fuik_11_adult = NA,
+           fuik_12_adult = NA)
+  
+  for(i in 1:max(temp$aantal_fuiken_totaal)){
+    fuik_larven <- paste0("fuik_", i, "_larven")
+    fuik_metamorf <- paste0("fuik_", i, "_metamorf")
+    fuik_hoek <- paste0("fuik_", i, "_hoek")
+    fuik_adult <- paste0("fuik_", i, "_adult")
+    l00 <- paste0("fuik_", i, "_l00")
+    l0 <- paste0("fuik_", i, "_l0")
+    l1 <- paste0("fuik_", i, "_l1")
+    l2 <- paste0("fuik_", i, "_l2")
+    m1 <- paste0("fuik_", i, "_m1")
+    m2 <- paste0("fuik_", i, "_m2")
+    am <- paste0("fuik_", i, "_am")
+    av <- paste0("fuik_", i, "_av")
+    
+    temp[fuik_larven]  =  sum(temp[l00], temp[l0], temp[l1], temp[l2], na.rm = TRUE)
+    temp[fuik_metamorf] = sum(temp[m1], temp[m2], na.rm = TRUE)
+    temp[fuik_adult] = sum(temp[am], temp[av], na.rm = TRUE)
+  }
+  if(nrow(temp2)>0){
+    temp2 <- rbind(temp, temp2)
+  }else{
+    temp2 <- temp
+  }
+}
+
+temp3 <- temp2 %>% 
+  select(column_list) 
+
+source("../backoffice-wild-analyse/Functies/UUID_List.R")
+
+temp3$UUID <- UUID_List(temp3)
+
+larven <- temp3 %>% 
+  select(contains("larven"), UUID, net_verhoogd) %>% 
+  gather(key = fuiknr, value = larven, -UUID, -net_verhoogd) %>% 
+  mutate(fuiknr = substr(fuiknr, 6, nchar(fuiknr)-7))
+
+hoeken <- temp3 %>% 
+  select(contains("hoek"), UUID, net_verhoogd) %>% 
+  gather(key = fuiknr, value = hoek, -UUID, -net_verhoogd) %>% 
+  mutate(fuiknr = substr(fuiknr, 6, nchar(fuiknr)-5))
+
+metamorfen <- temp3 %>% 
+  select(contains("metamorf"), UUID, net_verhoogd) %>% 
+  gather(key = fuiknr, value = metamorf, -UUID, -net_verhoogd) %>% 
+  mutate(fuiknr = substr(fuiknr, 6, nchar(fuiknr)-9))
+
+adulten <- temp3 %>% 
+  select(contains("adult"), UUID, net_verhoogd) %>% 
+  gather(key = fuiknr, value = adult, -UUID, -net_verhoogd) %>% 
+  mutate(fuiknr = substr(fuiknr, 6, nchar(fuiknr)-6))
+
+table(larven$fuiknr, useNA = "ifany")
+table(hoeken$fuiknr, useNA = "ifany")
+table(hoeken$hoek, useNA = "ifany")
+
+hoeken_data_compiled <- hoeken %>% 
+  left_join(larven, by = c("UUID", "fuiknr", "net_verhoogd")) %>% 
+  left_join(metamorfen, by = c("UUID", "fuiknr", "net_verhoogd")) %>% 
+  left_join(adulten, by = c("UUID", "fuiknr", "net_verhoogd")) %>% 
+  select(-fuiknr) %>% 
+  filter(!is.na(hoek)) %>% 
+  mutate(post_metamorf = metamorf + adult,
+         totaal = metamorf + adult + larven)
+
+table(hoeken_data_compiled$hoek, useNA = "ifany")
+
+write_delim(hoeken_data_compiled, "./Intermediate/hoeken_data_compiled.csv", ";")
+```
+
+```{r hoek analyses}
+library(multcompView)
+
+# net verhogen en hoek hebben een invloed op de vangstkans van post-metamorfen
+
+model1 <- lm(hoeken_data_compiled$post_metamorf ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
+anova1 <- aov(model1)
+summary(anova1)
+
+## Turkey post-hoc
+TukeyHSD(anova1)
+
+
+
+# net verhogen en hoek hebben een invloed op de vangstkans van adulten
+
+model2 <- lm(hoeken_data_compiled$adult ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
+anova2 <- aov(model2)
+summary(anova2)
+
+## Turkey post-hoc
+
+TukeyHSD(anova2)
+
+
+
+# net verhogen en hoek hebben een invloed op de vangstkans van metamorfen
+
+model3 <- lm(hoeken_data_compiled$metamorf ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
+anova3 <- aov(model3)
+summary(anova3)
+
+## Turkey post-hoc
+
+TukeyHSD(anova3)
+
+
+
+# net verhogen en hoek hebben een invloed op de vangstkans van larven
+
+model4 <- lm(hoeken_data_compiled$larven ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
+anova4 <- aov(model4)
+summary(anova4)
+
+## Turkey post-hoc
+
+TukeyHSD(anova4)
+
+#=> 
+
+# net verhogen en hoek hebben een invloed op de algemene vangstkans
+
+model5 <- lm(hoeken_data_compiled$totaal ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
+anova5 <- aov(model5)
+summary(anova5)
+
+## Turkey post-hoc
+
+TukeyHSD(anova5)
+
+#=> Zoals verwacht komt de voorkeur voor een fuik met een verhoogd net en een hoek van 45° ook uit de analyse van alle vangsten. 
+```
+
+Voor post-metamorfen (metamorfen en adulten) detecteren we geen significante impact van de hoek en de net-verhoging. Als we de post-metamorfen opsplitsen blijkt dat er duidelijke verschillen zijn voor adulten en metamorfen. Voor adulten is er een duidelijke significante voorkeur voor een verhoogd net (p = 0) alsook een fuik in een hoek van 45° (p = 0). Een fuik in een hoek van 90° geeft de slechtste resultaten (45°>00°>90°). Voor metamorfen detecteren we geen significante impact van de hoek en de net-verhoging.
+Het vangstsucces van de larven is voornamelijk beinvloed door de hoek van de fuik (p=0.005), een voorkeur wordt hierbij gegeven voor een hoek van 45° (p=0.004). Daarnaast verhoogt ook het verhogen van het net het vangstsucces (p = 0.03) al is dit niet zo uitgesproken als bij de adulten. 
+De algemene conclusie is dat het plaatsen van fuiken, ongeacht het doel-stadium, best gebeurd in een hoek van 45° met een verhoogd net. Als alternatief kunnen de fuiken paralel geplaatst worden. Het plaatsen van fuiken loodrecht op de oever heeft potentieel een negatief effect op het vangstsucces. Dit is het meest uitgesproken bij de larven en de adulten.
