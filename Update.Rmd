@@ -7,11 +7,13 @@ output: html_document
 
 ```{r}
 library(rmarkdown)
+library(magrittr)
 ```
 
 ```{r}
 render("FoutenControle.Rmd")
 render("ANa.Rmd")
 render("Grafieken.Rmd")
+render("Hoeken_Analyse.Rmd")
 ```
 

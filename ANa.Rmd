@@ -706,7 +706,7 @@ for (a in Jaren){
   GSLfNaama <- paste(GSLfNaam, ".csv", sep="")
   
   #Uitvoeren
-  write_delim(GSL, GSLfNaama, ";")
+  write_delim(GSL, GSLfNaama, ",")
   print(GSLfNaama)
 }
 
@@ -845,69 +845,5 @@ table(hoeken_data_compiled$hoek, useNA = "ifany")
 write_delim(hoeken_data_compiled, "./Intermediate/hoeken_data_compiled.csv", ";")
 ```
 
-```{r hoek analyses}
-library(multcompView)
-
-# net verhogen en hoek hebben een invloed op de vangstkans van post-metamorfen
-
-model1 <- lm(hoeken_data_compiled$post_metamorf ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
-anova1 <- aov(model1)
-summary(anova1)
-
-## Turkey post-hoc
-TukeyHSD(anova1)
 
 
-
-# net verhogen en hoek hebben een invloed op de vangstkans van adulten
-
-model2 <- lm(hoeken_data_compiled$adult ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
-anova2 <- aov(model2)
-summary(anova2)
-
-## Turkey post-hoc
-
-TukeyHSD(anova2)
-
-
-
-# net verhogen en hoek hebben een invloed op de vangstkans van metamorfen
-
-model3 <- lm(hoeken_data_compiled$metamorf ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
-anova3 <- aov(model3)
-summary(anova3)
-
-## Turkey post-hoc
-
-TukeyHSD(anova3)
-
-
-
-# net verhogen en hoek hebben een invloed op de vangstkans van larven
-
-model4 <- lm(hoeken_data_compiled$larven ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
-anova4 <- aov(model4)
-summary(anova4)
-
-## Turkey post-hoc
-
-TukeyHSD(anova4)
-
-#=> 
-
-# net verhogen en hoek hebben een invloed op de algemene vangstkans
-
-model5 <- lm(hoeken_data_compiled$totaal ~ as.factor(hoeken_data_compiled$net_verhoogd) + as.factor(hoeken_data_compiled$hoek))
-anova5 <- aov(model5)
-summary(anova5)
-
-## Turkey post-hoc
-
-TukeyHSD(anova5)
-
-#=> Zoals verwacht komt de voorkeur voor een fuik met een verhoogd net en een hoek van 45° ook uit de analyse van alle vangsten. 
-```
-
-Voor post-metamorfen (metamorfen en adulten) detecteren we geen significante impact van de hoek en de net-verhoging. Als we de post-metamorfen opsplitsen blijkt dat er duidelijke verschillen zijn voor adulten en metamorfen. Voor adulten is er een duidelijke significante voorkeur voor een verhoogd net (p = 0) alsook een fuik in een hoek van 45° (p = 0). Een fuik in een hoek van 90° geeft de slechtste resultaten (45°>00°>90°). Voor metamorfen detecteren we geen significante impact van de hoek en de net-verhoging.
-Het vangstsucces van de larven is voornamelijk beinvloed door de hoek van de fuik (p=0.005), een voorkeur wordt hierbij gegeven voor een hoek van 45° (p=0.004). Daarnaast verhoogt ook het verhogen van het net het vangstsucces (p = 0.03) al is dit niet zo uitgesproken als bij de adulten. 
-De algemene conclusie is dat het plaatsen van fuiken, ongeacht het doel-stadium, best gebeurd in een hoek van 45° met een verhoogd net. Als alternatief kunnen de fuiken paralel geplaatst worden. Het plaatsen van fuiken loodrecht op de oever heeft potentieel een negatief effect op het vangstsucces. Dit is het meest uitgesproken bij de larven en de adulten.

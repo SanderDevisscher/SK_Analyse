@@ -1,0 +1,102 @@
+```{r libraries}
+library(googledrive)
+library(googlesheets4)
+library(tidyverse)
+library(uuid)
+```
+
+```{r credentials, echo=TRUE}
+bo_email <- Sys.getenv("bo_email")
+gs4_auth(email = bo_email)
+```
+
+```{r beheerlocaties binnenhalen}
+beheertoken <- "1_cBgfSjnxakLAQ9uGunDt_-Mk4L0uDx2-qv6cKCzkSk"
+locaties <- c("Kasterlee",
+              "Arendonk",
+              "Hoogstraten",
+              "Nijlen",
+              "Mol",
+              "Balen",
+              "Andere Vijvers")
+
+data_combined <- data.frame()
+
+for(l in locaties){
+  data <- read_sheet(beheertoken, sheet = l) %>% 
+    select(Locatie, latlong)
+  if(nrow(data_combined) == 0){
+    data_combined <- data
+  }else{
+    data_combined <- rbind(data_combined, data)
+  }
+}
+
+data_combined <- data_combined %>% 
+  group_by(Locatie) %>% 
+  add_tally() 
+
+data_checked <- data_combined %>% 
+  filter(n == 1) %>% 
+  select(-n) %>% 
+  select(IDWaterlichaam = Locatie,
+         LatLong = latlong)
+
+if(nrow(data_checked) == nrow(data_combined)){
+  print("ok")
+}else{
+  warning("er zijn dubbels gedetecteerd!!")
+  dubbels <- data_combined %>% 
+    filter(n > 1)
+  print(dubbels)
+}
+```
+
+```{r nieuwe beheerlocaties wegschrijven naar eDNA}
+eDNA_locs <- read_sheet("1HWxzTku0v7BNJA9dlXlCwqSz76YppuBBTQDsQaU0ESo", "Waterlichamen_sk_landing", col_types = "c") 
+
+eDNA_nieuwe_locs <- data_checked %>% 
+  anti_join(eDNA_locs, by = "IDWaterlichaam") %>% 
+  mutate(UUID = UUIDgenerate(),
+         Type = "Stilstaand") %>% 
+  select(UUID,
+         IDWaterlichaam,
+         LatLong,
+         Type)
+
+sheet_append(eDNA_nieuwe_locs, sheet = "Waterlichamen_sk_landing", ss = "1HWxzTku0v7BNJA9dlXlCwqSz76YppuBBTQDsQaU0ESo")
+```
+
+```{r UUIDs koppelen aan beheerlocaties}
+eDNA_locs <- read_sheet("1HWxzTku0v7BNJA9dlXlCwqSz76YppuBBTQDsQaU0ESo", 
+                        "Waterlichamen_sk_landing", col_types = "c") 
+
+for(l in locaties){
+  data <- read_sheet(beheertoken, sheet = l)
+  
+  data_merged <- data %>% 
+    left_join(eDNA_locs, by = c("Locatie" = "IDWaterlichaam")) %>% 
+    mutate(latlong = case_when(is.na(latlong) ~ LatLong,
+                               TRUE ~ as.character(latlong))) %>%
+    rename(UUID = UUID.y) %>% 
+    select(-LatLong, -Type, -UUID.x)
+  
+  sum(is.na(data$latlong)) - sum(is.na(data_merged$latlong))
+  
+  if(l == "Andere Vijvers"){
+    nieuwe_beheer_locs <- eDNA_locs %>% 
+      anti_join(data_checked, by = "IDWaterlichaam") %>% 
+      mutate(Nummer = 0,
+             Gebied = "") %>% 
+      select(Gebied,
+             Locatie = IDWaterlichaam,
+             latlong = LatLong,
+             Nummer,
+             UUID)
+    data_merged <- rbind(data_merged, nieuwe_beheer_locs)
+  }
+  
+  sheet_write(data_merged, sheet = l, beheertoken)
+}
+```
+
