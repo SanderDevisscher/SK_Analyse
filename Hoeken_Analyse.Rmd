@@ -84,20 +84,6 @@ Fuiken met hoek en/of net verhoging info: `r n`
 ^1^ _fuik met minstens 1 gevangen exemplaar._
 
 ### 1.2.2. Net verhoogd of niet
-```{r data subsets,include=FALSE}
-#Larven
-hoeken_data_larven <- hoeken_data_compiled %>%
-  filter(larven != 0)
-
-#Metamorfen
-hoeken_data_metamorf <- hoeken_data_compiled %>%
-  filter(metamorf != 0)
-
-hoeken_data_adult <- hoeken_data_compiled %>%
-  filter(adult != 0)
-
-table(hoeken_data_larven$net_verhoogd, useNA = "ifany")
-```
 
 #### 1.2.2.1. Histogram
 ```{r Histogram_NV, echo=FALSE}
@@ -110,6 +96,18 @@ print(p)
 ```
 
 #### 1.2.2.2. Tabel
+```{r data subsets,include=FALSE}
+#Larven
+hoeken_data_larven <- hoeken_data_compiled %>%
+  filter(larven != 0)
+#Metamorfen
+hoeken_data_metamorf <- hoeken_data_compiled %>%
+  filter(metamorf != 0)
+hoeken_data_adult <- hoeken_data_compiled %>%
+  filter(adult != 0)
+table(hoeken_data_larven$net_verhoogd, useNA = "ifany")
+```
+
 ```{r tabel per net verhoogd, include=FALSE}
 stadia <- c("larven", "metamorf", "adult")
 
@@ -281,101 +279,6 @@ print(p)
 
 ## 1.3. Anova
 ### 1.3.1. Resultaten
-```{r data subsets,include=FALSE}
-#Larven
-hoeken_data_larven <- hoeken_data_compiled %>%
-  filter(larven != 0)
-
-#Metamorfen
-hoeken_data_metamorf <- hoeken_data_compiled %>%
-  filter(metamorf != 0)
-
-hoeken_data_adult <- hoeken_data_compiled %>%
-  filter(adult != 0)
-
-table(hoeken_data_larven$net_verhoogd, useNA = "ifany")
-```
-
-
-```{r tabel per net verhoogd, include=FALSE}
-stadia <- c("larven", "metamorf", "adult")
-
-for(s in stadia){
-  fn <- paste0("hoeken_data_", s)
-  fn2 <- paste0("nv_", s)
-  fn3 <- paste0("nnv_", s)
-  data <- get(fn)
-  nv_data <- data %>%
-    rename(n = s) %>%
-    filter(net_verhoogd==TRUE) %>%
-    summarise(max = max(n, na.rm = TRUE),
-              mean = mean(n, na.rm = TRUE),
-              n = n())
-  nnv_data <- data %>%
-    rename(n = s) %>%
-    filter(net_verhoogd==FALSE) %>%
-    summarise(max = max(n, na.rm = TRUE),
-              mean = mean(n, na.rm = TRUE),
-              n = n())
-  assign(fn2, nv_data)
-  assign(fn3, nnv_data)
-}
-```
-
-### Net verhoogd of niet
-#### Larven
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|Net verhoogd     | `r nv_larven$n`     |`r nv_larven$max` |`r nv_larven$mean` |
-|Net Niet verhoogd| `r nnv_larven$n`    |`r nnv_larven$max`|`r nnv_larven$mean`|
-
-#### Metamorfen
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|Net verhoogd     | `r nv_metamorf$n`     |`r nv_metamorf$max` |`r nv_metamorf$mean` |
-|Net Niet verhoogd| `r nnv_metamorf$n`    |`r nnv_metamorf$max`|`r nnv_metamorf$mean`|
-
-#### Adulten
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|Net verhoogd     | `r nv_adult$n`     |`r nv_adult$max` |`r nv_adult$mean` |
-|Net Niet verhoogd| `r nnv_adult$n`    |`r nnv_adult$max`|`r nnv_adult$mean`|
-
-```{r tabel per hoek, include=FALSE}
-#n_00 <- (hoeken_data_compiled$hoek == "00°")
-```
-
-### Hoeken
-
-#### Larven
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|00°              |   `r n_larven`      |`r max_larven`    |`r mean_metamorfen`|
-|45°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-|90°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-
-#### Metamorfen
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|00°              |   `r n_larven`      |`r max_larven`    |`r mean_metamorfen`|
-|45°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-|90°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-
-#### Adulten
-
-|                 |Succesvolle vangsten*|Grootste vangst   |Gemiddelde vangst  |
-|-----------------|:-------------------:|:----------------:|:-----------------:|
-|00°              |   `r n_larven`      |`r max_larven`    |`r mean_metamorfen`|
-|45°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-|90°              | `r n_metamorfen`    |`r max_metamorfen`|`r mean_larven`    |
-
-## Anova
-### Resultaten
 
 ```{r hoek analyses, echo=FALSE}
 print("net verhogen en hoek hebben een invloed op de vangstkans van post-metamorfen")
