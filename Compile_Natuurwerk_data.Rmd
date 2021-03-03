@@ -46,10 +46,11 @@ sk_recorder_prepped <- sk_recorder %>%
 
 app_data_prepped <- app_data %>% 
   mutate(link = paste(Location, Datum, sep = "-")) %>% 
-  select(link, Location, Recorder, Datum, Jaar, L00, L0, L1, L2, M1, M2, AM, AV,
-         contains("totaal"), -contains("fuiken")) %>% 
+  select(link, Location, Recorder, Datum, Jaar, L00, L0, L1, L2, M1, M2, AM, AV, -contains("fuiken")) %>% 
   group_by(link) %>% 
-  mutate(Totaal_Juvenielen = sum(M1, M2, na.rm = TRUE),
+  mutate(Totaal = sum(L00, L0, L1, L2, M1, M2, AM, AV, na.rm = TRUE),
+         Totaal_Larven.All = sum(L00, L0, L1, L2, na.rm = TRUE),
+         Totaal_Larven.CPUE = sum(L0, L1, L2, na.rm = TRUE),Totaal_Juvenielen = sum(M1, M2, na.rm = TRUE),
          Totaal_Adulten = sum(AM, AV, na.rm = TRUE)) %>% 
   mutate(Recorder = case_when(grepl("Kris Meeus", Recorder) ~ "Natuurwerk",
                               grepl("Rik Van Noten", Recorder) ~ "Natuurwerk",
@@ -77,6 +78,8 @@ only_recorder <- sk_recorder_prepped %>%
          )
 
 all_data <- rbind(app_data_prepped, only_recorder)
+
+write_delim(all_data, "./Intermediate/Brondata_compiled.csv")
 ```
 
 ```{r natuurwerk}
