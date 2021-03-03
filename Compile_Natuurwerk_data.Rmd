@@ -1,0 +1,122 @@
+Momenteel steekt er stierkikker beheerdata in Recorder (ook op gbif)
+en in de gsheet van de APP. Hiertussen is er enkele jaren overlap. 
+Dit naast een uitbereiding van de dataset ook een eerste stap om het 
+stierkikkerbeheer samen te krijgen via Recorder op gbif. 
+
+```{r libraries}
+library(DBI)
+library(odbc)
+library(tidyverse)
+library(lubridate)
+```
+
+```{r make connection with recorder}
+con <- dbConnect(odbc(),
+                 Driver = "SQL Server Native Client 11.0",
+                 Server = "inbo-sql07-prd.inbo.be",
+                 Database = "D0017_00_NBNData",
+                 Trusted_Connection = "Yes"
+)
+```
+
+```{r get recorder data}
+sk_recorder <- dbGetQuery(con,
+                          "SELECT * from inbo.vw_brulkikker")
+```
+
+```{r close connection}
+dbDisconnect(con)
+```
+
+Er is een overlap tussen de data van Recorder en die van de APP.
+
+```{r get app data}
+app_data <- read_delim("./Intermediate/Afvangsten.csv", ";",
+                     guess_max = 5000)
+```
+
+```{r prep merge}
+sk_recorder_prepped <- sk_recorder %>% 
+  mutate(datum = parse_date_time(`Sample Date`, orders = c("%d/%m/%Y", "%Y")),
+         jaar = year(datum),
+         Count = as.numeric(Count)) %>% 
+  mutate(link = paste(`Sample Location`, datum, sep = "-")) %>% 
+  filter(`Sample type` %in% c("Fuik", "Schietfuik"),
+         `Species Name` == "Lithobates catesbeianus")
+
+app_data_prepped <- app_data %>% 
+  mutate(link = paste(Location, Datum, sep = "-")) %>% 
+  select(link, Location, Recorder, Datum, Jaar, L00, L0, L1, L2, M1, M2, AM, AV,
+         contains("totaal"), -contains("fuiken")) %>% 
+  group_by(link) %>% 
+  mutate(Totaal_Juvenielen = sum(M1, M2, na.rm = TRUE),
+         Totaal_Adulten = sum(AM, AV, na.rm = TRUE)) %>% 
+  mutate(Recorder = case_when(grepl("Kris Meeus", Recorder) ~ "Natuurwerk",
+                              grepl("Rik Van Noten", Recorder) ~ "Natuurwerk",
+                              TRUE ~ Recorder))
+
+only_recorder <- sk_recorder_prepped %>% 
+  anti_join(app_data_prepped, by = c("link")) %>% 
+  select(-`Sample Reference`) %>% 
+  pivot_wider(id_cols = c(link, datum, `Sample Location`, jaar) , names_from = Qualifier, values_from = Count, values_fn = sum) %>% 
+  select(link, 
+         Datum = datum, 
+         Jaar = jaar, 
+         Location = `Sample Location`,
+         L00, L0, L1, L2, M1, M2, AM = `Adult Man`, AV = `Adult Vrouw`) %>% 
+  group_by(link, Datum, Jaar, Location) %>% 
+  mutate(Totaal = sum(L00, L0, L1, L2, M1, M2, AM, AV, na.rm = TRUE),
+         Totaal_Larven.All = sum(L00, L0, L1, L2, na.rm = TRUE),
+         Totaal_Larven.CPUE = sum(L0, L1, L2, na.rm = TRUE),
+         Totaal_Juvenielen = sum(M1, M2, na.rm = TRUE),
+         Totaal_Adulten = sum(AM, AV, na.rm = TRUE),
+         Recorder = case_when(grepl(pattern = "Kasterlee", Location) ~ "Natuurwerk",
+                              grepl(pattern = "Arendonk", Location) ~ "Natuurwerk",
+                              Location %in% c("Bospoel", "Driehoek") & Jaar > 2013 ~ "Natuurwerk",
+                              TRUE ~ as.character(NA))
+         )
+
+all_data <- rbind(app_data_prepped, only_recorder)
+```
+
+```{r natuurwerk}
+natuurwerk <- all_data %>% 
+  filter(Recorder == "Natuurwerk")
+
+table(natuurwerk$Recorder, natuurwerk$Jaar)
+
+aantal_stierkikkers_jaar <- natuurwerk %>% 
+  mutate(gebied = case_when(grepl("Kasterlee", Location) ~ "Kasterlee",
+                            grepl("Watermolen", Location) ~ "Kasterlee",
+                            grepl("Retiebaan", Location) ~ "Kasterlee",
+                            grepl("Scheps", Location) ~ "Balen - Scheps",
+                            grepl("Arendonk", Location) ~ "Arendonk",
+                            grepl("Laakdal", Location) ~ "Laakdal",
+                            grepl("Griesbroek", Location) ~ "Balen - Griesbroek",
+                            grepl("Mol", Location) ~ "Mol", 
+                            Location %in% c("Bospoel", "Driehoek", "Markmeander", 
+                                            "Natuurpuntpoel", "Hoogstraten - Chaamseweg 53", 
+                                            "Rechthoekigevijver 1",
+                                            "Rechthoekigevijver 2",
+                                            "Banaan") ~ "Hoogstraten")) %>% 
+  group_by(Jaar, gebied) %>% 
+  summarise(Totaal = sum(Totaal, na.rm = TRUE),
+            Larven = sum(Totaal_Larven.All, na.rm = TRUE),
+            Juvenielen = sum(Totaal_Juvenielen, na.rm = TRUE),
+            Adulten = sum(Totaal_Adulten, na.rm = TRUE),
+            Vijvers = n_distinct(Location),
+            Totaal2 = paste0(Totaal, " (", Vijvers, ")")) 
+
+aantal_stierkikkers_jaar_tot <- aantal_stierkikkers_jaar %>% 
+  select(Jaar, gebied, Totaal2) %>% 
+  pivot_wider(names_from = Jaar, values_from = Totaal2)
+  
+write.csv2(aantal_stierkikkers_jaar_tot, "./Output/natuurwerk_aantal_stierkikkers_jaar_tot.csv")
+sum(natuurwerk$Totaal, na.rm = TRUE)
+sum(natuurwerk$Totaal_Larven.All, na.rm = TRUE)
+sum(natuurwerk$Totaal_Adulten, na.rm = TRUE)
+sum(natuurwerk$Totaal, na.rm = TRUE) - sum(natuurwerk$Totaal_Larven.All, na.rm = TRUE)
+sum(natuurwerk$Totaal_Juvenielen, na.rm = TRUE)
+
+```
+
