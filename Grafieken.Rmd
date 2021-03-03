@@ -543,6 +543,8 @@ print(Afvangsten$Totaal_Larven.All)
 print(Afvangsten$Totaal_Larven.CPUE)
 Afvangsten$`Aantal fuiken (Totaal)` <- as.numeric(Afvangsten$`Aantal fuiken (Totaal)`)
 table(Afvangsten$`Aantal fuiken (Totaal)`, useNA = "always")
+
+
 ```
 
 ```{r Calculate CPUE}
@@ -552,7 +554,7 @@ table(Afvangsten$`Aantal fuiken (Totaal)`, useNA = "always")
 #*Data is as such that every 24h a number of fykes are used a record is made
 Afvangsten$CPUE <- Afvangsten$Totaal_Larven.CPUE/Afvangsten$`Aantal fuiken (Totaal)`
 print(Afvangsten$CPUE)
-
+write_delim(Afvangsten, "./Intermediate/Afvangsten.csv", ";")
 ```
 ```{r set up directories}
 if(!dir.exists("./Output/Afbeeldingen/")){
