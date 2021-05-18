@@ -1,55 +1,40 @@
 ---
-title: "Ana"
+title: "Foutencontrole"
 author: "Sander"
 date: "23 May 2018"
 output: html_document
 ---
+
+# Setup
 ```{r Clean enviroment}
 rm(list = ls())
 ```
 
 ```{r Libraries}
-library(googlesheets)
-library(arsenal)
+library(googlesheets4)
 library(lubridate)
 library(tidyverse)
 ```
 
-```{r import data}
-title <- gs_title(x = "Stierkikker formulieren (Reacties)", verbose = TRUE)
-#♠Token <- gs_auth()
-#gs_auth(token = Token)
-gdrive <- gs_read(title, col_types = cols(`Vijver - Andere` = col_character(),
-                                          `Fuik 7 - M1` = col_integer(),
-                                          `Fuik 8 - M1` = col_integer(),
-                                          `Fuik 9 - L00` = col_integer(),
-                                          `Fuik 10 - L00` = col_integer(),
-                                          `Fuik 11 - L00` = col_integer(),
-                                          `Fuik 8 - M2` = col_integer(),
-                                          `Fuik 9 - L2` = col_integer(),
-                                          `Fuik 9 - M2` = col_integer(),
-                                          `Fuik 10 - Bijvangst [Soort]` = col_character(),
-                                          `Fuik 11 - Bijvangst [Soort]` = col_character(),
-                                          `Fuik 12 - Bijvangst [Soort]` = col_character(),
-                                          `Fuik 1 - Hoek` = col_character(),
-                                          `Fuik 2 - Hoek` = col_character(),
-                                          `Fuik 3 - Hoek` = col_character(),
-                                          `Fuik 4 - Hoek` = col_character(),
-                                          `Fuik 5 - Hoek` = col_character(),
-                                          `Fuik 6 - Hoek` = col_character(),
-                                          `Fuik 7 - Hoek` = col_character(),
-                                          `Fuik 8 - Hoek` = col_character(),
-                                          `Fuik 9 - Hoek` = col_character(),
-                                          `Fuik 10 - Hoek` = col_character(),
-                                          `Fuik 11 - Hoek` = col_character(),
-                                          `Fuik 12 - Hoek` = col_character(),
-                                          `Fuik 10 - Opmerkingen` = col_character(),
-                                          `Fuik 11 - Opmerkingen` = col_character(),
-                                          `Fuik 12 - Opmerkingen` = col_character(),
-                                          `Fuik 9 - Opmerkingen` = col_character()))
+```{r}
+bo_email <- Sys.getenv("bo_email")
 
-SKData <- gdrive
-andere_vijvers <- gs_read(title, ws = "Andere Vijvers")
+if(bo_email == ""){
+  input <- dlgInput("Your email:")
+  bo_email <- input$res
+  Sys.setenv(bo_email = bo_email)
+}
+
+gs4_auth(email = bo_email)
+```
+
+# Data manipulation
+```{r import data}
+SKData <- read_sheet("1_cBgfSjnxakLAQ9uGunDt_-Mk4L0uDx2-qv6cKCzkSk", 
+                                 sheet = "Formulierreacties 1", col_types = "c")
+
+andere_vijvers <- read_sheet("1_cBgfSjnxakLAQ9uGunDt_-Mk4L0uDx2-qv6cKCzkSk", 
+                                 sheet = "Andere Vijvers", col_types = "c")
 ```
 
 ```{r Juiste datatypes instellen}
@@ -180,33 +165,12 @@ SKData <- subset(SKData, Tijdstempel != "15-5-2017 23:47:36")
 SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:50:04")
 SKData <- subset(SKData, Tijdstempel != "17-5-2017 11:56:51")
 
-SKData$`Vijver - Kasterlee` <- ifelse(SKData$`Vijver - Kasterlee`=="retiebaan 1", "Retiebaan 1", 
-                                      ifelse(SKData$`Vijver - Kasterlee` =="retiebaan 2", "Retiebaan 2", 
-                                             ifelse(SKData$`Vijver - Kasterlee` == "watermolen", "Watermolen", SKData$`Vijver - Kasterlee`)))
 SKData <- SKData %>% 
-  mutate(`Vijver - Arendonk` = case_when(`Vijver - Arendonk` == "arendonk 2 b" ~ "Arendonk 2b",
-                                         `Vijver - Arendonk` == "arendonk sportcomplex" ~ "Arendonk-visput",
-                                         TRUE ~ `Vijver - Arendonk`))
-
-SKData <- SKData %>% 
-  mutate(Location = case_when(!is.na(`Vijver - Arendonk`) ~ `Vijver - Arendonk`,
-                              !is.na(`Vijver - Kasterlee`) ~ `Vijver - Kasterlee`,
-                              !is.na(`Vijver - Hoogstraten`) ~ `Vijver - Hoogstraten`,
-                              !is.na(`Vijver - Nijlen`) ~ `Vijver - Nijlen`,
-                              !is.na(`Vijver - Scheps`) ~ `Vijver - Scheps`,
-                              !is.na(`Vijver - Mol`) ~ `Vijver - Mol`,
-                              !is.na(`Vijver - Andere`) ~ as.character(`Vijver - Andere`),
-                              TRUE ~ as.character(NA))) %>% 
+  rename(Location = `Vijver - Andere`) %>% 
   left_join(andere_vijvers, by = c("Location"="Locatie")) %>% 
-  mutate(Locatie = case_when(Locatie == "Nijlen/Lier" ~ "Nijlen",
-                             Locatie == "Andere" ~ case_when(!is.na(`Vijver - Scheps`) ~ "Scheps",
-                                                             !is.na(`Vijver - Mol`) ~ "Mol",
-                                                             TRUE ~ Gebied),
-                             TRUE ~ Locatie)) %>% 
   select(-Gebied, -Nummer)
 
-table(SKData$Locatie)
-
+table(SKData$Location, useNA = "ifany")
 
 SKData$Location <- ifelse(SKData$Tijdstempel == "25-7-2018 8:55:10", "Mol - Tomaathoek", SKData$Location)
 SKData$Location <- ifelse(SKData$Tijdstempel == "26-7-2018 9:00:56", "Mol - Tomaathoek", SKData$Location)
@@ -251,6 +215,10 @@ temp$Recorder <- temp$`Invuller 2`
 temp$Recorder <- ifelse(temp$Recorder == "kris meeus", "Kris Meeus", temp$Recorder)
 temp$Recorder <- ifelse(temp$Recorder == "pieter liekens", "Pieter Liekens", temp$Recorder)
 temp$Recorder <- ifelse(temp$`E-mailadres` == "dries.jonckers@natuurpunt.be" & is.na(temp$Recorder), "Dries Jonckers", temp$Recorder)
+
+temp <- temp %>% 
+  mutate(Recorder = case_when(grepl("dries jonckers", Recorder, ignore.case = TRUE) ~ "Dries Jonckers",
+                              TRUE ~ Recorder))
 
 temp$Recorder <- ifelse(!is.na(temp$Recorder), temp$Recorder, temp$Invuller)
 
@@ -494,7 +462,7 @@ if(nrow(dubbele_datums)>0){
 ```{r Check for missing jaren}
 temp <- Records_met_datums %>% 
   mutate(Jaar = case_when(!is.na(Jaar) ~ Jaar,
-                          TRUE ~ year(Datum)))
+                          TRUE ~ as.character(lubridate::year(Datum))))
 
 table(temp$Jaar, useNA = "ifany")
 
@@ -506,17 +474,13 @@ if(nrow(missing_jaar) == 0){
 }else{
   print("Er zijn foutieve jaren, CONTROLEER ZE !!!")
 }
-
 ```
 
-
 ```{r Delete known errors}
-
 foute_tijdstempels <- c("3-9-2018 13:19:17", "3-9-2018 13:36:12", "10-9-2018 9:44:45", "3-9-2018 12:38:53")
 
 Records_met_datums <- Records_met_datums %>% 
   filter(!Tijdstempel %in% foute_tijdstempels)
-
 ```
 
 ```{r Check for update}
@@ -550,7 +514,6 @@ aantal_online <- nrow(Records_met_datums)
 
 verschil <- aantal_online - aantal_offline
 verschil2 <- diffs(comparedf(Records_met_datums, data_offline))
-
 
 print(paste(verschil, " nieuwe records", sep=""))
 ```
@@ -601,8 +564,5 @@ if (verschil != 0){
     print("no new records")
   }  
 }
-
-
-
 ```
 
