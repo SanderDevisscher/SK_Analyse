@@ -1,0 +1,31 @@
+```{r setup}
+library(tidyverse)
+```
+
+```{r}
+rawdata <- read_csv("./Intermediate/Brondata.csv",
+                    guess_max = 2000)
+
+metadata <- rawdata %>% 
+  select(Tijdstempel,
+         Recorder, 
+         Sample_Type,
+         Datum,
+         latlong)
+
+skdata <- data.frame()
+
+for(f in 1:12){
+  
+  if(f == 1){
+    not <- c("Fuik 10", "Fuik 11", "Fuik 12")
+  }
+  
+  temp <- rawdata %>% 
+    select(Tijdstempel, contains(paste0("Fuik ", f)), -contains(not))
+}
+
+
+
+```
+
